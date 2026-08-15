@@ -17,6 +17,7 @@ sección. Ejecutarlos antes de arrancar el trabajo propio.
       `transformers`, `peft`, `datasets`, `accelerate`, `evaluate`, `bitsandbytes`.
 - [x] Registrar las versiones exactas del entorno con el que se entrenará (Python, torch,
       transformers, peft) — esto es requisito de reproducibilidad del criterio 3.
+      _(Python 3.12.13 · torch 2.11.0+cu128 · transformers 5.13.1 · peft 0.19.1)_
 - [ ] Crear cuenta en [Hugging Face](https://huggingface.co) si no existe; generar un token de
       acceso para poder cargar y subir modelos.
 
@@ -52,6 +53,7 @@ sección. Ejecutarlos antes de arrancar el trabajo propio.
 - [x] **Ejecutar el análisis de tokenizador del Lab A de S02** sobre esa muestra:
       cargar los tokenizadores de los candidatos y anotar casos donde fragmentan mal palabras
       del dominio (nombres de marca, SKUs, spanglish). Esta tabla es la evidencia del criterio 1.
+      _(4/5 cargados — Llama requiere token HF; resultados: Salamandra 126 tok · Qwen 149 tok · Phi 161 tok · SmolLM2 170 tok)_
 - [x] Redactar la justificación citando esa evidencia (no una afirmación general de "es bueno
       para español").
 - [x] Formular explícitamente la pregunta que el argumento debe resistir (ej. "¿qué pasa si la
@@ -68,7 +70,7 @@ sección. Ejecutarlos antes de arrancar el trabajo propio.
 | **Fuente** | Amazon Science (público en GitHub) |
 | **Licencia** | Apache 2.0 |
 | **Idiomas** | Inglés, Español, Japonés |
-| **Subconjunto ES (reduci do)** | ~8 049 queries únicas · ~218 774 pares query-producto |
+| **Subconjunto ES** | ~8 049 queries únicas · ~218 774 pares query-producto |
 | **Etiquetas** | `E` (Exact) · `S` (Substitute) · `C` (Complement) · `I` (Irrelevant) |
 | **Campos clave** | `query`, `product_title`, `product_description`, `product_brand`, `esci_label`, `split` |
 | **Splits** | Train y Test ya definidos en el dataset |
@@ -78,39 +80,49 @@ Mapeo de etiquetas ESCI → formato para fine-tuning causal:
 | ESCI | Significado | Etiqueta en el modelo |
 |---|---|---|
 | `E` (Exact) | Producto que responde directamente la consulta | `relevante` |
-| `S` (Substitute) | Producto alternativo, posiblemente útil | `parcialmente relevante` |
+| `S` (Substitute) | Producto alternativo, posiblemente útil | `no relevante` |
 | `C` (Complement) | Producto complementario | `no relevante` |
 | `I` (Irrelevant) | Sin relación con la consulta | `no relevante` |
 
-> Para un primer modelo, se puede simplificar a binario: `E` → `relevante`, `S+C+I` → `no relevante`.
+> Para un primer modelo, se usa mapeo binario: `E` → `relevante`, `S+C+I` → `no relevante`.
 > La versión de 4 clases queda documentada como limitación conocida del dataset simplificado.
 
-- [ ] Descargar el dataset ESCI desde el repositorio oficial:
+- [x] Descargar el dataset ESCI desde el repositorio oficial:
       `shopping_queries_dataset_examples.parquet` +
       `shopping_queries_dataset_products.parquet`.
-- [ ] Filtrar solo los ejemplos con `product_locale == 'es'` (subconjunto español).
-- [ ] Documentar la licencia Apache 2.0 en el README del dataset dentro de `Datos/`.
-- [ ] Aplicar los criterios de inclusión/exclusión:
+      _(Celda 2.1 — detecta y corrige punteros Git LFS automáticamente)_
+- [x] Filtrar solo los ejemplos con `product_locale == 'es'` (subconjunto español).
+      _(Celda 2.2)_
+- [x] Documentar la licencia Apache 2.0 en el README del dataset dentro de `Datos/`.
+      _(Celda 2.7 — genera `Datos/README.md` automáticamente)_
+- [x] Aplicar los criterios de inclusión/exclusión:
       - Conservar solo `split == 'train'` para training y `split == 'test'` para evaluación.
       - Descartar filas con `product_title` nulo o con menos de 3 palabras.
       - Deduplicar por `(query_id, product_id)`.
-- [ ] Aplicar limpieza reproducible: normalizar mayusculas/minusculas del query,
+      _(Celda 2.3)_
+- [x] Aplicar limpieza reproducible: normalizar mayusculas/minusculas del query,
       eliminar whitespace extra. Dejarla en un script versionado (no manual).
-- [ ] Formatear cada ejemplo como texto plano para fine-tuning causal:
+      _(Función `limpiar_texto()` en celda 2.3)_
+- [x] Formatear cada ejemplo como texto plano para fine-tuning causal:
       ```
       Consulta: {query}
       Producto: {product_title}
       Relevancia: {relevante | no relevante}
       ```
-- [ ] Generar el subconjunto de entrenamiento con semilla fija (el split ya viene definido
+      _(Celda 2.4 — `PLANTILLA` con `df.apply(formatear)`)_
+- [x] Generar el subconjunto de entrenamiento con semilla fija (el split ya viene definido
       en el dataset; documentar la semilla usada para cualquier submuestreo adicional).
-- [ ] Verificar reproducibilidad: correr el script de preprocesamiento dos veces y confirmar
+      _(Celda 2.5 — `SEMILLA = 42`; submuestreo opcional comentado)_
+- [x] Verificar reproducibilidad: correr el script de preprocesamiento dos veces y confirmar
       que el output es idéntico.
-- [ ] Documentar limitaciones conocidas: el dataset es de Amazon US/ES (puede no cubrir
+      _(Celda 2.6 — hash MD5 de df_train y df_test)_
+- [x] Documentar limitaciones conocidas: el dataset es de Amazon US/ES (puede no cubrir
       catálogo Digitdeck exacto), el mapeo ESCI binario pierde información de `S` y `C`,
       posible sesgo hacia categorías con mayor número de anotaciones.
-- [ ] Guardar el script de construcción del dataset en `Datos/` junto a una muestra
+      _(Celda 2.8 — 4 limitaciones explícitas)_
+- [x] Guardar el script de construcción del dataset en `Datos/` junto a una muestra
       (los archivos `.parquet` completos no se versionan por tamaño).
+      _(Celda 2.7 — `esci_es_muestra_train.csv` + `esci_es_muestra_test.csv` + `Datos/README.md`)_
 
 ---
 
