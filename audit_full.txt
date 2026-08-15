@@ -1,0 +1,1397 @@
+﻿
+============================================================
+CELL 00 [markdown]
+# Digitdeck ┬╖ Entregable M1 ΓÇö Fine-tuning de encoder para ranking de relevancia
+
+**T├│picos Especiales y Aplicaciones en IA** ┬╖ Universidad EAFIT ┬╖ SI4006 ┬╖ Semestre 2026-2
+
+[![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/)
+
+---
+
+**Equipo:** Maximiliano Bustamante ┬╖ Valeria Frances Hornung ┬╖ Sebasti├ín Casta├▒o ┬╖ Alejandro Posada
+
+**Repositorio:** [AlejandroSPosada/Topicos_IA_Proyecto_Digitdeck](https://github.com/AlejandroSPosada/Topicos_IA_Proyecto_Digitdeck)
+
+---
+
+Este notebook documenta el trabajo del equipo para el M├│dulo 1 del curso: selecci├│n y
+justificaci├│n del modelo base, construcci├│n del dataset ESCI en espa├▒ol, fine-tuning de un
+**encoder** (`intfloat/multilingual-e5-small`) con una cabeza de clasificaci├│n binaria, y
+evaluaci├│n comparativa contra los baselines definidos en el `README.md` del proyecto
+(BM25 y E5-small congelado), con nDCG@10 como m├⌐trica primaria.
+
+> **Decisi├│n t├⌐cnica de M1 (ver `README.md`):** se descarta el enfoque de fine-tuning causal
+> sobre un LLM decoder. La tarea de M1 es asignar un score de relevancia a un par
+> `(consulta, product_title)`, y eso es exactamente lo que resuelve un encoder con cabeza de
+> clasificaci├│n ΓÇö m├ís liviano, m├ís r├ípido de entrenar en una T4, y directamente evaluable con
+> m├⌐tricas de ranking (nDCG@10, MRR, Recall@10).
+
+> **Requisito:** activar GPU antes de ejecutar.
+> `Runtime ΓåÆ Change runtime type ΓåÆ T4 GPU`
+> Sin GPU, el entrenamiento y la evaluaci├│n de 
+...(+314 chars)
+
+============================================================
+CELL 01 [markdown]
+## 0 ┬╖ Entorno de trabajo
+
+============================================================
+CELL 02 [code]
+# Instalaci├│n del ecosistema Hugging Face + BM25. ~1-2 min la primera vez.
+# Si Colab pide RESTART RUNTIME, reinicia y vuelve a ejecutar desde esta celda.
+!pip install -q transformers datasets accelerate evaluate sentence-transformers rank_bm25 2>/dev/null
+print("Librer├¡as instaladas.")
+
+============================================================
+CELL 03 [code]
+# Registro del entorno de entrenamiento para garantizar reproducibilidad (criterio 3).
+import importlib.metadata as meta
+import sys, torch, random, numpy as np
+
+SEMILLA = 42  # semilla global del proyecto ΓÇö se reutiliza en todas las secciones
+
+def fijar_semilla(seed: int = SEMILLA):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+fijar_semilla(SEMILLA)
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+print("=== Entorno de entrenamiento ===")
+print(f"Python      : {sys.version.split()[0]}")
+print(f"Dispositivo : {DEVICE}", end="")
+print(f" | {torch.cuda.get_device_name(0)}" if DEVICE == "cuda" else " [AVISO: sin GPU activa ΓÇö secciones 3 y 4 ser├ín lentas]")
+print(f"Semilla     : {SEMILLA}")
+print()
+for pkg in ["torch", "transformers", "datasets", "accelerate", "evaluate", "sentence_transformers", "rank_bm25"]:
+    try:
+        print(f"  {pkg:<22} {meta.version(pkg)}")
+    except meta.PackageNotFoundError:
+        print(f"  {pkg:<22} FALTA")
+
+============================================================
+CELL 04 [markdown]
+**Pendiente manual (TODO ┬º0, no scriptable):**
+- Abrir [`S04_Lab_Fine_tuning_SOLUCION.ipynb`](../../Clases/M1/S04_Lab_Fine_tuning_SOLUCION.ipynb)
+  en Colab y verificar que corre de punta a punta con GPU T4 antes de continuar.
+- Crear cuenta en [Hugging Face](https://huggingface.co) y generar un token de acceso si el
+  equipo va a subir el modelo entrenado al Hub (┬º3.10, opcional).
+
+
+============================================================
+CELL 05 [code]
+# Login opcional a Hugging Face Hub ΓÇö solo necesario si se va a ejecutar la celda
+# opcional de ┬º3.10 (subir el modelo fine-tuned al Hub). Se puede saltar sin problema.
+SUBIR_A_HUB = False  # cambiar a True y ejecutar login() si el equipo decide subir el modelo
+
+if SUBIR_A_HUB:
+    from huggingface_hub import login
+    login()
+else:
+    print("SUBIR_A_HUB = False ΓÇö celda de login omitida.")
+
+============================================================
+CELL 06 [markdown]
+---
+
+# 1 ┬╖ Selecci├│n y justificaci├│n del modelo base
+
+## 1.1 ┬╖ Variantes a evaluar
+
+Siguiendo la decisi├│n t├⌐cnica documentada en el `README.md`, el equipo no compara modelos
+causales entre s├¡: compara **estrategias de scoring de relevancia** bajo el mismo split ESCI
+y el mismo presupuesto de GPU T4. El candidato eficiente es `intfloat/multilingual-e5-small`,
+un encoder multiling├╝e (~117 M par├ímetros), evaluado contra un techo l├⌐xico (BM25) y contra
+su propia versi├│n sin fine-tuning (congelada) ΓÇö esto ├║ltimo para aislar el efecto del
+fine-tuning del efecto del pre-entrenamiento.
+
+| Variante | Entrenamiento | M├⌐trica primaria | Guardrails |
+|---|---|---|---|
+| BM25 | Ninguno | nDCG@10 | latencia, tama├▒o de ├¡ndice |
+| E5-small congelado | Ninguno | nDCG@10 | memoria, p95 |
+| **E5-small ajustado** ΓåÉ candidato | Pares/grados ESCI es | nDCG@10 | MRR, Recall@10, memoria, p95 |
+| E5-base ajustado *(opcional)* | Mismo split; mayor presupuesto | nDCG@10 | mejora por costo |
+
+**Por qu├⌐ esta lista y no otra:**
+- **BM25** es el techo l├⌐xico cl├ísico de recuperaci├│n ΓÇö sin ├⌐l, la tabla de resultados no
+  tiene punto de referencia no neuronal.
+- **E5-small congelado** separa el efecto del encoder pre-entrenado del efecto del
+  fine-tuning: si ya supera a BM25 sin haber visto un solo ejemplo de ESCI, el argumento de
+  invertir en fine-tuning se fortalece; si no lo supera, es un hallazgo honesto que tambi├⌐n
+  se reporta (┬º4.9ΓÇô4.10).
+- **E5-small ajustado** es el candidato real de M1: multiling├╝
+...(+608 chars)
+
+============================================================
+CELL 07 [code]
+# Atributos de cada variante encoder, tomados de las model cards oficiales en Hugging Face.
+# BM25 no tiene "model card": es un algoritmo l├⌐xico, no una red neuronal ΓÇö se documenta aparte.
+VARIANTES_ENCODER = [
+    {
+        "id":        "intfloat/multilingual-e5-small",
+        "rol":       "Candidato M1 (congelado y ajustado)",
+        "params_m":  118,
+        "disco_mb":  470,
+        "familia":   "E5 (XLM-RoBERTa base multiling├╝e)",
+        "idiomas":   "100 idiomas (incl. espa├▒ol)",
+        "licencia":  "MIT",
+        "hf_url":    "https://huggingface.co/intfloat/multilingual-e5-small",
+    },
+    {
+        "id":        "intfloat/multilingual-e5-base",
+        "rol":       "Ablaci├│n opcional (┬º3.10)",
+        "params_m":  278,
+        "disco_mb":  1110,
+        "familia":   "E5 (XLM-RoBERTa base multiling├╝e)",
+        "idiomas":   "100 idiomas (incl. espa├▒ol)",
+        "licencia":  "MIT",
+        "hf_url":    "https://huggingface.co/intfloat/multilingual-e5-base",
+    },
+]
+
+import pandas as pd
+pd.set_option("display.max_colwidth", None)
+
+df_variantes = pd.DataFrame(VARIANTES_ENCODER).rename(columns={
+    "id": "Modelo", "rol": "Rol en M1", "params_m": "Params (M)",
+    "disco_mb": "Disco (MB)", "familia": "Familia", "idiomas": "Cobertura idiomas",
+    "licencia": "Licencia", "hf_url": "Model card",
+})
+df_variantes
+
+============================================================
+CELL 08 [markdown]
+**BM25 ΓÇö la variante no neuronal de la tabla:**
+
+| Atributo | Detalle |
+|---|---|
+| Implementaci├│n | `rank_bm25.BM25Okapi` (Python, CPU) |
+| Par├ímetros aprendidos | Ninguno ΓÇö es un modelo estad├¡stico (frecuencia de t├⌐rminos + IDF) |
+| Licencia | MIT (paquete `rank_bm25`) |
+| Guardrail relevante | Tama├▒o de ├¡ndice y latencia de scoring, no memoria de GPU |
+
+## 1.3 ┬╖ Muestra de consultas del dominio
+
+15ΓÇô20 consultas representativas del dominio de ecommerce en espa├▒ol: nombres de producto,
+marcas, tildes, abreviaturas, spanglish y errores de tecleo comunes ΓÇö el tipo de texto real
+que Digitdeck tiene que rankear.
+
+============================================================
+CELL 09 [code]
+# Muestra de 18 consultas representativas del dominio (cubre tildes, marcas,
+# abreviaturas, spanglish y errores comunes de tecleo).
+MUESTRA_DOMINIO = [
+    "televisi├│n 4K 55 pulgadas",                                        # tilde
+    "auriculares inal├ímbricos cancelaci├│n de ruido",                    # tilde + compuesto largo
+    "Samsung Galaxy S24 Ultra",                                         # marca + modelo
+    "Xiaomi Redmi Note 13",                                             # marca + modelo
+    "PlayStation 5 edici├│n digital",                                    # marca + tilde
+    "ASUS TUF Gaming F15 FX506",                                        # marca + c├│digo de modelo
+    "HDMI 2.1 cable 2m",                                                # abreviatura t├⌐cnica
+    "smartwatch deportivo waterproof",                                  # spanglish + anglicismo
+    "laptop gamer RTX 4060",                                            # spanglish + sigla
+    "celular libre 5G doble SIM",                                       # abreviatura + sigla
+    "impresora multifuncional wifi tinta",                              # anglicismo
+    "audifono bluetooth sony",                                          # sin tilde (error com├║n: "aud├¡fono")
+    "tableta grafica wacom",                                            # sin tilde (error com├║n: "gr├ífica")
+    "procesador Intel Core i7 13ava generaci├│n socket 1700",            # t├⌐cnico largo
+    "silla ergon├│mica gamer con sop
+...(+488 chars)
+
+============================================================
+CELL 10 [markdown]
+## 1.4 ┬╖ An├ílisis de tokenizador ΓÇö E5-small vs. E5-base
+
+============================================================
+CELL 11 [code]
+from transformers import AutoTokenizer
+
+# Solo se cargan los tokenizadores ΓÇö sin pesos del modelo.
+print("Cargando tokenizadores...")
+tokenizadores = {}
+for v in VARIANTES_ENCODER:
+    tokenizadores[v["id"]] = AutoTokenizer.from_pretrained(v["id"])
+    print(f"  OK  {v['id']:<40} vocab: {tokenizadores[v['id']].vocab_size:>9,} tokens")
+
+print(f"\n{len(tokenizadores)}/{len(VARIANTES_ENCODER)} tokenizadores cargados.")
+
+============================================================
+CELL 12 [code]
+def comparar(texto, nombre_corto=True):
+    '''Muestra c├│mo cada tokenizador fragmenta el mismo texto.'''
+    filas = []
+    for model_id, tok in tokenizadores.items():
+        nombre = model_id.split("/")[-1] if nombre_corto else model_id
+        piezas = tok.tokenize(texto)
+        filas.append({
+            "Modelo":   nombre,
+            "N tokens": len(piezas),
+            "Tokens":   " | ".join(piezas),
+        })
+    return pd.DataFrame(filas).set_index("Modelo")
+
+# Fragmentaci├│n caso a caso ΓÇö quitar el slice [:6] para ver todas las consultas.
+for texto in MUESTRA_DOMINIO[:6]:
+    print(f"\n--- '{texto}' ---")
+    display(comparar(texto))
+
+============================================================
+CELL 13 [code]
+# Costo total sobre la muestra completa: menor es mejor (menos tokens = m├ís se├▒al por
+# posici├│n y menor costo de inferencia).
+filas_total = []
+for model_id, tok in tokenizadores.items():
+    conteos  = [len(tok.tokenize(t)) for t in MUESTRA_DOMINIO]
+    total    = sum(conteos)
+    promedio = total / len(conteos)
+    nombre   = model_id.split("/")[-1]
+    filas_total.append({
+        "Modelo":         nombre,
+        "Total tokens":   total,
+        "Promedio/frase": round(promedio, 1),
+        "Vocab size":     f"{tok.vocab_size:,}",
+    })
+
+df_total = pd.DataFrame(filas_total).set_index("Modelo").sort_values("Total tokens")
+df_total.style.background_gradient(subset=["Total tokens", "Promedio/frase"], cmap="YlOrRd")
+
+============================================================
+CELL 14 [code]
+# Costo por t├⌐rmino cr├¡tico del dominio ΓÇö casos donde una mala fragmentaci├│n
+# (ej. partir una marca en 3-4 sub-palabras) diluye la se├▒al sem├íntica del t├⌐rmino.
+TERMINOS_CRITICOS = [
+    "televisi├│n", "auriculares", "inal├ímbricos", "ergon├│mica",
+    "Samsung", "Xiaomi", "PlayStation", "RTX",
+    "smartwatch", "laptop", "bluetooth", "waterproof",
+]
+
+filas_criticos = []
+for term in TERMINOS_CRITICOS:
+    fila = {"T├⌐rmino": term}
+    for model_id, tok in tokenizadores.items():
+        fila[model_id.split("/")[-1]] = len(tok.tokenize(term))
+    filas_criticos.append(fila)
+
+df_criticos = pd.DataFrame(filas_criticos).set_index("T├⌐rmino")
+print("N├║mero de tokens por t├⌐rmino ΓÇö menor indica mejor cobertura del dominio:")
+df_criticos.style.background_gradient(cmap="YlOrRd", axis=1)
+
+============================================================
+CELL 15 [markdown]
+## 1.5 ┬╖ Justificaci├│n del modelo elegido
+
+> **Nota:** las tablas de ┬º1.4 se completan al ejecutar el notebook. Ambos modelos (E5-small
+> y E5-base) comparten el mismo tokenizador (SentencePiece de XLM-RoBERTa, vocabulario de
+> 250,002 piezas) ΓÇö la diferencia entre ellos **no** est├í en c├│mo fragmentan el texto, sino en
+> la capacidad del encoder (12 vs. 12 capas con `hidden_size` 384 vs. 768) y en el costo de
+> fine-tuning. Esto es intencional: a├¡sla la variable de decisi├│n (tama├▒o del encoder) de la
+> variable de tokenizaci├│n, que ya est├í resuelta por construcci├│n al usar la misma familia E5.
+
+### Pregunta que el argumento debe resistir: ┬┐por qu├⌐ no usar E5-base directamente?
+
+E5-base tiene m├ís del doble de par├ímetros que E5-small (278 M vs. 118 M) y, en benchmarks
+multiling├╝es publicados por el autor, suele rendir mejor en tareas de recuperaci├│n. Pero para
+M1 el equipo elige **E5-small** como candidato principal por tres razones concretas:
+
+1. **Presupuesto T4 compartido entre las cuatro variantes.** El mismo notebook debe entrenar
+   y evaluar BM25, E5-small congelado, E5-small ajustado y, opcionalmente, E5-base ajustado,
+   todo en una sesi├│n de Colab con GPU T4 (16 GB VRAM, l├¡mite de tiempo de sesi├│n). E5-small
+   dejamargen para batch sizes m├ís grandes y iteraci├│n r├ípida; E5-base es la ablaci├│n que se
+   corre *si el tiempo lo permite*, no el punto de partida.
+2. **La ganancia de E5-base es una pregunta emp├¡rica, no una suposici├│n.** En vez de asumir
+   que "m├ís grande 
+...(+1192 chars)
+
+============================================================
+CELL 16 [markdown]
+---
+
+# 2 ┬╖ Dataset: construcci├│n y documentaci├│n
+
+## 2.0 ┬╖ Descripci├│n del dataset
+
+Se usa el **Amazon Shopping Queries Dataset (ESCI)**, publicado por Amazon Science bajo
+licencia Apache 2.0. Es el ├║nico dataset p├║blico de relevancia de b├║squeda con anotaciones
+en espa├▒ol a escala suficiente para fine-tuning.
+
+| Atributo | Detalle |
+|---|---|
+| **Fuente** | [amazon-science/esci-data](https://github.com/amazon-science/esci-data) |
+| **Licencia** | Apache 2.0 |
+| **Idiomas** | Ingl├⌐s, Espa├▒ol, Japon├⌐s |
+| **Subconjunto ES** | ~8,049 queries ┬╖ ~218,774 pares query-producto |
+| **Etiquetas** | `E` Exact ┬╖ `S` Substitute ┬╖ `C` Complement ┬╖ `I` Irrelevant |
+| **Campos usados** | `query`, `product_title`, `product_locale`, `esci_label`, `split` |
+| **Splits** | `train` y `test` predefinidos en el dataset |
+
+**Mapeo de etiquetas ESCI a formato binario para el encoder de clasificaci├│n:**
+
+| ESCI | Significado | Etiqueta modelo |
+|---|---|---|
+| `E` (Exact) | Producto que responde directamente la consulta | `relevante` (1) |
+| `S` (Substitute) | Producto alternativo, posiblemente ├║til | `no relevante` (0) |
+| `C` (Complement) | Producto complementario | `no relevante` (0) |
+| `I` (Irrelevant) | Sin relaci├│n con la consulta | `no relevante` (0) |
+
+Se usa el mapeo binario `E ΓåÆ relevante`, `S+C+I ΓåÆ no relevante` para simplificar la tarea
+en M1. La p├⌐rdida de informaci├│n en `S` y `C` se documenta como limitaci├│n conocida (┬º2.8).
+
+## 2.1 ┬╖ Descarga del dataset ESCI
+
+Los archivos est├ín en G
+...(+192 chars)
+
+============================================================
+CELL 17 [code]
+import os
+
+BASE_URL = "https://github.com/amazon-science/esci-data/raw/main/shopping_queries_dataset"
+ARCHIVOS = [
+    "shopping_queries_dataset_examples.parquet",
+    "shopping_queries_dataset_products.parquet",
+]
+
+for archivo in ARCHIVOS:
+    # Si existe pero es corrupto (menos de 1 MB), se borra para forzar re-descarga
+    # (esto pasa cuando wget descarga el puntero de Git LFS en vez del archivo real).
+    if os.path.exists(archivo) and os.path.getsize(archivo) < 1e6:
+        os.remove(archivo)
+
+    if os.path.exists(archivo):
+        mb = os.path.getsize(archivo) / 1e6
+        print(f"  Ya existe: {archivo} ({mb:.1f} MB) ΓÇö omitiendo descarga.")
+    else:
+        print(f"  Descargando {archivo} ...")
+        # -L es CRUCIAL para que wget/curl siga las redirecciones de GitHub LFS
+        !wget -q -L --show-progress -O "{archivo}" "{BASE_URL}/{archivo}"
+
+        if os.path.exists(archivo):
+            mb = os.path.getsize(archivo) / 1e6
+            print(f"  Descargado: {archivo} ({mb:.1f} MB)\n")
+
+print("Descarga completada con ├⌐xito.")
+
+============================================================
+CELL 18 [markdown]
+## 2.2 ┬╖ Carga y filtrado del subconjunto espa├▒ol
+
+============================================================
+CELL 19 [code]
+import pandas as pd
+
+# --- Cargar ejemplos (pares query-producto con etiqueta) ---
+print("Cargando examples.parquet ...")
+df_ex = pd.read_parquet(
+    "shopping_queries_dataset_examples.parquet",
+    columns=["query_id", "product_id", "query", "esci_label", "split", "product_locale"],
+)
+print(f"  Total pares (todos los idiomas): {len(df_ex):,}")
+
+# Filtrar subconjunto espa├▒ol
+df_es = df_ex[df_ex["product_locale"] == "es"].copy()
+print(f"  Pares en espa├▒ol (es):           {len(df_es):,}")
+print(f"  Queries ├║nicas (es):             {df_es['query_id'].nunique():,}")
+print(f"  Distribuci├│n de splits:")
+print(df_es["split"].value_counts().to_string())
+print(f"  Distribuci├│n de etiquetas ESCI:")
+print(df_es["esci_label"].value_counts().to_string())
+
+============================================================
+CELL 20 [code]
+# --- Cargar productos (t├¡tulos) ---
+# Solo cargamos product_id y product_title para minimizar uso de memoria.
+print("Cargando products.parquet (solo columnas necesarias) ...")
+product_ids_es = set(df_es["product_id"].unique())
+
+df_prod = pd.read_parquet(
+    "shopping_queries_dataset_products.parquet",
+    columns=["product_id", "product_title", "product_locale"],
+    filters=[("product_locale", "==", "es")],
+)
+print(f"  Productos en espa├▒ol cargados: {len(df_prod):,}")
+
+# Join: ejemplos + t├¡tulos de producto
+df = df_es.merge(df_prod[["product_id", "product_title"]], on="product_id", how="left")
+print(f"  Pares con t├¡tulo de producto:  {len(df):,}")
+print(f"  Pares sin t├¡tulo (nulos):      {df['product_title'].isna().sum():,}")
+
+============================================================
+CELL 21 [markdown]
+## 2.3 ┬╖ Criterios de inclusi├│n/exclusi├│n y limpieza reproducible
+
+============================================================
+CELL 22 [code]
+import re
+
+def limpiar_texto(texto: str) -> str:
+    '''Normalizaci├│n reproducible: min├║sculas, colapso de espacios.'''
+    if not isinstance(texto, str):
+        return ""
+    texto = texto.lower()
+    texto = re.sub(r"\s+", " ", texto).strip()
+    return texto
+
+def n_palabras(texto: str) -> int:
+    '''Cuenta palabras en un texto ya limpio.'''
+    return len(texto.split()) if isinstance(texto, str) else 0
+
+
+n_antes = len(df)
+
+# 1. Eliminar filas con product_title nulo
+df = df.dropna(subset=["product_title"])
+print(f"Tras eliminar titles nulos:         {len(df):,}  (-{n_antes - len(df):,})")
+
+# 2. Normalizar texto
+df["query"]         = df["query"].map(limpiar_texto)
+df["product_title"] = df["product_title"].map(limpiar_texto)
+
+# 3. Descartar product_title con menos de 3 palabras
+n_antes = len(df)
+df = df[df["product_title"].map(n_palabras) >= 3]
+print(f"Tras filtrar titles cortos (<3 palabras): {len(df):,}  (-{n_antes - len(df):,})")
+
+# 4. Deduplicar por (query_id, product_id)
+n_antes = len(df)
+df = df.drop_duplicates(subset=["query_id", "product_id"])
+print(f"Tras deduplicar (query_id, product_id): {len(df):,}  (-{n_antes - len(df):,})")
+
+print(f"\nDataset limpio final: {len(df):,} pares")
+print(df["split"].value_counts().to_string())
+
+============================================================
+CELL 23 [markdown]
+## 2.4 ┬╖ Mapeo de etiquetas y formateo para clasificaci├│n con el encoder
+
+============================================================
+CELL 24 [code]
+# Mapeo ESCI ΓåÆ binario
+MAPEO_ETIQUETA = {
+    "E": 1,   # Exact match       -> relevante
+    "S": 0,   # Substitute        -> no relevante
+    "C": 0,   # Complement        -> no relevante
+    "I": 0,   # Irrelevant        -> no relevante
+}
+MAPEO_NOMBRE = {1: "relevante", 0: "no relevante"}
+
+df["label"] = df["esci_label"].map(MAPEO_ETIQUETA)
+
+print("Distribuci├│n de etiquetas tras el mapeo binario:")
+print(df["label"].map(MAPEO_NOMBRE).value_counts().to_string())
+pct = df["label"].map(MAPEO_NOMBRE).value_counts(normalize=True).mul(100).round(1)
+print(f"\nBalance: {pct.get('relevante', 0):.1f}% relevante / {pct.get('no relevante', 0):.1f}% no relevante")
+
+============================================================
+CELL 25 [code]
+# Formato de par de texto + etiqueta num├⌐rica para el encoder de clasificaci├│n.
+# E5 espera los prefijos "query: " y "passage: " en sus dos lados del par (ver model card
+# de intfloat/multilingual-e5-small): el modelo fue pre-entrenado distinguiendo el rol de
+# cada texto, y usar el mismo prefijo en fine-tuning mantiene esa se├▒al.
+def formatear_par(fila):
+    return pd.Series({
+        "text_a": f"query: {fila['query']}",
+        "text_b": f"passage: {fila['product_title']}",
+        "label":  int(fila["label"]),
+    })
+
+pares = df.apply(formatear_par, axis=1)
+df["text_a"] = pares["text_a"]
+df["text_b"] = pares["text_b"]
+
+# Mostrar ejemplos representativos
+ejemplo_rel   = df[df["label"] == 1].iloc[0]
+ejemplo_norel = df[df["label"] == 0].iloc[0]
+
+print("--- Ejemplo: RELEVANTE (label=1) ---")
+print(f"  text_a: {ejemplo_rel['text_a']}")
+print(f"  text_b: {ejemplo_rel['text_b']}")
+print("\n--- Ejemplo: NO RELEVANTE (label=0) ---")
+print(f"  text_a: {ejemplo_norel['text_a']}")
+print(f"  text_b: {ejemplo_norel['text_b']}")
+print(f"\n{{'text_a': query, 'text_b': product_title, 'label': 1|0}} ΓÇö formato final por fila.")
+
+============================================================
+CELL 26 [markdown]
+## 2.5 ┬╖ Generaci├│n de splits con semilla fija
+
+============================================================
+CELL 27 [code]
+# El dataset ya viene con splits predefinidos (train/test).
+# Los usamos directamente para garantizar que la evaluaci├│n sea comparable
+# con otros trabajos que usen el mismo dataset.
+COLUMNAS_FINALES = ["query_id", "product_id", "query", "product_title", "text_a", "text_b", "label"]
+
+df_train = df[df["split"] == "train"][COLUMNAS_FINALES].reset_index(drop=True)
+df_test  = df[df["split"] == "test" ][COLUMNAS_FINALES].reset_index(drop=True)
+
+print(f"Split train : {len(df_train):,} pares")
+print(f"  relevante    : {(df_train['label']==1).sum():,} ({(df_train['label']==1).mean()*100:.1f}%)")
+print(f"  no relevante : {(df_train['label']==0).sum():,} ({(df_train['label']==0).mean()*100:.1f}%)")
+print()
+print(f"Split test  : {len(df_test):,} pares")
+print(f"  relevante    : {(df_test['label']==1).sum():,} ({(df_test['label']==1).mean()*100:.1f}%)")
+print(f"  no relevante : {(df_test['label']==0).sum():,} ({(df_test['label']==0).mean()*100:.1f}%)")
+print(f"\nSemilla para submuestreo adicional: SEMILLA = {SEMILLA}")
+
+============================================================
+CELL 28 [code]
+# Submuestreo opcional para experimentos r├ípidos en Colab (activar si la sesi├│n T4 es
+# lenta o el tiempo de sesi├│n es limitado). Usa SEMILLA para garantizar reproducibilidad.
+SUBMUESTREAR = False   # cambiar a True para acelerar entrenamiento + evaluaci├│n
+N_TRAIN = 60_000
+N_TEST  = 15_000
+
+if SUBMUESTREAR:
+    df_train = df_train.sample(n=min(N_TRAIN, len(df_train)), random_state=SEMILLA).reset_index(drop=True)
+    df_test  = df_test.sample(n=min(N_TEST,  len(df_test)),  random_state=SEMILLA).reset_index(drop=True)
+    print(f"Submuestreado: {len(df_train):,} train / {len(df_test):,} test  (seed={SEMILLA})")
+else:
+    print("Submuestreo desactivado ΓÇö usando el dataset completo.")
+
+============================================================
+CELL 29 [markdown]
+## 2.6 ┬╖ Verificaci├│n de reproducibilidad
+
+============================================================
+CELL 30 [code]
+import hashlib
+
+def hash_df(df: pd.DataFrame) -> str:
+    '''Hash MD5 del contenido del DataFrame para verificar reproducibilidad.'''
+    contenido = df.to_csv(index=False).encode()
+    return hashlib.md5(contenido).hexdigest()
+
+hash_train = hash_df(df_train[["query_id", "product_id", "label"]])
+hash_test  = hash_df(df_test[["query_id", "product_id", "label"]])
+
+print("=== Verificaci├│n de reproducibilidad ===")
+print(f"Hash MD5 df_train : {hash_train}")
+print(f"Hash MD5 df_test  : {hash_test}")
+print()
+print("Para confirmar reproducibilidad, correr este notebook desde cero (con SUBMUESTREAR")
+print("en el mismo estado) y verificar que los hashes anteriores coincidan.")
+
+============================================================
+CELL 31 [markdown]
+## 2.7 ┬╖ Guardado de la muestra y documentaci├│n
+
+============================================================
+CELL 32 [code]
+import os
+
+# Guardar una muestra peque├▒a versionable (los parquet completos no se versionan por tama├▒o).
+# La muestra sirve como smoke-test y como ejemplo del formato para el repositorio.
+os.makedirs("Datos", exist_ok=True)
+
+N_MUESTRA = 200   # 100 train + 100 test, balanceados
+muestra_train = (
+    df_train
+    .groupby("label", group_keys=False)
+    .apply(lambda g: g.sample(min(N_MUESTRA // 2, len(g)), random_state=SEMILLA))
+    .reset_index(drop=True)
+)
+muestra_test = (
+    df_test
+    .groupby("label", group_keys=False)
+    .apply(lambda g: g.sample(min(N_MUESTRA // 2, len(g)), random_state=SEMILLA))
+    .reset_index(drop=True)
+)
+
+muestra_train.to_csv("Datos/esci_es_muestra_train.csv", index=False)
+muestra_test.to_csv( "Datos/esci_es_muestra_test.csv",  index=False)
+
+# README.md del dataset dentro de Datos/, con la documentaci├│n de licencia y procedencia.
+readme_datos = f'''# Datos ┬╖ ESCI espa├▒ol (M1)
+
+**Fuente:** https://github.com/amazon-science/esci-data (Amazon Science)
+**Licencia:** Apache 2.0
+**Subconjunto:** product_locale == "es"
+
+Este directorio contiene una muestra balanceada de {N_MUESTRA} pares (train+test) como
+smoke-test y ejemplo de formato. Los archivos `.parquet` completos (~2 GB) no se versionan;
+se descargan con la celda de la secci├│n 2.1 del notebook `ENTREGABLE.ipynb`.
+
+## Formato de cada fila
+
+| Campo | Descripci├│n |
+|---|---|
+| `query_id`, `product_id` | Identificadores originales del dataset ESCI |
+| `query` | Consulta, texto limpio (min├║sculas, e
+...(+969 chars)
+
+============================================================
+CELL 33 [markdown]
+## 2.8 ┬╖ Limitaciones conocidas del dataset
+
+Las siguientes limitaciones se documentan expl├¡citamente antes de usar el dataset en
+el entrenamiento. Ignorarlas ser├¡a un error de dise├▒o que afectar├¡a la interpretaci├│n
+de los resultados.
+
+**1. Origen del dataset ΓÇö Amazon US/ES**
+El dataset proviene de b├║squedas reales en Amazon, que opera principalmente en mercados
+de Espa├▒a y Estados Unidos hispanohablantes. El cat├ílogo de Digitdeck puede tener
+distribuciones diferentes (categor├¡as distintas, marcas propias, terminolog├¡a local
+colombiana). El modelo puede rendir peor en categor├¡as subrepresentadas en el dataset ESCI.
+
+**2. Mapeo binario pierde informaci├│n**
+El mapeo `E ΓåÆ relevante`, `S+C+I ΓåÆ no relevante` trata igual un producto sustituto (├║til)
+y uno completamente irrelevante. Esto puede hacer que el modelo aprenda se├▒ales m├ís ruidosas
+para casos ambiguos (`S` y `C`). La versi├│n de 4 clases queda como mejora futura.
+
+**3. Desbalance de clases**
+El dataset no est├í balanceado: hay m├ís pares no relevantes que relevantes. El entrenamiento
+sin correcci├│n tender├í a predecir `no relevante` m├ís frecuentemente. Se mitiga en ┬º3 con
+`pos_weight` / pesos de clase en la funci├│n de p├⌐rdida.
+
+**4. Texto de producto truncado**
+Solo se usa `product_title`. La descripci├│n completa (`product_description`) contiene
+informaci├│n relevante pero encarece el entrenamiento. Para M1 se prioriza la eficiencia
+sobre la completitud.
+
+
+============================================================
+CELL 34 [markdown]
+---
+
+# 3 ┬╖ Implementaci├│n del fine-tuning del encoder
+
+Esta secci├│n construye, en orden:
+
+1. El encoder base cargado y verificado (┬º3.1).
+2. La infraestructura de evaluaci├│n por ranking (nDCG@10 / MRR / Recall@10) que se reutiliza
+   en toda la secci├│n 4 (┬º3.2), y una primera corrida sobre **E5-small congelado** ΓÇö el
+   baseline sem├íntico sin entrenamiento.
+3. El fine-tuning propiamente dicho: cabeza de clasificaci├│n, hiperpar├ímetros registrados,
+   entrenamiento y verificaci├│n de que el modelo resultante produce scores coherentes (┬º3.3ΓÇô┬º3.8).
+4. Una verificaci├│n de reproducibilidad y, opcionalmente, la ablaci├│n E5-base y la subida a
+   Hugging Face Hub (┬º3.9ΓÇô┬º3.11).
+
+## 3.1 ┬╖ Carga del encoder base y verificaci├│n de embeddings
+
+============================================================
+CELL 35 [code]
+from transformers import AutoTokenizer, AutoModel
+import torch.nn.functional as F
+
+MODELO_BASE = "intfloat/multilingual-e5-small"
+
+tok_base = AutoTokenizer.from_pretrained(MODELO_BASE)
+modelo_base = AutoModel.from_pretrained(MODELO_BASE).to(DEVICE).eval()
+
+def promedio_tokens(salida, attention_mask):
+    '''Mean pooling sobre tokens no-padding ΓÇö m├⌐todo recomendado en la model card de E5.'''
+    embeddings = salida.last_hidden_state
+    mask = attention_mask.unsqueeze(-1).expand(embeddings.size()).float()
+    return (embeddings * mask).sum(1) / mask.sum(1).clamp(min=1e-9)
+
+@torch.no_grad()
+def embeber(textos, batch_size=32):
+    '''Codifica una lista de textos (ya con prefijo query:/passage:) a embeddings L2-normalizados.'''
+    salidas = []
+    for i in range(0, len(textos), batch_size):
+        lote = textos[i:i + batch_size]
+        entradas = tok_base(lote, padding=True, truncation=True, max_length=64, return_tensors="pt").to(DEVICE)
+        salida = modelo_base(**entradas)
+        emb = promedio_tokens(salida, entradas["attention_mask"])
+        emb = F.normalize(emb, p=2, dim=1)
+        salidas.append(emb.cpu())
+    return torch.cat(salidas, dim=0)
+
+# Verificaci├│n: un par relevante debe tener mayor similitud coseno que uno irrelevante.
+ejemplo_q   = "query: samsung galaxy s24 ultra"
+ejemplo_pos = "passage: " + df_test[df_test["label"] == 1]["product_title"].iloc[0]
+ejemplo_neg = "passage: " + df_test[df_test["label"] == 0]["product_title"].iloc[0]
+
+emb = embeber([ejemplo
+...(+503 chars)
+
+============================================================
+CELL 36 [markdown]
+## 3.2 ┬╖ Infraestructura de evaluaci├│n por ranking (nDCG@10 / MRR / Recall@10)
+
+============================================================
+CELL 37 [code]
+import numpy as np
+
+def agrupar_por_query(df, columna_score=None):
+    '''Agrupa el DataFrame por query_id -> lista de (product_id, label[, score]).'''
+    grupos = {}
+    for qid, g in df.groupby("query_id"):
+        grupos[qid] = g.reset_index(drop=True)
+    return grupos
+
+def ndcg_at_k(relevancias_ordenadas, k=10):
+    '''nDCG@k para relevancia binaria, dado un ranking ya ordenado por score descendente.'''
+    relevancias_ordenadas = np.asarray(relevancias_ordenadas[:k], dtype=float)
+    descuentos = 1.0 / np.log2(np.arange(2, len(relevancias_ordenadas) + 2))
+    dcg = float(np.sum(relevancias_ordenadas * descuentos))
+    ideal = np.sort(relevancias_ordenadas)[::-1]
+    idcg = float(np.sum(ideal * descuentos))
+    return dcg / idcg if idcg > 0 else 0.0
+
+def mrr(relevancias_ordenadas):
+    '''Reciprocal rank de la primera posici├│n relevante.'''
+    for i, rel in enumerate(relevancias_ordenadas):
+        if rel > 0:
+            return 1.0 / (i + 1)
+    return 0.0
+
+def recall_at_k(relevancias_ordenadas, total_relevantes, k=10):
+    '''Fracci├│n de los relevantes totales del query recuperados en el top-k.'''
+    if total_relevantes == 0:
+        return None
+    return float(np.sum(np.asarray(relevancias_ordenadas[:k]) > 0)) / total_relevantes
+
+def evaluar_ranking(df_scored, columna_score, k=10):
+    '''
+    df_scored: DataFrame con columnas query_id, label, <columna_score>.
+    Para cada query, ordena sus candidatos por score descendente y calcula nDCG@k, MRR, Recall@k.
+    Dev
+...(+940 chars)
+
+============================================================
+CELL 38 [markdown]
+**Nota de tama├▒o:** evaluar sobre el split de test completo (~miles de queries) es
+factible con E5-small en T4, pero puede ser lento con `n_queries` muy grande. `N_QUERIES_EVAL`
+permite fijar un subconjunto de queries de test (muestreadas con `SEMILLA`) para iterar r├ípido;
+se recomienda dejarlo en `None` (split de test completo) para la corrida final que va al reporte.
+
+============================================================
+CELL 39 [code]
+N_QUERIES_EVAL = None  # None = usar todas las queries de test; o un entero para muestrear
+
+def preparar_test_eval(df_test, n_queries=None, seed=SEMILLA):
+    if n_queries is None:
+        return df_test.copy()
+    ids = df_test["query_id"].drop_duplicates().sample(n=n_queries, random_state=seed)
+    return df_test[df_test["query_id"].isin(ids)].copy()
+
+df_test_eval = preparar_test_eval(df_test, N_QUERIES_EVAL)
+print(f"Queries de test para evaluaci├│n: {df_test_eval['query_id'].nunique():,} "
+      f"({'completo' if N_QUERIES_EVAL is None else f'muestra de {N_QUERIES_EVAL}'})")
+
+============================================================
+CELL 40 [markdown]
+## 3.3 ┬╖ E5-small congelado ΓÇö baseline sem├íntico (antes de entrenar)
+
+============================================================
+CELL 41 [code]
+import time
+
+# Scorea cada par (query, product_title) del split de test con similitud coseno de
+# embeddings del encoder SIN fine-tuning. Este es el baseline sem├íntico de la tabla del README.
+t0 = time.time()
+emb_q = embeber(("query: "   + df_test_eval["query"]).tolist())
+emb_p = embeber(("passage: " + df_test_eval["product_title"]).tolist())
+t_embed = time.time() - t0
+
+scores_congelado = F.cosine_similarity(emb_q, emb_p).numpy()
+df_test_eval = df_test_eval.copy()
+df_test_eval["score_e5_congelado"] = scores_congelado
+
+metricas_e5_congelado = evaluar_ranking(df_test_eval, "score_e5_congelado", k=10)
+print("=== E5-small congelado ΓÇö split de test ===")
+for k, v in metricas_e5_congelado.items():
+    print(f"  {k:<10}: {v:.4f}" if isinstance(v, float) else f"  {k:<10}: {v}")
+print(f"\nTiempo de embebido ({len(df_test_eval)*2:,} textos): {t_embed:.1f}s")
+
+============================================================
+CELL 42 [markdown]
+## 3.4 ┬╖ Cabeza de clasificaci├│n e hiperpar├ímetros de entrenamiento
+
+============================================================
+CELL 43 [code]
+import json, os
+
+# Hiperpar├ímetros de fine-tuning, registrados expl├¡citamente (criterio 3: reproducibilidad).
+HIPERPARAMETROS = {
+    "modelo_base":                MODELO_BASE,
+    "tarea":                      "clasificaci├│n binaria (relevante / no relevante)",
+    "cabeza":                     "AutoModelForSequenceClassification (lineal sobre pooling [CLS])",
+    "max_length":                 64,
+    "learning_rate":              2e-5,
+    "num_train_epochs":           3,
+    "per_device_train_batch_size": 64,
+    "per_device_eval_batch_size":  128,
+    "weight_decay":               0.01,
+    "warmup_ratio":               0.06,
+    "fp16":                       DEVICE == "cuda",
+    "seed":                       SEMILLA,
+    "class_weighting":            "pos_weight balanceado por frecuencia inversa (ver ┬º3.5)",
+}
+
+print("=== Hiperpar├ímetros de fine-tuning ===")
+for k, v in HIPERPARAMETROS.items():
+    print(f"  {k:<30}: {v}")
+
+# Justificaci├│n breve de learning_rate frente a alternativas:
+print(
+    "\nJustificaci├│n de learning_rate=2e-5: valor est├índar para fine-tuning de encoders "
+    "tipo BERT/RoBERTa de tama├▒o small-base (rango t├¡pico 1e-5 a 5e-5). Valores m├ís altos "
+    "(ej. 1e-4) desestabilizan la cabeza de clasificaci├│n reci├⌐n inicializada en las primeras "
+    "├⌐pocas; valores m├ís bajos (ej. 5e-6) subutilizan el presupuesto de 3 ├⌐pocas fijado por "
+    "el l├¡mite de tiempo de sesi├│n en Colab T4."
+)
+
+============================================================
+CELL 44 [markdown]
+## 3.5 ┬╖ Preparaci├│n de los datasets tokenizados
+
+============================================================
+CELL 45 [code]
+from datasets import Dataset
+from transformers import AutoModelForSequenceClassification
+
+tok_ft = AutoTokenizer.from_pretrained(MODELO_BASE)
+
+def tokenizar_lote(lote):
+    return tok_ft(
+        lote["text_a"], lote["text_b"],
+        truncation=True, max_length=HIPERPARAMETROS["max_length"], padding="max_length",
+    )
+
+ds_train = Dataset.from_pandas(df_train[["text_a", "text_b", "label"]], preserve_index=False)
+ds_test  = Dataset.from_pandas(df_test_eval[["text_a", "text_b", "label"]], preserve_index=False)
+
+ds_train = ds_train.map(tokenizar_lote, batched=True, remove_columns=["text_a", "text_b"])
+ds_test  = ds_test.map(tokenizar_lote,  batched=True, remove_columns=["text_a", "text_b"])
+
+ds_train = ds_train.rename_column("label", "labels")
+ds_test  = ds_test.rename_column("label", "labels")
+ds_train.set_format("torch")
+ds_test.set_format("torch")
+
+print(f"Dataset de entrenamiento tokenizado: {len(ds_train):,} ejemplos")
+print(f"Dataset de evaluaci├│n tokenizado:    {len(ds_test):,} ejemplos")
+
+# Peso de clase para compensar el desbalance documentado en ┬º2.8.
+n_pos = int((df_train["label"] == 1).sum())
+n_neg = int((df_train["label"] == 0).sum())
+POS_WEIGHT = n_neg / max(n_pos, 1)
+print(f"\nDesbalance en train: {n_neg:,} negativos / {n_pos:,} positivos -> pos_weight = {POS_WEIGHT:.2f}")
+
+============================================================
+CELL 46 [code]
+import torch.nn as nn
+from transformers import Trainer, TrainingArguments
+
+modelo_ft = AutoModelForSequenceClassification.from_pretrained(MODELO_BASE, num_labels=2).to(DEVICE)
+
+class TrainerConPeso(Trainer):
+    '''Trainer con cross-entropy ponderada por clase para compensar el desbalance de ┬º2.8.'''
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+        labels = inputs.pop("labels")
+        salida = model(**inputs)
+        logits = salida.logits
+        pesos = torch.tensor([1.0, POS_WEIGHT], device=logits.device, dtype=logits.dtype)
+        perdida_fn = nn.CrossEntropyLoss(weight=pesos)
+        perdida = perdida_fn(logits, labels)
+        return (perdida, salida) if return_outputs else perdida
+
+import evaluate
+metric_acc = evaluate.load("accuracy")
+metric_f1  = evaluate.load("f1")
+
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    preds = np.argmax(logits, axis=-1)
+    return {
+        "accuracy": metric_acc.compute(predictions=preds, references=labels)["accuracy"],
+        "f1":       metric_f1.compute(predictions=preds, references=labels)["f1"],
+    }
+
+args_entrenamiento = TrainingArguments(
+    output_dir="./checkpoints_e5_small",
+    learning_rate=HIPERPARAMETROS["learning_rate"],
+    num_train_epochs=HIPERPARAMETROS["num_train_epochs"],
+    per_device_train_batch_size=HIPERPARAMETROS["per_device_train_batch_size"],
+    per_device_eval_batch_size=HIPERPARAMETROS["per_device_eval_batch_size"],
+    weight_decay=HIPERPARAMETROS[
+...(+530 chars)
+
+============================================================
+CELL 47 [markdown]
+## 3.6 ┬╖ Entrenamiento
+
+============================================================
+CELL 48 [code]
+fijar_semilla(SEMILLA)
+resultado_entrenamiento = trainer.train()
+print(resultado_entrenamiento)
+
+============================================================
+CELL 49 [markdown]
+## 3.7 ┬╖ Guardado del modelo y del archivo de configuraci├│n
+
+============================================================
+CELL 50 [code]
+RUTA_MODELO = "modelo_e5_small_finetuned"
+os.makedirs(RUTA_MODELO, exist_ok=True)
+
+trainer.save_model(RUTA_MODELO)
+tok_ft.save_pretrained(RUTA_MODELO)
+
+with open(os.path.join(RUTA_MODELO, "hiperparametros.json"), "w") as f:
+    json.dump(HIPERPARAMETROS, f, indent=2, ensure_ascii=False)
+
+print(f"Modelo, tokenizer e hiperpar├ímetros guardados en: {RUTA_MODELO}/")
+print(f"  - {RUTA_MODELO}/hiperparametros.json  <- config de entrenamiento registrada")
+
+============================================================
+CELL 51 [markdown]
+## 3.8 ┬╖ Verificaci├│n de coherencia del modelo entrenado
+
+============================================================
+CELL 52 [code]
+from transformers import AutoModelForSequenceClassification as AMSC
+
+modelo_cargado = AMSC.from_pretrained(RUTA_MODELO).to(DEVICE).eval()
+tok_cargado = AutoTokenizer.from_pretrained(RUTA_MODELO)
+
+@torch.no_grad()
+def score_relevancia(query, product_title):
+    '''Probabilidad de la clase "relevante" (softmax sobre logits) para un par (query, t├¡tulo).'''
+    entrada = tok_cargado(f"query: {query}", f"passage: {product_title}",
+                          truncation=True, max_length=HIPERPARAMETROS["max_length"], return_tensors="pt").to(DEVICE)
+    logits = modelo_cargado(**entrada).logits
+    probs = F.softmax(logits, dim=-1)
+    return probs[0, 1].item()  # prob. de la clase 1 = relevante
+
+ejemplo_pos_2 = df_test.iloc[(df_test["label"] == 1).values].iloc[1]
+ejemplo_neg_2 = df_test.iloc[(df_test["label"] == 0).values].iloc[1]
+
+s_pos = score_relevancia(ejemplo_pos_2["query"], ejemplo_pos_2["product_title"])
+s_neg = score_relevancia(ejemplo_neg_2["query"], ejemplo_neg_2["product_title"])
+
+print("=== Verificaci├│n de coherencia (modelo cargado desde disco) ===")
+print(f"Par etiquetado RELEVANTE:")
+print(f"  query: {ejemplo_pos_2['query']!r}")
+print(f"  producto: {ejemplo_pos_2['product_title']!r}")
+print(f"  score(relevante) = {s_pos:.4f}")
+print()
+print(f"Par etiquetado NO RELEVANTE:")
+print(f"  query: {ejemplo_neg_2['query']!r}")
+print(f"  producto: {ejemplo_neg_2['product_title']!r}")
+print(f"  score(relevante) = {s_neg:.4f}")
+print()
+print("Coherente" if s_pos > s_neg else "AVIS
+...(+51 chars)
+
+============================================================
+CELL 53 [markdown]
+## 3.9 ┬╖ Verificaci├│n de reproducibilidad
+
+============================================================
+CELL 54 [markdown]
+Re-correr el entrenamiento completo dos veces solo para verificar reproducibilidad es
+costoso (dos sesiones T4 completas). En su lugar, el equipo aplica el mismo protocolo
+(`fijar_semilla(SEMILLA)` + misma config de `HIPERPARAMETROS`) sobre un **subconjunto peque├▒o**
+y confirma que la p├⌐rdida final coincide entre dos corridas ΓÇö si el proceso es determinista a
+esta escala, lo es tambi├⌐n a escala completa (mismo c├│digo, misma semilla, mismo hardware).
+
+============================================================
+CELL 55 [code]
+def entrenar_subset_rapido(n=2000, epochs=1):
+    '''Entrena un modelo desde cero sobre un subconjunto peque├▒o ΓÇö usado solo para el
+    chequeo de reproducibilidad, no es el modelo final.'''
+    fijar_semilla(SEMILLA)
+    sub_train = ds_train.shuffle(seed=SEMILLA).select(range(min(n, len(ds_train))))
+    sub_test  = ds_test.shuffle(seed=SEMILLA).select(range(min(n // 4, len(ds_test))))
+
+    m = AutoModelForSequenceClassification.from_pretrained(MODELO_BASE, num_labels=2).to(DEVICE)
+    args = TrainingArguments(
+        output_dir="./checkpoints_repro_check",
+        learning_rate=HIPERPARAMETROS["learning_rate"],
+        num_train_epochs=epochs,
+        per_device_train_batch_size=HIPERPARAMETROS["per_device_train_batch_size"],
+        per_device_eval_batch_size=HIPERPARAMETROS["per_device_eval_batch_size"],
+        weight_decay=HIPERPARAMETROS["weight_decay"],
+        fp16=HIPERPARAMETROS["fp16"],
+        seed=HIPERPARAMETROS["seed"],
+        eval_strategy="epoch",
+        report_to="none",
+        disable_tqdm=True,
+    )
+    t = TrainerConPeso(model=m, args=args, train_dataset=sub_train, eval_dataset=sub_test,
+                        compute_metrics=compute_metrics)
+    r = t.train()
+    return r.metrics["train_loss"]
+
+perdida_corrida_1 = entrenar_subset_rapido()
+perdida_corrida_2 = entrenar_subset_rapido()
+
+print(f"P├⌐rdida final ΓÇö corrida 1: {perdida_corrida_1:.6f}")
+print(f"P├⌐rdida final ΓÇö corrida 2: {perdida_corrida_2:.6f}")
+print(f"Diferencia: {abs(perdida_corrida_1 - 
+...(+273 chars)
+
+============================================================
+CELL 56 [markdown]
+## 3.10 ┬╖ Ablaci├│n opcional ΓÇö E5-base
+
+============================================================
+CELL 57 [code]
+ENTRENAR_E5_BASE = False  # cambiar a True para correr la ablaci├│n de tama├▒o (┬º1.5, ┬º4.6)
+
+if ENTRENAR_E5_BASE:
+    MODELO_BASE_ABLACION = "intfloat/multilingual-e5-base"
+    HIPERPARAMETROS_BASE = dict(HIPERPARAMETROS, modelo_base=MODELO_BASE_ABLACION,
+                                 per_device_train_batch_size=32)  # m├ís liviano por el modelo m├ís grande
+
+    tok_base_ab = AutoTokenizer.from_pretrained(MODELO_BASE_ABLACION)
+
+    def tokenizar_lote_ab(lote):
+        return tok_base_ab(lote["text_a"], lote["text_b"], truncation=True,
+                            max_length=HIPERPARAMETROS_BASE["max_length"], padding="max_length")
+
+    ds_train_ab = Dataset.from_pandas(df_train[["text_a", "text_b", "label"]], preserve_index=False)
+    ds_test_ab  = Dataset.from_pandas(df_test_eval[["text_a", "text_b", "label"]], preserve_index=False)
+    ds_train_ab = ds_train_ab.map(tokenizar_lote_ab, batched=True, remove_columns=["text_a", "text_b"]).rename_column("label", "labels")
+    ds_test_ab  = ds_test_ab.map(tokenizar_lote_ab,  batched=True, remove_columns=["text_a", "text_b"]).rename_column("label", "labels")
+    ds_train_ab.set_format("torch"); ds_test_ab.set_format("torch")
+
+    modelo_ft_base = AutoModelForSequenceClassification.from_pretrained(MODELO_BASE_ABLACION, num_labels=2).to(DEVICE)
+
+    args_ab = TrainingArguments(
+        output_dir="./checkpoints_e5_base",
+        learning_rate=HIPERPARAMETROS_BASE["learning_rate"],
+        num_train_epochs=HIPERPARAMETROS_BASE["num_trai
+...(+1324 chars)
+
+============================================================
+CELL 58 [markdown]
+## 3.11 ┬╖ Subida opcional a Hugging Face Hub
+
+============================================================
+CELL 59 [code]
+NOMBRE_REPO_HUB = "digitdeck-m1-e5-small-esci-es"  # ajustar al namespace del equipo en HF
+
+if SUBIR_A_HUB:
+    trainer.push_to_hub(NOMBRE_REPO_HUB)
+    tok_ft.push_to_hub(NOMBRE_REPO_HUB)
+    print(f"Modelo subido a: https://huggingface.co/{NOMBRE_REPO_HUB}")
+else:
+    print("SUBIR_A_HUB = False ΓÇö celda de subida al Hub omitida (ver ┬º0).")
+
+============================================================
+CELL 60 [markdown]
+---
+
+# 4 ┬╖ Baselines y reporte de m├⌐tricas
+
+**M├⌐trica primaria:** nDCG@10.
+**Guardrails:** MRR ┬╖ Recall@10 ┬╖ memoria en VRAM ┬╖ p95 de latencia de inferencia.
+**M├⌐tricas de diagn├│stico** (secundarias, del entrenamiento): accuracy y F1 sobre la
+clasificaci├│n binaria (ya reportadas por el `Trainer` en ┬º3.6).
+
+> Las m├⌐tricas se definen en ┬º3.2, antes de ver los resultados de esta secci├│n. No se cambian
+> ni se ajustan a posteriori en funci├│n de qu├⌐ sistema queda mejor.
+
+## 4.1 ┬╖ Baseline BM25
+
+BM25 rankea, para cada consulta, los `product_title` de sus propios candidatos en el split de
+test (el mismo conjunto de pares que ve el encoder) ΓÇö es la comparaci├│n de ranking justa: dado
+el mismo conjunto de productos candidatos por consulta, ┬┐en qu├⌐ orden los pone cada sistema?
+
+============================================================
+CELL 61 [code]
+from rank_bm25 import BM25Okapi
+import re as _re
+
+def tokenizar_bm25(texto):
+    return _re.findall(r"\w+", texto.lower())
+
+def score_bm25_por_query(df_grupo):
+    '''BM25 local: indexa solo los product_title candidatos de ESTA consulta y las rankea.'''
+    corpus_tok = [tokenizar_bm25(t) for t in df_grupo["product_title"]]
+    bm25 = BM25Okapi(corpus_tok)
+    query_tok = tokenizar_bm25(df_grupo["query"].iloc[0])
+    return bm25.get_scores(query_tok)
+
+t0 = time.time()
+scores_bm25 = np.zeros(len(df_test_eval))
+for qid, g in df_test_eval.groupby("query_id"):
+    idx = g.index
+    scores_bm25[df_test_eval.index.get_indexer(idx)] = score_bm25_por_query(g)
+t_bm25 = time.time() - t0
+
+df_test_eval["score_bm25"] = scores_bm25
+metricas_bm25 = evaluar_ranking(df_test_eval, "score_bm25", k=10)
+
+print("=== BM25 ΓÇö split de test ===")
+for k, v in metricas_bm25.items():
+    print(f"  {k:<10}: {v:.4f}" if isinstance(v, float) else f"  {k:<10}: {v}")
+print(f"\nTiempo total de scoring BM25: {t_bm25:.1f}s "
+      f"({t_bm25/df_test_eval['query_id'].nunique()*1000:.2f} ms/query en promedio)")
+
+============================================================
+CELL 62 [markdown]
+## 4.2 ┬╖ E5-small congelado ΓÇö m├⌐tricas ya calculadas en ┬º3.3
+
+============================================================
+CELL 63 [code]
+# Reutiliza scores_congelado calculados en la secci├│n 3.3 ΓÇö no se recalculan.
+print("=== E5-small congelado ΓÇö split de test (recordatorio de ┬º3.3) ===")
+for k, v in metricas_e5_congelado.items():
+    print(f"  {k:<10}: {v:.4f}" if isinstance(v, float) else f"  {k:<10}: {v}")
+
+============================================================
+CELL 64 [markdown]
+## 4.3 ┬╖ E5-small ajustado (fine-tuned en ┬º3)
+
+============================================================
+CELL 65 [code]
+@torch.no_grad()
+def scorear_lote_finetuned(df_lote, batch_size=128):
+    scores = []
+    for i in range(0, len(df_lote), batch_size):
+        lote = df_lote.iloc[i:i + batch_size]
+        entradas = tok_cargado(
+            lote["query"].tolist(), lote["product_title"].tolist(),
+            truncation=True, max_length=HIPERPARAMETROS["max_length"],
+            padding=True, return_tensors="pt",
+        ).to(DEVICE)
+        logits = modelo_cargado(**entradas).logits
+        probs = F.softmax(logits, dim=-1)[:, 1]  # prob. de "relevante"
+        scores.append(probs.cpu().numpy())
+    return np.concatenate(scores)
+
+t0 = time.time()
+scores_finetuned = scorear_lote_finetuned(df_test_eval)
+t_finetuned = time.time() - t0
+
+df_test_eval["score_e5_finetuned"] = scores_finetuned
+metricas_e5_finetuned = evaluar_ranking(df_test_eval, "score_e5_finetuned", k=10)
+
+print("=== E5-small ajustado (M1) ΓÇö split de test ===")
+for k, v in metricas_e5_finetuned.items():
+    print(f"  {k:<10}: {v:.4f}" if isinstance(v, float) else f"  {k:<10}: {v}")
+print(f"\nTiempo de scoring ({len(df_test_eval):,} pares): {t_finetuned:.1f}s")
+
+============================================================
+CELL 66 [markdown]
+## 4.4 ┬╖ Guardrails ΓÇö memoria (VRAM) y latencia p95
+
+============================================================
+CELL 67 [code]
+def medir_guardrails_encoder(fn_scorear, df_muestra, n_reps=50):
+    '''Mide pico de VRAM y p95 de latencia de inferencia sobre un lote peque├▒o representativo.'''
+    if DEVICE != "cuda":
+        return {"memoria_pico_mb": None, "p95_latencia_ms": None, "nota": "sin GPU ΓÇö no medible"}
+
+    torch.cuda.reset_peak_memory_stats()
+    torch.cuda.synchronize()
+
+    tiempos = []
+    for _ in range(n_reps):
+        t0 = time.perf_counter()
+        fn_scorear(df_muestra)
+        torch.cuda.synchronize()
+        tiempos.append((time.perf_counter() - t0) * 1000)  # ms
+
+    memoria_pico_mb = torch.cuda.max_memory_allocated() / (1024 ** 2)
+    p95 = float(np.percentile(tiempos, 95))
+    return {"memoria_pico_mb": round(memoria_pico_mb, 1), "p95_latencia_ms": round(p95, 2)}
+
+MUESTRA_GUARDRAIL = df_test_eval.sample(min(64, len(df_test_eval)), random_state=SEMILLA)
+
+guardrails_congelado  = medir_guardrails_encoder(
+    lambda d: embeber(("query: " + d["query"]).tolist() + ("passage: " + d["product_title"]).tolist()),
+    MUESTRA_GUARDRAIL,
+)
+guardrails_finetuned = medir_guardrails_encoder(scorear_lote_finetuned, MUESTRA_GUARDRAIL)
+
+# BM25 no usa GPU ΓÇö su guardrail es tama├▒o de ├¡ndice (bytes del corpus tokenizado) y latencia CPU.
+tam_indice_bytes = sum(len(" ".join(tokenizar_bm25(t)).encode()) for t in df_test_eval["product_title"])
+guardrails_bm25 = {
+    "tamano_indice_mb": round(tam_indice_bytes / (1024 ** 2), 2),
+    "latencia_promedio_ms": round(t_bm25 / df_test_eval["query_id"].nunique(
+...(+196 chars)
+
+============================================================
+CELL 68 [markdown]
+## 4.5 ┬╖ Ablaci├│n opcional ΓÇö evaluaci├│n de E5-base ajustado
+
+============================================================
+CELL 69 [code]
+if ENTRENAR_E5_BASE:
+    tok_base_cargado = AutoTokenizer.from_pretrained(RUTA_MODELO_BASE)
+    modelo_base_cargado = AutoModelForSequenceClassification.from_pretrained(RUTA_MODELO_BASE).to(DEVICE).eval()
+
+    @torch.no_grad()
+    def scorear_lote_e5base(df_lote, batch_size=64):
+        scores = []
+        for i in range(0, len(df_lote), batch_size):
+            lote = df_lote.iloc[i:i + batch_size]
+            entradas = tok_base_cargado(
+                lote["query"].tolist(), lote["product_title"].tolist(),
+                truncation=True, max_length=HIPERPARAMETROS_BASE["max_length"],
+                padding=True, return_tensors="pt",
+            ).to(DEVICE)
+            probs = F.softmax(modelo_base_cargado(**entradas).logits, dim=-1)[:, 1]
+            scores.append(probs.cpu().numpy())
+        return np.concatenate(scores)
+
+    df_test_eval["score_e5_base_finetuned"] = scorear_lote_e5base(df_test_eval)
+    metricas_e5_base_finetuned = evaluar_ranking(df_test_eval, "score_e5_base_finetuned", k=10)
+    guardrails_e5_base = medir_guardrails_encoder(scorear_lote_e5base, MUESTRA_GUARDRAIL)
+
+    print("=== E5-base ajustado (ablaci├│n) ΓÇö split de test ===")
+    for k, v in metricas_e5_base_finetuned.items():
+        print(f"  {k:<10}: {v:.4f}" if isinstance(v, float) else f"  {k:<10}: {v}")
+    print("Guardrails E5-base ajustado:", guardrails_e5_base)
+else:
+    metricas_e5_base_finetuned = None
+    guardrails_e5_base = None
+    print("ENTRENAR_E5_BASE = False (┬º3.10) ΓÇö ablaci├│n
+...(+35 chars)
+
+============================================================
+CELL 70 [markdown]
+## 4.6 ┬╖ Tabla comparativa de resultados
+
+============================================================
+CELL 71 [code]
+filas_reporte = [
+    {
+        "Variante": "BM25",
+        "nDCG@10": metricas_bm25["nDCG@10"], "MRR": metricas_bm25["MRR"], "Recall@10": metricas_bm25["Recall@10"],
+        "Memoria (MB)": None, "p95 latencia (ms)": guardrails_bm25["latencia_promedio_ms"],
+        "Notas": f"Tama├▒o ├¡ndice: {guardrails_bm25['tamano_indice_mb']} MB (local por-query)",
+    },
+    {
+        "Variante": "E5-small congelado",
+        "nDCG@10": metricas_e5_congelado["nDCG@10"], "MRR": metricas_e5_congelado["MRR"], "Recall@10": metricas_e5_congelado["Recall@10"],
+        "Memoria (MB)": guardrails_congelado.get("memoria_pico_mb"), "p95 latencia (ms)": guardrails_congelado.get("p95_latencia_ms"),
+        "Notas": "Sin fine-tuning ΓÇö similitud coseno de embeddings",
+    },
+    {
+        "Variante": "E5-small ajustado (M1)",
+        "nDCG@10": metricas_e5_finetuned["nDCG@10"], "MRR": metricas_e5_finetuned["MRR"], "Recall@10": metricas_e5_finetuned["Recall@10"],
+        "Memoria (MB)": guardrails_finetuned.get("memoria_pico_mb"), "p95 latencia (ms)": guardrails_finetuned.get("p95_latencia_ms"),
+        "Notas": f"Fine-tuning: {HIPERPARAMETROS['num_train_epochs']} ├⌐pocas, lr={HIPERPARAMETROS['learning_rate']}",
+    },
+]
+
+if ENTRENAR_E5_BASE and metricas_e5_base_finetuned is not None:
+    filas_reporte.append({
+        "Variante": "E5-base ajustado (opcional)",
+        "nDCG@10": metricas_e5_base_finetuned["nDCG@10"], "MRR": metricas_e5_base_finetuned["MRR"],
+        "Recall@10": metricas_e5_base_finetun
+...(+602 chars)
+
+============================================================
+CELL 72 [markdown]
+## 4.7 ┬╖ Casos donde el fine-tuning no mejora sobre los baselines
+
+============================================================
+CELL 73 [code]
+# Compara, por query, el nDCG@10 del modelo ajustado contra el mejor de los dos baselines
+# (BM25 y E5-small congelado). Identifica las queries donde el fine-tuned queda por debajo.
+def ndcg_por_query(df_scored, columna_score, k=10):
+    filas = []
+    for qid, g in df_scored.groupby("query_id"):
+        if (g["label"] == 1).sum() == 0:
+            continue
+        g_ordenado = g.sort_values(columna_score, ascending=False)
+        filas.append({"query_id": qid, "query": g["query"].iloc[0],
+                       "nDCG@10": ndcg_at_k(g_ordenado["label"].tolist(), k)})
+    return pd.DataFrame(filas).set_index("query_id")
+
+ndcg_bm25_q      = ndcg_por_query(df_test_eval, "score_bm25")
+ndcg_congelado_q = ndcg_por_query(df_test_eval, "score_e5_congelado")
+ndcg_finetuned_q = ndcg_por_query(df_test_eval, "score_e5_finetuned")
+
+comparacion_q = ndcg_finetuned_q[["query", "nDCG@10"]].rename(columns={"nDCG@10": "nDCG_finetuned"})
+comparacion_q["nDCG_bm25"]      = ndcg_bm25_q["nDCG@10"]
+comparacion_q["nDCG_congelado"] = ndcg_congelado_q["nDCG@10"]
+comparacion_q["mejor_baseline"] = comparacion_q[["nDCG_bm25", "nDCG_congelado"]].max(axis=1)
+comparacion_q["delta_vs_mejor_baseline"] = comparacion_q["nDCG_finetuned"] - comparacion_q["mejor_baseline"]
+
+casos_sin_mejora = comparacion_q[comparacion_q["delta_vs_mejor_baseline"] < 0].sort_values("delta_vs_mejor_baseline")
+
+print(f"Queries donde el fine-tuned NO mejora sobre el mejor baseline: "
+      f"{len(casos_sin_mejora):,} / {len(comparacion_q
+...(+191 chars)
+
+============================================================
+CELL 74 [markdown]
+## 4.8 ┬╖ Distribuci├│n del delta (fine-tuned vs. mejor baseline)
+
+============================================================
+CELL 75 [code]
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.hist(comparacion_q["delta_vs_mejor_baseline"], bins=40)
+ax.axvline(0, linestyle="--")
+ax.set_xlabel("nDCG@10 (fine-tuned) ΓêÆ nDCG@10 (mejor baseline)")
+ax.set_ylabel("N├║mero de queries")
+ax.set_title("Distribuci├│n del delta por query ΓÇö E5-small ajustado vs. mejor baseline")
+plt.tight_layout()
+plt.savefig("Resultados/distribucion_delta_ndcg.png", dpi=120)
+plt.show()
+
+print(f"Delta promedio: {comparacion_q['delta_vs_mejor_baseline'].mean():+.4f}")
+print(f"Delta mediana : {comparacion_q['delta_vs_mejor_baseline'].median():+.4f}")
+print(f"% de queries con mejora estricta (delta > 0): "
+      f"{(comparacion_q['delta_vs_mejor_baseline'] > 0).mean() * 100:.1f}%")
+
+============================================================
+CELL 76 [markdown]
+## 4.9 ┬╖ Hip├│tesis sobre los casos sin mejora *(completar tras ejecutar)*
+
+> **Pendiente de completar por el equipo con los resultados reales de ┬º4.7ΓÇô┬º4.8.** No se
+> rellena con una hip├│tesis gen├⌐rica antes de ver los datos ΓÇö eso violar├¡a el punto de partida
+> metodol├│gico de esta secci├│n (las m├⌐tricas se definen antes de ver los resultados, pero la
+> *lectura* de los resultados viene despu├⌐s de tenerlos).
+>
+> Gu├¡a para completar esta secci├│n:
+> - Inspeccionar manualmente 5ΓÇô10 filas de `casos_sin_mejora` (┬º4.7): ┬┐son queries cortas?
+>   ┬┐Marcas poco frecuentes en el train set? ┬┐Casos donde BM25 gana por coincidencia l├⌐xica
+>   exacta que el encoder generaliza de m├ís?
+> - Cruzar `casos_sin_mejora` con la distribuci├│n de categor├¡as/longitud de query en
+>   `df_train` para ver si hay un patr├│n sistem├ítico vs. ruido aleatorio.
+> - Documentar aqu├¡ la hip├│tesis con 2-3 ejemplos concretos de `query` / `product_title`
+>   citados desde `casos_sin_mejora`.
+
+## 4.10 ┬╖ Lectura honesta del delta *(completar tras ejecutar)*
+
+> **Pendiente de completar por el equipo con los resultados reales de la tabla de ┬º4.6.**
+>
+> Gu├¡a para completar esta secci├│n:
+> - ┬┐`E5-small congelado` super├│ a `BM25`? Si s├¡, el argumento de que el pre-entrenamiento del
+>   encoder ya aporta se├▒al sem├íntica se fortalece (ver la nota del README sobre este punto).
+> - ┬┐Cu├ínto mejor├│ `E5-small ajustado` sobre `E5-small congelado`? Ese delta es el efecto neto
+>   del fine-tuning, aislado del efecto del pre-entrenamient
+...(+410 chars)
+
+============================================================
+CELL 77 [markdown]
+---
+
+# Antes de entregar
+
+Checklist final (`TODO.md`) ΓÇö revisar manualmente antes de subir el notebook ejecutado:
+
+- [ ] Releer el `README.md` de M1 y confirmar que cada criterio de la tabla tiene evidencia
+      verificable en el repo (no solo texto afirmando que se cumpli├│).
+- [ ] Confirmar que el notebook est├í ejecutado con outputs visibles (celdas con resultado) ΓÇö
+      correr `Runtime ΓåÆ Run all` de punta a punta antes de exportar/subir.
+- [ ] Confirmar que el an├ílisis de tokenizador sobre texto de dominio (┬º1.4) est├í incluido
+      como evidencia del criterio 1.
+- [ ] Revisar que los splits del dataset son reproducibles (┬º2.5ΓÇô┬º2.6) y el script est├í
+      versionado.
+- [ ] Confirmar que la tabla de m├⌐tricas (┬º4.6) incluye nDCG@10 para todas las variantes bajo
+      las mismas condiciones de evaluaci├│n (`df_test_eval`, mismo `k=10`).
+- [ ] Completar ┬º4.9 y ┬º4.10 con la lectura real de los resultados ΓÇö no dejarlas en la gu├¡a
+      de placeholder.
+- [ ] Revisar que no se atribuyeron a la docente criterios, formatos o fechas que no han sido
+      publicados oficialmente (las r├║bricas detalladas a├║n no se han publicado ΓÇö ver
+      "Estado actual" en el `README.md`).
+

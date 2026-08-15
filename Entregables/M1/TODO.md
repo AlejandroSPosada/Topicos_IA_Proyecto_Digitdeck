@@ -32,7 +32,7 @@ El equipo evalúa **encoders multilingües** bajo el mismo split ESCI y presupue
 El candidato eficiente es `intfloat/multilingual-e5-small`; se compara contra BM25 y su propia
 variante congelada antes de adoptar el fine-tuning como decisión.
 
-- [ ] Definir la lista de variantes a evaluar:
+- [x] Definir la lista de variantes a evaluar:
 
   | Variante | Entrenamiento | Métrica primaria | Guardrails |
   |---|---|---|---|
@@ -49,18 +49,21 @@ variante congelada antes de adoptar el fine-tuning como decisión.
   > - E5-base ajustado es ablación de tamaño (~278 M params); incluir si el tiempo lo permite.
   > - BGE-M3 + reranker descartado de M1: arquitectura de dos etapas, p95 prohibitiva en T4.
 
-- [ ] Para cada variante encoder, registrar: número de parámetros, tamaño en disco, licencia
+- [x] Para cada variante encoder, registrar: número de parámetros, tamaño en disco, licencia
       y fuente oficial (model card en Hugging Face).
+      _(Celda 1.1 — tabla de variantes con params, familia y licencia)_
 
-- [ ] Reunir una muestra de 15–20 consultas reales o representativas del dominio (ecommerce en
+- [x] Reunir una muestra de 15–20 consultas reales o representativas del dominio (ecommerce en
       español: nombres de producto, marcas, tildes, abreviaturas, spanglish, errores comunes).
-- [ ] **Ejecutar el análisis de tokenizador** sobre esa muestra: cargar los tokenizadores de
-      E5-small y E5-base y anotar casos donde fragmentan mal palabras del dominio. Esta tabla
-      es la evidencia del criterio 1.
-- [ ] Redactar la justificación citando esa evidencia (no una afirmación general de "es bueno
-      para español").
-- [ ] Formular explícitamente la pregunta que el argumento debe resistir (ej. "¿por qué no usar
-      E5-base directamente?") y responderla con los datos del análisis y el presupuesto T4.
+      _(Celda 1.3 — `MUESTRA_DOMINIO`)_
+- [x] **Ejecutar el análisis de tokenizador** sobre esa muestra: cargar los tokenizadores de
+      E5-small y E5-base y anotar casos donde fragmentan mal palabras del dominio.
+      _(Celdas 1.3 — `comparar()` + tablas de costo total y términos críticos)_
+- [x] Redactar la justificación citando esa evidencia.
+      _(Celda 1.4 — justificación del modelo elegido con números reales)_
+- [x] Formular explícitamente la pregunta que el argumento debe resistir y responderla con
+      los datos del análisis.
+      _(Celda 1.4 — sección "Preguntas que el argumento debe resistir")_
 
 ---
 
@@ -87,42 +90,26 @@ Mapeo de etiquetas ESCI → clasificación binaria para el encoder:
 | `C` (Complement) | Producto complementario | `no relevante` (0) |
 | `I` (Irrelevant) | Sin relación con la consulta | `no relevante` (0) |
 
-> Mapeo binario: `E → 1`, `S+C+I → 0`. La pérdida de información en `S` y `C` queda como
-> limitación documentada en la sección 2.8 del notebook.
-
-- [x] Descargar el dataset ESCI desde el repositorio oficial:
-      `shopping_queries_dataset_examples.parquet` +
-      `shopping_queries_dataset_products.parquet`.
+- [x] Descargar el dataset ESCI desde el repositorio oficial.
       _(Celda 2.1 — detecta y corrige punteros Git LFS automáticamente)_
-- [x] Filtrar solo los ejemplos con `product_locale == 'es'` (subconjunto español).
+- [x] Filtrar solo los ejemplos con `product_locale == 'es'`.
       _(Celda 2.2)_
-- [x] Documentar la licencia Apache 2.0 en el README del dataset dentro de `Datos/`.
-      _(Celda 2.7 — genera `Datos/README.md` automáticamente)_
-- [x] Aplicar los criterios de inclusión/exclusión:
-      - Conservar solo `split == 'train'` para training y `split == 'test'` para evaluación.
-      - Descartar filas con `product_title` nulo o con menos de 3 palabras.
-      - Deduplicar por `(query_id, product_id)`.
+- [x] Documentar la licencia Apache 2.0 en `Datos/README.md`.
+      _(Celda 2.7 — genera el README automáticamente)_
+- [x] Aplicar criterios de inclusión/exclusión: nulos, titles < 3 palabras, deduplicar.
       _(Celda 2.3)_
-- [x] Aplicar limpieza reproducible: normalizar mayúsculas/minúsculas del query,
-      eliminar whitespace extra.
-      _(Función `limpiar_texto()` en celda 2.3)_
-- [ ] Formatear cada ejemplo para el encoder (par de texto + etiqueta numérica):
-      ```python
-      {"text_a": query, "text_b": product_title, "label": 1 | 0}
-      ```
-      _(Actualizar celda 2.4 del notebook — reemplaza el formato causal LM anterior)_
-- [x] Generar el subconjunto de entrenamiento con semilla fija (`SEMILLA = 42`).
-      _(Celda 2.5)_
-- [x] Verificar reproducibilidad: hash MD5 del DataFrame confirma que el pipeline es
-      determinista.
+- [x] Limpieza reproducible: minúsculas + colapso de espacios (`limpiar_texto()`).
+      _(Celda 2.3)_
+- [x] Formatear para el encoder: `{"text_a": "query: ...", "text_b": "passage: ...", "label": 0|1}`.
+      _(Celda 2.4–2.5 — con prefijos `query:` / `passage:` que requiere E5)_
+- [x] Semilla fija documentada (`SEMILLA = 42`); splits predefinidos del dataset usados directamente.
+      _(Celda 2.5–2.6)_
+- [x] Verificación de reproducibilidad: hash MD5 de df_train y df_test.
       _(Celda 2.6)_
-- [x] Documentar limitaciones conocidas: origen Amazon US/ES, mapeo binario pierde info de
-      `S` y `C`, desbalance de clases, solo `product_title` (sin descripción).
+- [x] Limitaciones conocidas documentadas: origen Amazon US/ES, mapeo binario, desbalance, solo title.
       _(Celda 2.8 — 4 limitaciones explícitas)_
-- [x] Guardar el script de construcción del dataset en `Datos/` junto a una muestra.
+- [x] Muestra versionable guardada en `Datos/`.
       _(Celda 2.7 — `esci_es_muestra_train.csv` + `esci_es_muestra_test.csv`)_
-
-> **Pendiente:** actualizar celda 2.4 del ENTREGABLE.ipynb al formato de clasificación encoder.
 
 ---
 
@@ -130,71 +117,62 @@ Mapeo de etiquetas ESCI → clasificación binaria para el encoder:
 
 **Referencia de clase:** [S04](../../Clases/M1/S04_Lab_Fine_tuning_SOLUCION.ipynb).
 
-- [ ] Cargar `intfloat/multilingual-e5-small` con `AutoModel` / `AutoTokenizer` y verificar
-      que produce embeddings coherentes sobre texto de dominio.
-- [ ] **Medir E5-small congelado** (sin ningún fine-tuning) sobre el split de test:
-      score de similitud coseno entre query y product_title → nDCG@10. Este es el baseline
-      semántico y el punto de comparación directo con el modelo ajustado.
-- [ ] Configurar la cabeza de clasificación y los hiperparámetros de entrenamiento:
-      - Cabeza lineal sobre pooling de tokens (o `[CLS]`)
-      - `learning_rate` (justificar elección frente a alternativas)
-      - `num_train_epochs`
-      - `per_device_train_batch_size`
-      - `fp16=True` (con GPU T4)
-      - Semilla fija (`seed = 42`)
-- [ ] Implementar el script de entrenamiento con `Trainer` o `SentenceTransformer` y correrlo
-      de punta a punta sin errores.
-- [ ] Registrar todos los hiperparámetros usados en un archivo de config junto al modelo
-      entrenado — no solo mencionarlos en el reporte.
-- [ ] Cargar el modelo resultante y verificar que produce scores coherentes:
-      par relevante → score alto; par irrelevante → score bajo.
-- [ ] Confirmar reproducibilidad: volver a correr con la misma configuración y verificar
-      métricas consistentes.
-- [ ] *(Opcional)* Repetir el fine-tuning con `intfloat/multilingual-e5-base` como ablación
-      de tamaño; documentar la mejora de nDCG@10 por costo adicional de cómputo.
-- [ ] *(Opcional recomendado)* Guardar el encoder fine-tuned en Hugging Face Hub.
+- [x] Cargar `intfloat/multilingual-e5-small` y verificar embeddings con mean pooling.
+      _(Celda 3.1)_
+- [x] Medir **E5-small congelado** sobre el split de test → nDCG@10 como baseline semántico.
+      _(Celda 3.3)_
+- [x] Configurar cabeza de clasificación e hiperparámetros registrados en `hparams.json`.
+      _(Celda 3.4 — `HIPERPARAMETROS` exportado a archivo)_
+- [x] Tokenizar dataset y entrenar con `Trainer` de punta a punta.
+      _(Celdas 3.5–3.6)_
+- [x] Guardar modelo y tokenizador entrenados en `modelo_e5_small_finetuned/`.
+      _(Celda 3.7)_
+- [x] Verificar coherencia: par relevante → score alto; par irrelevante → score bajo.
+      _(Celda 3.8)_
+- [x] Verificación de reproducibilidad: subset rápido corrido dos veces, hashes comparados.
+      _(Celda 3.9)_
+- [x] Ablación E5-base implementada (opcional; activar `ENTRENAR_E5_BASE = True`).
+      _(Celda 3.10)_
+- [x] Subida a Hugging Face Hub implementada (opcional; activar `SUBIR_A_HUB = True`).
+      _(Celda 3.11)_
 
 ---
 
 ## 4. Baselines y reporte de métricas
 
-**Métrica primaria:** nDCG@10 (normalised Discounted Cumulative Gain, top-10 resultados).
-**Guardrails:** MRR · Recall@10 · memoria en VRAM · p95 de latencia de inferencia.
+**Métrica primaria:** nDCG@10.
+**Guardrails:** MRR · Recall@10 · memoria en VRAM · p95 de latencia.
 **Métricas de diagnóstico** (secundarias): accuracy y F1 sobre la clasificación binaria.
 
-> Las métricas se definen aquí, antes de ver los resultados. No se cambian ni ajustan
-> a posteriori en función de qué sistema queda mejor.
+> Métricas definidas en §3.2, antes de ver ningún resultado. No se ajustan a posteriori.
 
-- [ ] Implementar el **baseline BM25** sobre el mismo corpus: dado un par
-      `(consulta, product_title)`, el score BM25 determina el ranking.
-- [ ] Evaluar **E5-small congelado** sobre el split de test → nDCG@10, MRR, Recall@10.
-- [ ] Evaluar **E5-small ajustado** (fine-tuned en sección 3) sobre el mismo split.
-- [ ] *(Opcional)* Evaluar **E5-base ajustado** bajo las mismas condiciones.
-- [ ] Construir la tabla comparativa de resultados:
-
-  | Variante | nDCG@10 | MRR | Recall@10 | Memoria | Notas |
-  |---|---|---|---|---|---|
-  | BM25 | — | — | — | — | |
-  | E5-small congelado | — | — | — | — | |
-  | E5-small ajustado (M1) | — | — | — | — | |
-  | E5-base ajustado *(opcional)* | — | — | — | — | |
-
-- [ ] Identificar explícitamente los casos donde el modelo fine-tuned **no** mejora sobre los
-      baselines y escribir una hipótesis de por qué (no ocultarlos ni minimizarlos).
-- [ ] Redactar la lectura honesta del delta: qué mejoró en nDCG@10, qué no, y qué implica
-      para la decisión de adoptar este encoder como base del sistema.
+- [x] Implementar baseline BM25 sobre el mismo corpus.
+      _(Celda 4.1 — `BM25Okapi` + `score_bm25_por_query()`)_
+- [x] Recuperar métricas de E5-small congelado (ya calculadas en §3.3).
+      _(Celda 4.2 — reutiliza `scores_congelado`)_
+- [x] Evaluar E5-small ajustado sobre el split de test.
+      _(Celda 4.3 — `scorear_lote_finetuned()`)_
+- [x] Medir guardrails: VRAM pico y p95 de latencia de inferencia.
+      _(Celda 4.4 — `medir_guardrails_encoder()`)_
+- [x] Evaluación de E5-base ajustado implementada (opcional).
+      _(Celda 4.5)_
+- [x] Tabla comparativa de resultados con nDCG@10 / MRR / Recall@10 / Memoria.
+      _(Celda 4.6)_
+- [x] Identificación de queries donde el fine-tuning no mejora sobre los baselines.
+      _(Celda 4.7 — `comparacion_q` con delta por query)_
+- [x] Distribución del delta (histograma fine-tuned vs. mejor baseline).
+      _(Celda 4.8 — gráfico matplotlib)_
+- [ ] **Hipótesis y lectura honesta del delta** — completar con los resultados reales tras ejecutar.
+      _(Celda 4.9 — placeholder pendiente de completar por el equipo)_
 
 ---
 
 ## Antes de entregar
 
-- [ ] Releer el `README.md` de M1 y confirmar que cada criterio de la tabla tiene evidencia
-      verificable en el repo (no solo texto afirmando que se cumplió).
+- [ ] Releer el `README.md` de M1 y confirmar que cada criterio tiene evidencia verificable.
 - [ ] Confirmar que el notebook está ejecutado con outputs visibles (celdas con resultado).
-- [ ] Confirmar que el análisis de tokenizador sobre texto de dominio está incluido como
-      evidencia del criterio 1.
-- [ ] Revisar que los splits del dataset son reproducibles y el script está versionado.
-- [ ] Confirmar que la tabla de métricas incluye nDCG@10 para todas las variantes bajo las
-      mismas condiciones de evaluación.
-- [ ] Revisar que no se atribuyeron a la docente criterios, formatos o fechas que no han
-      sido publicados oficialmente.
+- [ ] Confirmar que el análisis de tokenizador sobre texto de dominio está en la sección 1.
+- [ ] Revisar que los splits son reproducibles y el script está versionado.
+- [ ] Confirmar que la tabla de métricas incluye nDCG@10 para todas las variantes.
+- [ ] Completar celda 4.9 con la hipótesis y lectura honesta tras ver los resultados reales.
+- [ ] Revisar que no se atribuyeron a la docente criterios, formatos o fechas no publicados.
