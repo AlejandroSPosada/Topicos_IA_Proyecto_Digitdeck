@@ -1,58 +1,68 @@
-# M1 · Fine-tuning con LoRA
+# M1 · Fine-tuning de encoder para ranking de relevancia (S02–S04)
 
 ## Sobre el proyecto
 
 **Digitdeck** es un copiloto de calidad de búsqueda para ecommerce en español. Su objetivo es
-detectar consultas con resultados deficientes, **evaluar la relevancia de pares (consulta,
-producto)** y preparar recomendaciones trazables para la persona responsable de ecommerce. El
-proyecto se desarrolla como entregable de **Tópicos Especiales y Aplicaciones en IA** (Universidad
-EAFIT, SI4006), y cada módulo del curso (`M1 → M5`) corresponde a una capa del sistema.
+detectar consultas con resultados deficientes, **ordenar productos por relevancia** y preparar
+recomendaciones trazables para la persona responsable de ecommerce. El proyecto se desarrolla
+como entregable de **Tópicos Especiales y Aplicaciones en IA** (Universidad EAFIT, SI4006), y
+cada módulo del curso (`M1 → M5`) corresponde a una capa del sistema.
 
-El motor del sistema es la capacidad del modelo de **juzgar si un producto es relevante para una
-consulta**. M1 es donde ese motor se construye y valida por primera vez.
+El motor del sistema es la capacidad del modelo de **asignar un score de relevancia a un par
+(consulta, producto)**. M1 es donde ese motor se construye y valida por primera vez.
 
 ## Decisión técnica de M1
 
-El equipo aplica **fine-tuning con LoRA** sobre un decoder multilingüe pequeño:
+El equipo fine-tunea `intfloat/multilingual-e5-small` sobre pares ESCI en español y lo compara
+contra tres variantes bajo el mismo split y presupuesto GPU T4:
+
+| Variante | Entrenamiento | Métrica primaria | Guardrails |
+|---|---|---|---|
+| BM25 | Ninguno | nDCG@10 | latencia, tamaño de índice |
+| E5-small congelado | Ninguno | nDCG@10 | memoria, p95 |
+| **E5-small ajustado** ← candidato | Pares/grados ESCI es | nDCG@10 | MRR, Recall@10, memoria, p95 |
+| E5-base ajustado *(opcional)* | Mismo split; mayor presupuesto | nDCG@10 | mejora por costo |
+
+> **BGE-M3 + reranker** queda descartado de M1: su arquitectura de dos etapas no permite
+> comparación bajo las mismas condiciones, y la p95 en T4 es prohibitiva. Candidato natural
+> para M2/M3.
 
 | Componente | Elección |
 |---|---|
-| **Modelo base** | `Qwen/Qwen2.5-0.5B` (decoder, multilingüe, entrena en Colab T4) |
-| **Técnica** | LoRA — `r=8`, `lora_alpha=16`, `target_modules=["q_proj","v_proj"]` |
-| **Tarea fine-tuning** | Dado un par `(consulta, descripción_producto)` → generar etiqueta de relevancia |
-| **Dataset** | [Amazon ESCI](https://github.com/amazon-science/esci-data) · Apache 2.0 · ~218 k pares en español · etiquetas E/S/C/I → `relevante / no relevante` |
-| **Baseline A** | BM25 léxico sobre el mismo corpus |
-| **Baseline B** | El mismo modelo `Qwen/Qwen2.5-0.5B` **antes** del fine-tuning |
+| **Modelo base** | `intfloat/multilingual-e5-small` (~117 M params, encoder, multilingüe) |
+| **Técnica** | Fine-tuning con cabeza de clasificación binaria sobre el encoder |
+| **Tarea** | Dado un par `(consulta, product_title)` → predecir `relevante / no relevante` |
+| **Dataset** | [Amazon ESCI](https://github.com/amazon-science/esci-data) · Apache 2.0 · ~218 k pares en español |
+| **Métrica primaria** | nDCG@10 |
+| **Guardrails** | MRR · Recall@10 · memoria · p95 latencia |
 
-> **Justificación del modelo base (criterio 1 — confirmado):** se compararon 5 tokenizadores
-> sobre 15 consultas reales de ecommerce en español. `Salamandra-2b` obtuvo el menor costo total
-> (126 tokens, 8.4 prom/frase) pero fue descartado por su cobertura exclusivamente monolingüe y
-> mayor costo de cómputo (2 B params). `Qwen/Qwen2.5-0.5B` fue seleccionado por ser el segundo
-> más eficiente (149 tokens, 9.9 prom/frase), multilingüe, Apache 2.0, y el más liviano del grupo
-> (0.49 B params / 1 GB disco) — garantizando ciclos de experimentación cortos en la T4 de Colab.
+> **E5-small congelado** actúa como baseline semántico sin entrenamiento — separa el efecto del
+> encoder pre-entrenado del efecto del fine-tuning. Si el congelado supera a BM25, el argumento
+> de fine-tuning se fortalece; si no, también es un hallazgo honesto que se reporta.
 
 ## Qué se espera en M1
 
-M1 cubre la primera capa del sistema: elegir un modelo base **decoder**, construir el dataset de
-entrenamiento/evaluación del dominio, hacer fine-tuning eficiente con **LoRA**, y demostrar con
-métricas que el modelo resultante mejora (o no) sobre un baseline razonable.
+M1 cubre la primera capa del sistema: elegir un encoder base, construir el dataset de
+entrenamiento/evaluación del dominio, hacer fine-tuning eficiente, y demostrar con métricas
+de ranking que el modelo resultante mejora (o no) sobre los baselines.
 
 Concretamente, el equipo debe producir cuatro cosas verificables:
 
-1. **Un modelo base elegido y justificado con evidencia** — no basta con nombrar un modelo; hay
-   que argumentar la decisión con datos sobre tamaño, licencia, cobertura de idioma y
-   comportamiento del tokenizador frente al dominio de ecommerce en español.
+1. **Un modelo base elegido y justificado con evidencia** — argumentar la decisión con datos
+   sobre tamaño, licencia, cobertura de idioma y comportamiento del tokenizador sobre texto
+   de ecommerce en español. El candidato eficiente se compara con BM25 y su variante congelada
+   antes de adoptarlo.
 2. **Un dataset documentado y reproducible** — origen, licencia, tamaño, criterios de inclusión,
    limpieza aplicada, limitaciones conocidas, y splits que cualquiera pueda regenerar.
-3. **Un fine-tuning con LoRA que efectivamente corre** — entrenamiento reproducible, con
-   hiperparámetros registrados, cuyo modelo resultante carga y produce salidas coherentes.
-4. **Un baseline y métricas comparables** — no solo reportar números del modelo propio, sino
-   compararlo contra un baseline explícito (BM25) y el modelo antes del fine-tuning, con una
-   lectura honesta de dónde sí y dónde no hay mejora.
+3. **Un fine-tuning de encoder que efectivamente corre** — entrenamiento reproducible, con
+   hiperparámetros registrados, cuyo modelo resultante carga y produce scores coherentes.
+4. **Baselines y métricas comparables** — comparar el encoder fine-tuned contra BM25 y E5-small
+   congelado sobre el mismo split de test con nDCG@10 como métrica primaria, con una lectura
+   honesta de dónde sí y dónde no hay mejora.
 
-> **Estado actual:** Criterio 1 (selección del modelo) — **confirmado con evidencia empírica**.
-> Criterios 2, 3 y 4 — en curso. No se atribuyen a la docente formatos, fechas o criterios
-> no publicados oficialmente.
+> **Estado actual:** Criterio 2 (dataset ESCI) — implementado en el notebook. Criterios 1, 3
+> y 4 — en curso. Las rúbricas detalladas aún no han sido publicadas; nunca se inventan
+> requisitos faltantes.
 
 ## Material de referencia (Clases/M1)
 
@@ -61,27 +71,27 @@ Concretamente, el equipo debe producir cuatro cosas verificables:
 | S01 | [S01_Demo_Capacidades.ipynb](../../Clases/M1/S01_Demo_Capacidades.ipynb) | Demo LLM + RAG + multimodal; introducción a `multilingual-e5-small` |
 | S02 | [S02_Lab_Abrir_la_caja.ipynb](../../Clases/M1/S02_Lab_Abrir_la_caja.ipynb) | Tokenizadores (BPE, WordPiece, SentencePiece), self-attention, positional encoding |
 | S03 | [S03_Lab_El_bloque_y_las_familias_SOLUCIONES.ipynb](../../Clases/M1/S03_Lab_El_bloque_y_las_familias_SOLUCIONES.ipynb) | Bloque transformer, conexión residual, tres familias (encoder/decoder/enc-dec) |
-| S04 | [S04_Lab_Fine_tuning_SOLUCION.ipynb](../../Clases/M1/S04_Lab_Fine_tuning_SOLUCION.ipynb) | Fine-tuning con LoRA usando `peft` + `Trainer`; baseline antes/después |
+| S04 | [S04_Lab_Fine_tuning_SOLUCION.ipynb](../../Clases/M1/S04_Lab_Fine_tuning_SOLUCION.ipynb) | Fine-tuning de encoders; baseline antes/después |
 
 ## Entorno requerido
 
 - **Google Colab** con GPU **T4** (`Runtime → Change runtime type → T4 GPU`)
-- Librerías principales: `transformers`, `peft`, `datasets`, `accelerate`, `evaluate`
-- Instalación (ver celda de setup de S04):
+- Librerías principales: `transformers`, `datasets`, `accelerate`, `evaluate`, `sentence-transformers`
+- Instalación (ver celda de setup del ENTREGABLE):
   ```bash
-  pip install -q transformers datasets peft accelerate evaluate bitsandbytes
+  pip install -q transformers datasets accelerate evaluate sentence-transformers
   ```
 
 ## Criterios de aceptación
 
-Esta es la rúbrica de evaluación de M1. Cada criterio se puntúa de 0 a 5, para un total de 20.
+Cada criterio se puntúa de 0 a 5, para un total de 20.
 
-| Criterios | Nivel 4 (5 puntos) | Nivel 3 (3.5 puntos) | Nivel 2 (2 puntos) | Nivel 1 (0 puntos) |
+| Criterio | Nivel 4 (5 puntos) | Nivel 3 (3.5 puntos) | Nivel 2 (2 puntos) | Nivel 1 (0 puntos) |
 |---|---|---|---|---|
-| **Selección y justificación del modelo base** | Escoge un modelo base y argumenta la decisión con evidencia: tamaño, licencia, idioma y comportamiento del tokenizador sobre el dominio | Escoge con criterio pero la justificación es parcial o no está respaldada con datos | Escoge sin argumentar, o el argumento no resiste una pregunta | No hay modelo base identificable |
-| **Dataset: construcción y documentación** | Dataset documentado: origen, licencia, tamaño, criterios de inclusión, limpieza y limitaciones conocidas. Splits reproducibles | Documentado en lo esencial; faltan licencia, limitaciones o criterios de split | Dataset sin documentar, o splits no reproducibles | No hay dataset o no es del dominio declarado |
-| **Implementación del fine-tuning con LoRA** | Entrenamiento correcto y reproducible; hiperparámetros registrados; el modelo resultante carga y produce salidas coherentes | Entrena y funciona, pero con configuración no registrada o parcialmente reproducible | Corre con errores, o no se puede reproducir | No entrenó |
-| **Baseline y reporte de métricas** | Hay baseline explícito, métricas comparables y una lectura honesta del delta, incluidos los casos donde no mejoró | Hay baseline y métricas, pero la comparación es superficial o solo reporta lo favorable | Reporta métricas sin baseline, o el baseline no es comparable | Sin métricas |
+| **Selección y justificación del modelo base** | Escoge un encoder base y argumenta con evidencia: tamaño, licencia, idioma y tokenizador sobre el dominio. Compara con BM25 y E5-small congelado | Justificación parcial o sin datos | Escoge sin argumentar | No hay modelo base identificable |
+| **Dataset: construcción y documentación** | Documentado: origen, licencia, tamaño, criterios, limpieza y limitaciones. Splits reproducibles | Faltan licencia, limitaciones o criterios de split | Sin documentar o splits no reproducibles | No hay dataset |
+| **Implementación del fine-tuning** | Reproducible; hiperparámetros registrados; modelo resultante produce scores coherentes | Funciona pero sin configuración registrada | Corre con errores o no reproducible | No entrenó |
+| **Baselines y reporte de métricas** | nDCG@10 sobre los cuatro sistemas; guardrails (MRR, Recall@10); lectura honesta del delta | Hay métricas pero comparación superficial | Métricas sin baseline comparable | Sin métricas |
 
 **Total: /20**
 

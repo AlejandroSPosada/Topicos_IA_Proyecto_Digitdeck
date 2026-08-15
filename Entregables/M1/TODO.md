@@ -14,10 +14,10 @@ sección. Ejecutarlos antes de arrancar el trabajo propio.
 - [ ] Abrir [S04_Lab_Fine_tuning_SOLUCION.ipynb](../../Clases/M1/S04_Lab_Fine_tuning_SOLUCION.ipynb)
       en Colab y verificar que corre de punta a punta con GPU T4.
 - [x] Instalar las librerías del ecosistema HF que se usarán:
-      `transformers`, `peft`, `datasets`, `accelerate`, `evaluate`, `bitsandbytes`.
+      `transformers`, `datasets`, `accelerate`, `evaluate`, `sentence-transformers`.
 - [x] Registrar las versiones exactas del entorno con el que se entrenará (Python, torch,
-      transformers, peft) — esto es requisito de reproducibilidad del criterio 3.
-      _(Python 3.12.13 · torch 2.11.0+cu128 · transformers 5.13.1 · peft 0.19.1)_
+      transformers) — esto es requisito de reproducibilidad del criterio 3.
+      _(Python 3.12.13 · torch 2.11.0+cu128 · transformers 5.13.1)_
 - [ ] Crear cuenta en [Hugging Face](https://huggingface.co) si no existe; generar un token de
       acceso para poder cargar y subir modelos.
 
@@ -28,36 +28,39 @@ sección. Ejecutarlos antes de arrancar el trabajo propio.
 **Referencia de clase:** Lab A de [S02](../../Clases/M1/S02_Lab_Abrir_la_caja.ipynb) y sección
 "La decisión para M1" de [S03](../../Clases/M1/S03_Lab_El_bloque_y_las_familias_SOLUCIONES.ipynb).
 
-- [x] Definir la lista de candidatos a evaluar. Se proponen cinco opciones que cubren distintas
-      familias, tamaños y estrategias de cobertura del español, todas dentro del presupuesto de
-      la GPU T4 de Colab gratuito:
+El equipo evalúa **encoders multilingües** bajo el mismo split ESCI y presupuesto T4.
+El candidato eficiente es `intfloat/multilingual-e5-small`; se compara contra BM25 y su propia
+variante congelada antes de adoptar el fine-tuning como decisión.
 
-  | Modelo | Params | Familia | Español | Licencia |
-  |---|---|---|---|---|
-  | `Qwen/Qwen2.5-0.5B` | 0.5 B | Qwen2.5 (decoder) | Multilingüe | Apache 2.0 |
-  | `meta-llama/Llama-3.2-1B` | 1 B | LLaMA 3.2 (decoder) | Multilingüe | Llama 3.2 Community |
-  | `HuggingFaceTB/SmolLM2-1.7B` | 1.7 B | SmolLM2 (decoder) | Multilingüe | Apache 2.0 |
-  | `BSC-LT/salamandra-2b` | 2 B | Decoder especializado en español | **Solo español/catalán** | Apache 2.0 |
-  | `microsoft/Phi-3.5-mini-instruct` | 3.8 B | Phi-3.5 (decoder) | Multilingüe | MIT |
+- [ ] Definir la lista de variantes a evaluar:
 
-  > **Por qué estos cinco:** van de 0.5 B a 3.8 B (presupuesto de cómputo real), cubren tres
-  > familias distintas (Qwen, LLaMA, Phi), e incluyen `Salamandra`, el único entrenado
-  > *exclusivamente* en español — un punto de comparación directo para el dominio del proyecto.
-  > La decisión final se toma *después* del análisis de tokenizador, no antes.
+  | Variante | Entrenamiento | Métrica primaria | Guardrails |
+  |---|---|---|---|
+  | BM25 | Ninguno | nDCG@10 | latencia, tamaño de índice |
+  | E5-small congelado | Ninguno | nDCG@10 | memoria, p95 |
+  | **E5-small ajustado** ← candidato | Pares/grados ESCI es | nDCG@10 | MRR, Recall@10, memoria, p95 |
+  | E5-base ajustado *(opcional)* | Mismo split; mayor presupuesto | nDCG@10 | mejora por costo |
 
-- [x] Para cada candidato, registrar: número de parámetros, tamaño en disco, licencia y
-      fuente oficial (model card en Hugging Face).
+  > **Por qué esta lista:**
+  > - BM25 es el techo léxico; sin él la tabla no tiene referencia.
+  > - E5-small congelado separa el efecto del encoder pre-entrenado del efecto del fine-tuning.
+  >   Si ya supera BM25 sin entrenamiento, el argumento de fine-tuning se fortalece.
+  > - E5-small ajustado es el candidato real: multilingüe, visto en clase (S01), ~117 M params.
+  > - E5-base ajustado es ablación de tamaño (~278 M params); incluir si el tiempo lo permite.
+  > - BGE-M3 + reranker descartado de M1: arquitectura de dos etapas, p95 prohibitiva en T4.
 
-- [x] Reunir una muestra de 15–20 consultas reales o representativas del dominio (ecommerce en
+- [ ] Para cada variante encoder, registrar: número de parámetros, tamaño en disco, licencia
+      y fuente oficial (model card en Hugging Face).
+
+- [ ] Reunir una muestra de 15–20 consultas reales o representativas del dominio (ecommerce en
       español: nombres de producto, marcas, tildes, abreviaturas, spanglish, errores comunes).
-- [x] **Ejecutar el análisis de tokenizador del Lab A de S02** sobre esa muestra:
-      cargar los tokenizadores de los candidatos y anotar casos donde fragmentan mal palabras
-      del dominio (nombres de marca, SKUs, spanglish). Esta tabla es la evidencia del criterio 1.
-      _(4/5 cargados — Llama requiere token HF; resultados: Salamandra 126 tok · Qwen 149 tok · Phi 161 tok · SmolLM2 170 tok)_
-- [x] Redactar la justificación citando esa evidencia (no una afirmación general de "es bueno
+- [ ] **Ejecutar el análisis de tokenizador** sobre esa muestra: cargar los tokenizadores de
+      E5-small y E5-base y anotar casos donde fragmentan mal palabras del dominio. Esta tabla
+      es la evidencia del criterio 1.
+- [ ] Redactar la justificación citando esa evidencia (no una afirmación general de "es bueno
       para español").
-- [x] Formular explícitamente la pregunta que el argumento debe resistir (ej. "¿qué pasa si la
-      consulta tiene errores ortográficos?") y responderla con los datos del análisis.
+- [ ] Formular explícitamente la pregunta que el argumento debe resistir (ej. "¿por qué no usar
+      E5-base directamente?") y responderla con los datos del análisis y el presupuesto T4.
 
 ---
 
@@ -72,20 +75,20 @@ sección. Ejecutarlos antes de arrancar el trabajo propio.
 | **Idiomas** | Inglés, Español, Japonés |
 | **Subconjunto ES** | ~8 049 queries únicas · ~218 774 pares query-producto |
 | **Etiquetas** | `E` (Exact) · `S` (Substitute) · `C` (Complement) · `I` (Irrelevant) |
-| **Campos clave** | `query`, `product_title`, `product_description`, `product_brand`, `esci_label`, `split` |
+| **Campos clave** | `query`, `product_title`, `product_locale`, `esci_label`, `split` |
 | **Splits** | Train y Test ya definidos en el dataset |
 
-Mapeo de etiquetas ESCI → formato para fine-tuning causal:
+Mapeo de etiquetas ESCI → clasificación binaria para el encoder:
 
-| ESCI | Significado | Etiqueta en el modelo |
+| ESCI | Significado | Etiqueta |
 |---|---|---|
-| `E` (Exact) | Producto que responde directamente la consulta | `relevante` |
-| `S` (Substitute) | Producto alternativo, posiblemente útil | `no relevante` |
-| `C` (Complement) | Producto complementario | `no relevante` |
-| `I` (Irrelevant) | Sin relación con la consulta | `no relevante` |
+| `E` (Exact) | Producto que responde directamente la consulta | `relevante` (1) |
+| `S` (Substitute) | Producto alternativo | `no relevante` (0) |
+| `C` (Complement) | Producto complementario | `no relevante` (0) |
+| `I` (Irrelevant) | Sin relación con la consulta | `no relevante` (0) |
 
-> Para un primer modelo, se usa mapeo binario: `E` → `relevante`, `S+C+I` → `no relevante`.
-> La versión de 4 clases queda documentada como limitación conocida del dataset simplificado.
+> Mapeo binario: `E → 1`, `S+C+I → 0`. La pérdida de información en `S` y `C` queda como
+> limitación documentada en la sección 2.8 del notebook.
 
 - [x] Descargar el dataset ESCI desde el repositorio oficial:
       `shopping_queries_dataset_examples.parquet` +
@@ -100,86 +103,86 @@ Mapeo de etiquetas ESCI → formato para fine-tuning causal:
       - Descartar filas con `product_title` nulo o con menos de 3 palabras.
       - Deduplicar por `(query_id, product_id)`.
       _(Celda 2.3)_
-- [x] Aplicar limpieza reproducible: normalizar mayusculas/minusculas del query,
-      eliminar whitespace extra. Dejarla en un script versionado (no manual).
+- [x] Aplicar limpieza reproducible: normalizar mayúsculas/minúsculas del query,
+      eliminar whitespace extra.
       _(Función `limpiar_texto()` en celda 2.3)_
-- [x] Formatear cada ejemplo como texto plano para fine-tuning causal:
+- [ ] Formatear cada ejemplo para el encoder (par de texto + etiqueta numérica):
+      ```python
+      {"text_a": query, "text_b": product_title, "label": 1 | 0}
       ```
-      Consulta: {query}
-      Producto: {product_title}
-      Relevancia: {relevante | no relevante}
-      ```
-      _(Celda 2.4 — `PLANTILLA` con `df.apply(formatear)`)_
-- [x] Generar el subconjunto de entrenamiento con semilla fija (el split ya viene definido
-      en el dataset; documentar la semilla usada para cualquier submuestreo adicional).
-      _(Celda 2.5 — `SEMILLA = 42`; submuestreo opcional comentado)_
-- [x] Verificar reproducibilidad: correr el script de preprocesamiento dos veces y confirmar
-      que el output es idéntico.
-      _(Celda 2.6 — hash MD5 de df_train y df_test)_
-- [x] Documentar limitaciones conocidas: el dataset es de Amazon US/ES (puede no cubrir
-      catálogo Digitdeck exacto), el mapeo ESCI binario pierde información de `S` y `C`,
-      posible sesgo hacia categorías con mayor número de anotaciones.
+      _(Actualizar celda 2.4 del notebook — reemplaza el formato causal LM anterior)_
+- [x] Generar el subconjunto de entrenamiento con semilla fija (`SEMILLA = 42`).
+      _(Celda 2.5)_
+- [x] Verificar reproducibilidad: hash MD5 del DataFrame confirma que el pipeline es
+      determinista.
+      _(Celda 2.6)_
+- [x] Documentar limitaciones conocidas: origen Amazon US/ES, mapeo binario pierde info de
+      `S` y `C`, desbalance de clases, solo `product_title` (sin descripción).
       _(Celda 2.8 — 4 limitaciones explícitas)_
-- [x] Guardar el script de construcción del dataset en `Datos/` junto a una muestra
-      (los archivos `.parquet` completos no se versionan por tamaño).
-      _(Celda 2.7 — `esci_es_muestra_train.csv` + `esci_es_muestra_test.csv` + `Datos/README.md`)_
+- [x] Guardar el script de construcción del dataset en `Datos/` junto a una muestra.
+      _(Celda 2.7 — `esci_es_muestra_train.csv` + `esci_es_muestra_test.csv`)_
+
+> **Pendiente:** actualizar celda 2.4 del ENTREGABLE.ipynb al formato de clasificación encoder.
 
 ---
 
-## 3. Implementación del fine-tuning con LoRA
+## 3. Implementación del fine-tuning del encoder
 
-**Referencia de clase:** Lab B de [S04](../../Clases/M1/S04_Lab_Fine_tuning_SOLUCION.ipynb).
+**Referencia de clase:** [S04](../../Clases/M1/S04_Lab_Fine_tuning_SOLUCION.ipynb).
 
-- [ ] Cargar el modelo base elegido (`Qwen/Qwen2.5-0.5B` u otro) con `AutoModelForCausalLM`.
-- [ ] **Medir el baseline ANTES del fine-tuning** (Lab A de S04): hacerle preguntas de dominio
-      al modelo y anotar sus respuestas — este es el punto de comparación del criterio 4.
-- [ ] Configurar LoRA con `peft.LoraConfig` usando como punto de partida los hiperparámetros
-      de clase y justificando cualquier cambio:
-      - `r=8` (rank)
-      - `lora_alpha=16`
-      - `target_modules=["q_proj", "v_proj"]`
-      - `lora_dropout=0.05`
-      - `task_type="CAUSAL_LM"`
-- [ ] Definir los hiperparámetros de entrenamiento con `TrainingArguments`:
-      - `learning_rate=2e-4`
-      - `num_train_epochs` (ajustar según tamaño del dataset)
-      - `per_device_train_batch_size=2`
+- [ ] Cargar `intfloat/multilingual-e5-small` con `AutoModel` / `AutoTokenizer` y verificar
+      que produce embeddings coherentes sobre texto de dominio.
+- [ ] **Medir E5-small congelado** (sin ningún fine-tuning) sobre el split de test:
+      score de similitud coseno entre query y product_title → nDCG@10. Este es el baseline
+      semántico y el punto de comparación directo con el modelo ajustado.
+- [ ] Configurar la cabeza de clasificación y los hiperparámetros de entrenamiento:
+      - Cabeza lineal sobre pooling de tokens (o `[CLS]`)
+      - `learning_rate` (justificar elección frente a alternativas)
+      - `num_train_epochs`
+      - `per_device_train_batch_size`
       - `fp16=True` (con GPU T4)
-      - Semilla fija (`seed`)
-- [ ] Implementar el script de entrenamiento y correrlo de punta a punta sin errores.
+      - Semilla fija (`seed = 42`)
+- [ ] Implementar el script de entrenamiento con `Trainer` o `SentenceTransformer` y correrlo
+      de punta a punta sin errores.
 - [ ] Registrar todos los hiperparámetros usados en un archivo de config junto al modelo
       entrenado — no solo mencionarlos en el reporte.
-- [ ] Cargar el modelo resultante en un script independiente y verificar que produce salidas
-      coherentes (ej. dado un par relevante → clasifica como `relevante`; dado un par
-      irrelevante → clasifica como `no relevante`).
+- [ ] Cargar el modelo resultante y verificar que produce scores coherentes:
+      par relevante → score alto; par irrelevante → score bajo.
 - [ ] Confirmar reproducibilidad: volver a correr con la misma configuración y verificar
-      comportamiento consistente.
-- [ ] (Opcional recomendado) Guardar el adaptador LoRA en Hugging Face Hub:
-      `model.push_to_hub("su-usuario/digitdeck-lora-m1")`.
+      métricas consistentes.
+- [ ] *(Opcional)* Repetir el fine-tuning con `intfloat/multilingual-e5-base` como ablación
+      de tamaño; documentar la mejora de nDCG@10 por costo adicional de cómputo.
+- [ ] *(Opcional recomendado)* Guardar el encoder fine-tuned en Hugging Face Hub.
 
 ---
 
-## 4. Baseline y reporte de métricas
+## 4. Baselines y reporte de métricas
 
-- [ ] Definir la(s) métrica(s) de evaluación **antes** de ver los resultados (no después):
-      ej. accuracy sobre el split de test, o F1 para la etiqueta `relevante`.
-- [ ] Implementar el baseline BM25 léxico sobre el mismo corpus: dado un par
-      `(consulta, producto)`, el score BM25 determina si lo clasifica como relevante.
-- [ ] Evaluar el modelo **antes** del fine-tuning (baseline B) sobre el split de test.
-- [ ] Evaluar el modelo **después** del fine-tuning sobre el mismo split.
-- [ ] Evaluar BM25 sobre el mismo split.
+**Métrica primaria:** nDCG@10 (normalised Discounted Cumulative Gain, top-10 resultados).
+**Guardrails:** MRR · Recall@10 · memoria en VRAM · p95 de latencia de inferencia.
+**Métricas de diagnóstico** (secundarias): accuracy y F1 sobre la clasificación binaria.
+
+> Las métricas se definen aquí, antes de ver los resultados. No se cambian ni ajustan
+> a posteriori en función de qué sistema queda mejor.
+
+- [ ] Implementar el **baseline BM25** sobre el mismo corpus: dado un par
+      `(consulta, product_title)`, el score BM25 determina el ranking.
+- [ ] Evaluar **E5-small congelado** sobre el split de test → nDCG@10, MRR, Recall@10.
+- [ ] Evaluar **E5-small ajustado** (fine-tuned en sección 3) sobre el mismo split.
+- [ ] *(Opcional)* Evaluar **E5-base ajustado** bajo las mismas condiciones.
 - [ ] Construir la tabla comparativa de resultados:
 
-  | Sistema | Accuracy | F1 (relevante) | Notas |
-  |---|---|---|---|
-  | BM25 (baseline léxico) | — | — | |
-  | `Qwen2.5-0.5B` sin fine-tuning | — | — | |
-  | `Qwen2.5-0.5B` con LoRA (M1) | — | — | |
+  | Variante | nDCG@10 | MRR | Recall@10 | Memoria | Notas |
+  |---|---|---|---|---|---|
+  | BM25 | — | — | — | — | |
+  | E5-small congelado | — | — | — | — | |
+  | E5-small ajustado (M1) | — | — | — | — | |
+  | E5-base ajustado *(opcional)* | — | — | — | — | |
 
-- [ ] Identificar explícitamente los casos donde el modelo fine-tuned **no** mejora sobre el
-      baseline y escribir una hipótesis de por qué (no ocultarlos ni minimizarlos).
-- [ ] Redactar la lectura honesta del delta: qué mejoró, qué no, y qué implica para la decisión
-      de adoptar este modelo como base del sistema.
+- [ ] Identificar explícitamente los casos donde el modelo fine-tuned **no** mejora sobre los
+      baselines y escribir una hipótesis de por qué (no ocultarlos ni minimizarlos).
+- [ ] Redactar la lectura honesta del delta: qué mejoró en nDCG@10, qué no, y qué implica
+      para la decisión de adoptar este encoder como base del sistema.
 
 ---
 
@@ -187,12 +190,11 @@ Mapeo de etiquetas ESCI → formato para fine-tuning causal:
 
 - [ ] Releer el `README.md` de M1 y confirmar que cada criterio de la tabla tiene evidencia
       verificable en el repo (no solo texto afirmando que se cumplió).
-- [ ] Confirmar que el notebook de entrenamiento está ejecutado con outputs visibles
-      (celdas con resultado, no vacías).
-- [ ] Confirmar que el análisis de tokenizador del Lab A de S02 sobre texto de dominio
-      está incluido como evidencia del criterio 1.
+- [ ] Confirmar que el notebook está ejecutado con outputs visibles (celdas con resultado).
+- [ ] Confirmar que el análisis de tokenizador sobre texto de dominio está incluido como
+      evidencia del criterio 1.
 - [ ] Revisar que los splits del dataset son reproducibles y el script está versionado.
-- [ ] Confirmar que la tabla de métricas incluye los tres sistemas (BM25, modelo pre y
-      post fine-tuning) bajo las mismas condiciones.
+- [ ] Confirmar que la tabla de métricas incluye nDCG@10 para todas las variantes bajo las
+      mismas condiciones de evaluación.
 - [ ] Revisar que no se atribuyeron a la docente criterios, formatos o fechas que no han
       sido publicados oficialmente.

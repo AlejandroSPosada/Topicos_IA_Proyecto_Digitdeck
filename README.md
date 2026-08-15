@@ -17,11 +17,13 @@ de clientes.
 ## Sobre el proyecto
 
 **Digitdeck** es un **copiloto de calidad de búsqueda para ecommerce en español**: detecta
-consultas con resultados deficientes, evalúa la relevancia de pares (consulta, producto) y prepara
+consultas con resultados deficientes, **ordena productos por relevancia** y prepara
 recomendaciones trazables para la persona responsable de ecommerce.
 
 El trabajo se rastrea en
 [GitHub Project · SI4006 Search Quality Copilot](https://github.com/users/Max-Bustamante69/projects/8).
+
+Las rúbricas detalladas aún no han sido publicadas; nunca se inventan requisitos faltantes.
 
 ## Estructura del repositorio
 
@@ -32,7 +34,7 @@ gitEquipos/
 │   └── M2/                 # S05–S06: Evaluación generativa
 ├── Datos/                  # Datasets, muestras y artefactos del proyecto
 └── Entregables/            # Entregables del equipo, organizados por módulo
-    ├── M1/                 # Fine-tuning con LoRA (S02–S04)
+    ├── M1/                 # Fine-tuning de encoder para ranking de relevancia (S02–S04)
     ├── M2/                 # Evaluación generativa (S05–S06)
     ├── M3/                 # RAG, tool use, RAGAS (S07–S08, S10)
     ├── M4/                 # Componente visual: ViT, CLIP, difusión (S11–S13)
@@ -73,3 +75,10 @@ flowchart LR
 
 El código propio del equipo es MIT. El material de clase en `Clases/` sigue la licencia docente
 CC BY-NC-SA 4.0 de EAFIT SI4006 y se referencia, no se redistribuye.
+
+## Fuente docente
+
+La fuente docente está fijada por commit y fecha en
+[`course/source-lock.json`](course/source-lock.json), con cada delta conservado en
+[`course/sync-history.json`](course/sync-history.json).
+El tablero estudiantil se encuentra en [`course/calendar.md`](course/calendar.md).
