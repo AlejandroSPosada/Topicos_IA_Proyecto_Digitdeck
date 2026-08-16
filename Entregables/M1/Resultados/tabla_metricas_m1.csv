@@ -1,0 +1,4 @@
+Variante,nDCG@10,MRR,Recall@10,Tamaño modelo (MB),Memoria inferencia (MB),p95 latencia (ms),Notas
+BM25,0.7508491974316178,0.8257578730111302,0.5876914228556638,,,0.47,Sin entrenamiento · índice 10.49 MB · CPU
+E5-small congelado,0.7884584478948321,0.8685200452123754,0.6120665415089439,448.8,67.1,42.68,Sin fine-tuning · coseno de embeddings (2 textos por par)
+E5-small ajustado (M1),0.8369339789443814,0.9090957066676173,0.6444656004663234,448.8,67.1,33.43,Fine-tuning · lr=2e-05 · épocas efectivas: 2.0

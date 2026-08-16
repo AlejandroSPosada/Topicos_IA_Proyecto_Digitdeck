@@ -1,0 +1,35 @@
+{
+  "wandb_url": "https://wandb.ai/scastano/digitdeck-m1/runs/uve9istg",
+  "hub_url": null,
+  "epocas_efectivas": 2.0,
+  "hashes": {
+    "train": "e5f8baa5f301d5c5cbc2bdb79c7dfff5",
+    "val": "ee5ffaeedf8796119758c32670304dc1",
+    "test": "4d31950e81340999c4cbda611b4256c9"
+  },
+  "tamanos": {
+    "train": 235354,
+    "val": 26195,
+    "test": 92739,
+    "consultas_test": 3844
+  },
+  "hiperparametros": {
+    "modelo_base": "intfloat/multilingual-e5-small",
+    "tarea": "clasificación binaria (relevante / no relevante)",
+    "cabeza": "AutoModelForSequenceClassification (lineal sobre pooling [CLS])",
+    "max_length": 64,
+    "learning_rate": 2e-05,
+    "num_train_epochs": 3,
+    "per_device_train_batch_size": 64,
+    "per_device_eval_batch_size": 128,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.06,
+    "fp16": true,
+    "seed": 42,
+    "class_weighting": "pesos por frecuencia inversa en CrossEntropy (ver §3.5)",
+    "proporcion_validacion": 0.1,
+    "seleccion_modelo": "mejor checkpoint por eval_loss en VALIDACIÓN (nunca test)",
+    "early_stopping_patience": 1,
+    "reporte": "wandb"
+  }
+}

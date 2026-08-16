@@ -1,0 +1,55 @@
+{
+  "ndcg": {
+    "bm25": 0.7508491974316178,
+    "congelado": 0.7884584478948321,
+    "finetuned": 0.8369339789443814
+  },
+  "mrr": {
+    "bm25": 0.8257578730111302,
+    "congelado": 0.8685200452123754,
+    "finetuned": 0.9090957066676173
+  },
+  "recall10": {
+    "bm25": 0.5876914228556638,
+    "congelado": 0.6120665415089439,
+    "finetuned": 0.6444656004663234
+  },
+  "delta_finetuning_neto": 0.04847553104954927,
+  "delta_vs_bm25": 0.08608478151276355,
+  "delta_congelado_vs_bm25": 0.03760925046321428,
+  "pct_consultas_mejora_vs_oraculo": 0.34573361082206033,
+  "pct_consultas_empeora_vs_oraculo": 0.2911030176899064,
+  "guardrails": {
+    "bm25": {
+      "tamano_indice_mb": 10.49,
+      "p95_latencia_ms": 0.47,
+      "media_latencia_ms": 0.25,
+      "n_pares_por_lote": "1 consulta (~24 candidatos)"
+    },
+    "congelado": {
+      "modelo_mb": 448.8,
+      "memoria_inferencia_mb": 67.1,
+      "p95_latencia_ms": 42.68,
+      "media_latencia_ms": 40.6,
+      "n_pares_por_lote": 64
+    },
+    "finetuned": {
+      "modelo_mb": 448.8,
+      "memoria_inferencia_mb": 67.1,
+      "p95_latencia_ms": 33.43,
+      "media_latencia_ms": 28.78,
+      "n_pares_por_lote": 64
+    }
+  },
+  "clasificacion_test": {
+    "eval_loss": 0.5227164030075073,
+    "eval_accuracy": 0.7578688577621066,
+    "eval_f1": 0.7781674487527784,
+    "eval_runtime": 15.3011,
+    "eval_samples_per_second": 6060.929,
+    "eval_steps_per_second": 47.382,
+    "epoch": 2.0
+  },
+  "wandb_url": "https://wandb.ai/scastano/digitdeck-m1/runs/uve9istg",
+  "epocas_efectivas": 2.0
+}
