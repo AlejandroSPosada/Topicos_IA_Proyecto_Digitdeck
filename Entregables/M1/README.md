@@ -11,13 +11,6 @@ cada módulo del curso (`M1` a `M5`) corresponde a una capa del sistema.
 El motor del sistema es la capacidad del modelo de **asignar un score de relevancia a un par
 (consulta, producto)**. M1 es donde ese motor se construye y valida por primera vez.
 
-> **Alcance autorizado por la docente:** el equipo usa un **encoder con dataset público**
-> (Amazon ESCI en español) en lugar de los 20 ejemplos propios con LoRA del laboratorio de S04,
-> por ser la formulación que corresponde a la tarea real del proyecto. El resto de requisitos
-> de M1 se mantiene: baseline antes y después, dataset documentado, justificación del modelo
-> base y observabilidad con Weights & Biases.
-> _Autorización: [COMPLETAR fecha y canal]._
-
 ## Decisión técnica de M1
 
 El equipo fine-tunea `intfloat/multilingual-e5-small` sobre pares ESCI en español y lo compara
