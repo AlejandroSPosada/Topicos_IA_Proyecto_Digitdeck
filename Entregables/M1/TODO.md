@@ -216,7 +216,7 @@ la lista truncada a k, que infla la métrica).
 - [ ] Campos 5 a 8 (métrica de éxito, componente visual de M4, riesgos éticos, compromisos del
       equipo): quedan con su encabezado para completarse en los módulos siguientes.
 
----
+---V
 
 ## Antes de entregar
 

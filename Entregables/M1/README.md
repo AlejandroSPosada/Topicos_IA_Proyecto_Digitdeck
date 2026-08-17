@@ -157,25 +157,17 @@ instalación y la de descarga del dataset, que en Windows usan `urllib` en lugar
 | S03 | [S03_Lab_El_bloque_y_las_familias_SOLUCIONES.ipynb](../../Clases/M1/S03_Lab_El_bloque_y_las_familias_SOLUCIONES.ipynb) | Bloque transformer, conexión residual, tres familias (encoder/decoder/enc-dec) |
 | S04 | [S04_Lab_Fine_tuning_SOLUCION.ipynb](../../Clases/M1/S04_Lab_Fine_tuning_SOLUCION.ipynb) | Fine-tuning de encoders; baseline antes/después |
 
-## Autoevaluación del equipo
+## Rubrica
 
-> **Esta tabla la construyó el equipo, no la docente.** El curso no ha publicado una rúbrica
-> detallada para M1, y aquí no se le atribuye ninguna: los criterios, los niveles y el puntaje
-> son un instrumento interno de control de calidad, derivado de lo que la Sesión 4 sí enuncia
-> como contenido de la entrega (modelo fine-tuneado, dataset documentado, baseline contra
-> resultado, y justificación del modelo base). Sirve para que el equipo revise su propio
-> trabajo antes de entregar, no para anticipar una nota.
 
-| Criterio | Nivel 4 (5 puntos) | Nivel 3 (3.5 puntos) | Nivel 2 (2 puntos) | Nivel 1 (0 puntos) |
-|---|---|---|---|---|
-| **Selección y justificación del modelo base** | Escoge un encoder base y argumenta con evidencia: tamaño, licencia, idioma y tokenizador sobre el dominio. Compara con BM25 y E5-small congelado | Justificación parcial o sin datos | Escoge sin argumentar | No hay modelo base identificable |
-| **Dataset: construcción y documentación** | Documentado: origen, licencia, tamaño, criterios, limpieza y limitaciones. Splits reproducibles | Faltan licencia, limitaciones o criterios de split | Sin documentar o splits no reproducibles | No hay dataset |
-| **Implementación del fine-tuning** | Reproducible; hiperparámetros registrados; modelo resultante produce scores coherentes | Funciona pero sin configuración registrada | Corre con errores o no reproducible | No entrenó |
-| **Baselines y reporte de métricas** | nDCG@10 sobre los cuatro sistemas; guardrails (MRR, Recall@10); lectura honesta del delta | Hay métricas pero comparación superficial | Métricas sin baseline comparable | Sin métricas |
+| Criterios | Nivel 4 <br> 5 puntos | Nivel 3 <br> 3.5 puntos | Nivel 2 <br> 2 puntos | Nivel 1 <br> 0 puntos | Puntuación del criterio |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| **Selección y justificación del modelo base** | Escoge un modelo base y argumenta la decisión con evidencia: tamaño, licencia, idioma y comportamiento del tokenizador sobre el dominio | Escoge con criterio pero la justificación es parcial o no está respaldada con datos | Escoge sin argumentar, o el argumento no resiste una pregunta | No hay modelo base identificable | /5 |
+| **Dataset: construcción y documentación** | Dataset documentado: origen, licencia, tamaño, criterios de inclusión, limpieza y limitaciones conocidas. Splits reproducibles | Documentado en lo esencial; faltan licencia, limitaciones o criterios de split | Dataset sin documentar, o splits no reproducibles | No hay dataset o no es del dominio declarado | /5 |
+| **Implementación del fine-tuning con LoRA** | Entrenamiento correcto y reproducible; hiperparámetros registrados; el modelo resultante carga y produce salidas coherentes | Entrena y funciona, pero con configuración no registrada o parcialmente reproducible | Corre con errores, o no se puede reproducir | No entrenó | /5 |
+| **Baseline y reporte de métricas** | Hay baseline explícito, métricas comparables y una lectura honesta del delta, incluidos los casos donde no mejoró | Hay baseline y métricas, pero la comparación es superficial o solo reporta lo favorable | Reporta métricas sin baseline, o el baseline no es comparable | Sin métricas | /5 |
+| **Total** | | | | | **/20** |
 
-**Autoevaluación del equipo: /20** (escala interna, no oficial). Nota honesta sobre el cuarto
-criterio: la comparación cubre tres sistemas, no cuatro, porque la ablación con E5-base quedó
-implementada pero sin ejecutar.
 
 ---
 
