@@ -1,0 +1,9 @@
+dimension,BM25,E5 congelado,E5 ajustado (M1)
+Dimensión 1 · nDCG@10 (10 gold),0.660,0.721,0.834
+Dimensión 1 · similitud top-1 (0-1),0.847,0.883,0.998
+"Dimensión 2 · LLM-juez, todo (1-5)",3.46,3.46,3.46
+"Dimensión 2 · LLM-juez, gold (1-5)",4.20,4.20,4.20
+"Dimensión 2 · LLM-juez, adversarial",1.00,1.00,1.00
+Dimensión 3 · aciertos totales,6/13,8/13,11/13
+Dimensión 3 · aciertos gold,6/10,7/10,8/10
+Dimensión 3 · abstención adversarial,0/3,1/3,3/3

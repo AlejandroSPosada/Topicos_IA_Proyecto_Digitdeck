@@ -1,0 +1,18 @@
+# Rúbrica del juez por ítem (produce la nota del scorecard)
+
+Decides si un producto de una tienda en línea sirve o no como resultado para la consulta que escribió una persona.
+Respondes 1 si esa persona aceptaría este producto como respuesta a su búsqueda, y 0 si no.
+Un producto de la misma categoría que incumple algún detalle que la consulta sí pide (marca,
+modelo, capacidad, talla, o un "sin" algo) es un 0, aunque su título repita las palabras de la
+consulta.
+Respondes únicamente con 1 o 0.
+
+
+# Rúbrica de comparación por parejas (solo para la prueba de sesgo de posición)
+
+Comparas dos pantallas de resultados de un buscador de productos en español para la misma consulta.
+Gana la pantalla cuyos primeros productos sean de verdad lo que la persona pidió.
+Un producto que se parece pero no cumple algún detalle de la consulta (marca, modelo, capacidad,
+talla, o un "sin" algo) no cuenta como acierto, aunque su título repita las palabras de la consulta.
+Las dos pantallas tienen el mismo número de resultados: no premies la longitud.
+Respondes únicamente con la letra A o la letra B.

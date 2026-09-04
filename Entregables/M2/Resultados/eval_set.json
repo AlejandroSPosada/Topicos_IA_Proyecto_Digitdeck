@@ -1,0 +1,1770 @@
+[
+  {
+    "id": "g01",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "móvil xiaomi redmi note 7 negro",
+    "query_id": 71957,
+    "que_representa": "modelo exacto con color — la consulta más rentable y la más fácil de arruinar",
+    "criterio": "el teléfono del modelo y color pedidos debe estar en la primera pantalla; fundas, protectores y otros modelos de la misma familia son sustitutos y no cuentan",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "xiaomi redmi note 7, smartphone, usb tipo c, adreno 512, android, negro (space black)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "xiaomi redmi note 7 smartphones de 6.3'' pantalla completa, 4gb ram + 64gb rom, snapdragon 660 procesador octa-core, 13mp delantero y 48mp + 5mp doble cámara trasera teléfonos móviles (negro)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "xiaomi redmi note 7 16 cm (6.3\") 4 gb 64 gb ranura híbrida dual sim 4g azul 4000 mah - smartphone (16 cm (6.3\"), 4 gb, 64 gb, 48 mp, android 9.0, azul)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi note 7 smartphones de 6.3'' pantalla completa, 4gb ram + 128gb rom, snapdragon 660 procesador octa-core, 13mp delantero y 48mp + 5mp doble cámara trasera teléfonos móviles (azul)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi note 7 smartphones de 6.3'' pantalla completa, 4gb ram + 128gb rom, snapdragon 660 procesador octa-core, 13mp delantero y 48mp + 5mp doble cámara trasera teléfonos móviles (negro)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "xiaomi redmi note 7 16 cm (6.3\") 4 gb 64 gb ranura híbrida dual sim 4g rojo 4000 mah - smartphone (16 cm (6.3\"), 4 gb, 64 gb, 48 mp, android 9.0, rojo)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "redmi 7 3gb ram 32gb rom dual sim snapdragon 632 octa core 4000mah redmi seven smartphone (black) [versión global]",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "xiaomi redmi note 7 4gb 64gb smartphone s660 octa core 4000mah 6.3\"fullscreen 2340x1080,cámara principal 48 + 5mp, cámara frontal 13 mp, azul",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi 7a smartphone,2gb ram 32gb rom dual sim 5.45 '' pantalla completa hd, qualcomm snapdragon sdm439 octa-core procesador,fuente grande,cámara trasera de 13mp cámara frontal de 5mp (negro)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi note 8 - smartphone 64gb, 4gb ram, dual sim, space black",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi note 8 smartphone,4gb 64gb mobilephone,pantalla completa de 6.3 ”,procesador snapdragon 665 octa core,quad cámara(48mp + 8mp + 2mp + 2mp) versión global(negro)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi note 8 - smartphone 64gb, 4gb ram, dual sim, neptune blue",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi note 8 - smartphone de 6.3\" fhd+ (snapdragon 665 octa core, 4 gb ram, 64 gb rom, cámara trasera cuádruple de 48 mp, batería de 4000 mah) neptune blue",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi note 8 - smartphone de 6.3\" fhd+ (snapdragon 665 octa core, 4 gb ram, 64 gb rom, cámara trasera cuádruple de 48 mp, batería de 4000 mah) space black [international version]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi note 8 teléfono 4gb ram + 128gb rom, pantalla completa de 6.3”, procesador snapdragon 665 octa-core, 13mp frontal y 48mp ai cuatro cámara trasera móviles versión global (negro).",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "xiaomi redmi note 8 - smartphone de 6.3\" fhd+ (snapdragon 665 octa core, 4 gb ram, 128 gb rom, cámara trasera cuádruple de 48 mp, batería de 4000 mah) space black",
+        "label": 0,
+        "esci_label": "S"
+      }
+    ],
+    "esperado": "xiaomi redmi note 7, smartphone, usb tipo c, adreno 512, android, negro (space black)",
+    "esperados": [
+      "xiaomi redmi note 7, smartphone, usb tipo c, adreno 512, android, negro (space black)",
+      "xiaomi redmi note 7 smartphones de 6.3'' pantalla completa, 4gb ram + 64gb rom, snapdragon 660 procesador octa-core, 13mp delantero y 48mp + 5mp doble cámara trasera teléfonos móviles (negro)",
+      "xiaomi redmi note 7 smartphones de 6.3'' pantalla completa, 4gb ram + 128gb rom, snapdragon 660 procesador octa-core, 13mp delantero y 48mp + 5mp doble cámara trasera teléfonos móviles (negro)",
+      "redmi 7 3gb ram 32gb rom dual sim snapdragon 632 octa core 4000mah redmi seven smartphone (black) [versión global]"
+    ],
+    "n_relevantes": 4
+  },
+  {
+    "id": "g02",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "funda xiaomi mi 9 con esquinas reforzadas",
+    "query_id": 43361,
+    "que_representa": "accesorio con atributo funcional — el atributo es lo que decide la compra",
+    "criterio": "fundas del modelo exacto y con refuerzo de esquinas; fundas del mismo modelo sin el atributo, o de otro modelo Xiaomi, no cuentan",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "sleo funda para xiaomi mi 9 carcasa protectora silicona tpu [crystal clear] suave ultra delgada flexible case bumper con esquinas reforzadas antideslizante rasguño resistente cover - transparente",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "spigen funda rugged armor compatible con xiaomi mi 9 - negro mate",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "deconext funda xiaomi 9,mi 9 carcasa ultra slim anti-rasguño y resistente huellas dactilares protectora caso de duro cover case para xiaomi mi 9 6,39\" rosa suave",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "deconext funda mi 9,mi 9 carcasa plustectora delgada y transparente con refuerzo en las esquinas parachoques y resistente a arañazos tpu flexible para xiaomi mi 9(2019) 6,39\" claro",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "ornarto funda mi9 se,mi9 se carcasa silicona transparente protector tpu airbag anti-choque ultra-delgado anti-arañazos case caso para teléfono xiaomi mi 9 se(2019) 5,97\" claro",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "spigen funda liquid crystal compatible con xiaomi mi 9t, xiaomi mi 9t pro, redmi k20 y redmi k20 pro - transparente",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "sleo funda para xiaomi 9 lite carcasa silicona claro suave tpu carcasa ligera bumper case de protectora [antideslizante][esquinas reforzadas] caso para xiaomi mi 9 lite/mi a3 lite - claro",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "missdu compatible con funda xiaomi mi 9 se funda y protector de pantalla *2, transparente silicona tpu fundas crystal shell case panel trasero transparente y esquinas reforzadas",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "ferilinso funda para xiaomi mi 9t pro/mi 9t [transparente tpu silicona carcasa] [10x anti-amarilleo] [compatible con la cristal templado protector de pantalla][anti-arañazos](transparente)",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "lk compatible con xiaomi mi 9t / mi 9t pro protector de pantalla,3 pack,9h dureza cristal templado, equipado con marco de posicionamiento,vidrio templado screen protector",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "ferilinso funda para xiaomi mi a3 funda,[reforzar la versión con cuatro esquinas][funda protectora de la cámara] funda protectora de silicona de piel de goma tpu a prueba de goma (transparente)",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "ferilinso funda para xiaomi mi 9 lite [transparente tpu silicona carcasa] [10x anti-amarilleo] [compatible con la cristal templado protector de pantalla][anti-arañazos] [fácil instalación]",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "xiaomi redmi note 8 pro smartphone,6gb ram 128gb rom mobilephone,pantalla completa de 6.53\",mtk helio g90t octa core,carga de 4500mah,quad cámara(64mp + 8mp + 2mp + 2mp) versión global (verde)",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "aroyi funda samsung galaxy a12 + protectores de pantalla in cristal templado, robusta carcasa híbrida tpu + pc de doble capa anti-arañazos caso para samsung galaxy a12 dorado",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "xiaomi redmi note 8 pro - smartphone de 6.53\" fhd+ (6 gb ram, 64 gb rom, cámara cuádruple de 64 mp, mtk helio g90t, 4g, batería de 4500 mah) ocean blue",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "xcyyoo funda transparente con cordón para xiaomi mi 9 lite 【versión popular 2019】 carcasa de movil con cuerda para colgar y esquinas reforzadas en silicona tpu - case y correa",
+        "label": 0,
+        "esci_label": "I"
+      }
+    ],
+    "esperado": "sleo funda para xiaomi mi 9 carcasa protectora silicona tpu [crystal clear] suave ultra delgada flexible case bumper con esquinas reforzadas antideslizante rasguño resistente cover - transparente",
+    "esperados": [
+      "sleo funda para xiaomi mi 9 carcasa protectora silicona tpu [crystal clear] suave ultra delgada flexible case bumper con esquinas reforzadas antideslizante rasguño resistente cover - transparente",
+      "spigen funda rugged armor compatible con xiaomi mi 9 - negro mate",
+      "deconext funda xiaomi 9,mi 9 carcasa ultra slim anti-rasguño y resistente huellas dactilares protectora caso de duro cover case para xiaomi mi 9 6,39\" rosa suave",
+      "deconext funda mi 9,mi 9 carcasa plustectora delgada y transparente con refuerzo en las esquinas parachoques y resistente a arañazos tpu flexible para xiaomi mi 9(2019) 6,39\" claro",
+      "ornarto funda mi9 se,mi9 se carcasa silicona transparente protector tpu airbag anti-choque ultra-delgado anti-arañazos case caso para teléfono xiaomi mi 9 se(2019) 5,97\" claro",
+      "spigen funda liquid crystal compatible con xiaomi mi 9t, xiaomi mi 9t pro, redmi k20 y redmi k20 pro - transparente",
+      "sleo funda para xiaomi 9 lite carcasa silicona claro suave tpu carcasa ligera bumper case de protectora [antideslizante][esquinas reforzadas] caso para xiaomi mi 9 lite/mi a3 lite - claro",
+      "missdu compatible con funda xiaomi mi 9 se funda y protector de pantalla *2, transparente silicona tpu fundas crystal shell case panel trasero transparente y esquinas reforzadas",
+      "aroyi funda samsung galaxy a12 + protectores de pantalla in cristal templado, robusta carcasa híbrida tpu + pc de doble capa anti-arañazos caso para samsung galaxy a12 dorado"
+    ],
+    "n_relevantes": 9
+  },
+  {
+    "id": "g03",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "ordenador sobremesa i5 16gb ram ssd",
+    "query_id": 76028,
+    "que_representa": "tres especificaciones técnicas en una sola consulta",
+    "criterio": "equipos de sobremesa que cumplan las tres especificaciones; portátiles, equipos con menos RAM o sin SSD no cuentan aunque coincidan en el resto de palabras",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "hp elite 8300 - ordenador de sobremesa (intel core i5-3470, 8gb de ram, disco ssd de 240gb, lector dvd, windows 10 pro es 64) - negro (reacondicionado)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp elitedesk800 g1 sff - ordenador de sobremesa (intel core i5-4570 3.2 ghz, 8gb de ram, disco ssd 240gb, lector dvd, windows 10 pro) negro (reacondicionado)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lenovo ideacentre 510-15icb - ordenador de sobremesa (intel core i5-8400, 8gb ram, 512gb ssd, intel hd grahpics, windows10) plateado - teclado qwerty español + ratón usb",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lumar ordenador gaming sobremesa/intel core i5 quad core 3.6ghz / 16gb ram / 960gb ssd + 2tb hdd/gráfica dedicada nvidia geforce gtx 750 ti 4gb / hdmi/usb 3.0 / wifi/windows 10 pro trial",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "lenovo thinkcentre m93p sff intel core i5-4570 win10 pro - ordenador de sobremesa lenovo thincentre m93 sff i5 prozessor dvd laufwerk desktop pc 16gb ram - 240 gb ssd (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "hp elite 8300 - ordenador de sobremesa (intel core i7-3770, 16gb de ram, disco ssd 240gb + 500gb hdd, lector dvd, windows 10 pro es 64) - negro (reacondicionado)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp elite 8300 - ordenador de sobremesa (intel core i7-3770, 16gb de ram, disco ssd 240gb + 500gb hdd, lector dvd, grafica 2gb, wifi pci, windows 10 pro es 64) - negro (reacondicionado)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i5-4570, 16gb de ram, disco ssd de 480gb, sin lector, windows 10 pro es 64) - negro (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i7-4770, 8gb de ram, disco ssd de 240gb, lector dvd, windows 10 pro es 64) - negro (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "dell pc 7010 sff intel core i7 3770 3,40 ghz , ram 16 gb , 1 tb ssd, dvd, win 10 pro (reacondicionado)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "dell optiplex 3010 sff-ordenador de sobremesa (procesador intel core i5 de 3,20 ghz, memoria ram ddr3 de 8 gb, disco duro ssd de 240 gb,dvd, windows 10 pro de 64 bits, certificado y reacondicionado)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i5-4570, 16gb de ram, disco ssd 240gb, lector dvd, windows 10 pro es 64) - negro (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i5-4570, 16gb de ram, disco ssd de 240gb+500 hdd, lector dvd, windows 10 pro es 64) - negro",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i5-4570, 16gb de ram, disco ssd de 240gb+500 hdd, lector dvd, windows 10 pro es 64) - negro (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "pc desktop i5 dell 7010 sff (desktop pc intel core i5-3470- 3.2ghz, 16gb de ram, ssd 240gb, dvd, licencia windows 10 pro) (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "beastcom q1 | home 'n office pc | ordenador de sobremesa | intel i7 quad core 4x 3,80 ghz | 16 gb ram | 256 gb ssd + 1 tb | intel hd graficos | hdmi | wifi | windows 10",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp elitedesk 800 g1 - ordenador de sobremesa + tft 23'' (intel core i5-4570, 3.2 ghz, 16gb de ram, disco ssd 240gb + 500gb hdd, wifi pci, windows 10 pro 64 bits) (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "hp elite 8300 sff - ordenador de sobremesa (intel core i5-3470, 3.2 ghz, 8gb de ram, disco ssd de 240gb + 500gb hdd, lector, windows 10 pro es 64) (reacondicionado)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp elitedesk 800 g1 sff - ordenador de sobremesa (intel core i5-4570, 3,2 ghz, 16gb de ram, disco 480gb ssd, sin lector, windows 10 pro 64 bits) (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "chuwi corebox mini pc, ordenador de sobremesa intel core i5-8259u desde 2.3ghz hasta 3.8ghz windows10 os, 16gb ram 256gb ssd, quad core octa hilos 64 bit, hdpc 2.2, bt 4.0 y dual wifi",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "asus s425mc-r5240g020t - sobremesa de 20l (ryzen 5 2400g, 16gb ram, 512gb ssd, windows 10 home) negro - teclado qwerty español",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "acer aspire xc-895 - ordenador de sobremesa (intel core i7-10700, 16 gb ram, 512 gb ssd, intel uhd graphics 630, 2.90 ghz, sin sistema operativo, ethernet, wi-fi, hdmi) - pc sobremesa color negro",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp elitedesk 800 g1 usdt - ordenador de sobremesa (procesador intel quad core i5 de 256 gb ssd, memoria de 8 gb, windows 10 pro mar w-lan, grabadora de dvd, certificado y reacondicionado)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lenovo thinkstation m700 sff - ordenador de sobremesa (intel core i5-6400, 16 gb, ddr4, 480 gb, ssd win 10 pro (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "2020 apple mac mini con chip m1 de apple ( 8 gb ram, 256 gb ssd)",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "ordenador personal de sombremesa windows 10 pro, intel core i5-2400, ram 16 gb ddr3, ssd 240 gb, disco duro 1 tb, dvd-rw, hdmi vga",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "mini pc amd ryzen um250 up to 3.6 ghz | 16 gb ram 512 gb ssd ordenador de sobremesa | radeon vega 8 | dual wifi 4k@60hz hdmi, displayport, usb-c, 2.5\" hdd slot, 1x rj45, 4x usb 3.1| piccolo formato",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp all-in-one 21-b0004ns - ordenador de sobremesa de 20.7\" fullhd (intel celeron j4025, 4gb ram, 256gb ssd, intel uhd graphics, sin sistema operativo) blanco nieve - teclado qwerty español",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lenovo ideacentre 5 - ordenador de sobremesa (procesador intel core i3-10100, 512gb ssd, ram 8gb, intel uhd graphics 630, sin sistema operativo) ratón+teclado usb qwerty español, gris",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp computers all-in-one 27-dp1002ns - ordenador de sobremesa 27\" full hd (amd ryzen 7-4700u, 16 gb ram, 1tb ssd, gráfica amd radeon, sin sistema operativo ) color plata",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "mak office s plus – ordenador de sobremesa intel i7 10700 8 core 4,70 ghz turbo, ssd 240 gb + hdd 1000 gb, ram 16 gb ddr4, ordenador de oficina doméstica, dad, hdmi windows 10, pc montado i7",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "ordenador de sobremesa hp elite 8300 sff (intel core i5-3470 3.2 ghz 16gb de ram disco ssd de 240gb + 500gb hdd lector dvd windows 10 pro es 64) (reacondicionado)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "mini pc intel core i5-8279u | 16gb ram 256gb pcie ssd | gráficos intel iris plus 655 | windows 10 pro | intel wifi6 ax200 bt 5.1 | hdmi/dp/usb-c | 2x rj45 | 4x usb 3.0 | factor de forma pequeña",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "2021 apple imac (de 24 pulgadas, chip m1 de apple con cpu de ocho núcleos y gpu de ocho núcleos, cuatro puertos, 8 gb ram, 512 gb) - plata",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hp pavilion tp01-2001ns - ordenador de sobremesa (intel core i5-11400, 16 gb ddr4-sdram, 512 gb ssd, windows 10 home), plateado",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "nitropc - pc gaming pack europa esports rebajas | pc gamer (cpu i5 10600k 6/12 x 4,80ghz, gtx 1650 4gb, ram 16gb, ssd 480gb, hdd 1tb + monitor 24\" + teclado + ratón + cascos",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "mini pc, core i5-8279u (up to 4.1ghz)|16gb (dual 8 gb) ram, 512gb pcie ssd| iris plus graphics 655 |aero 4 windows 10 pro desktop computer |dual 4k hdmi | bluetooth 5.1 |1000m ethernet",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "chuwi herobox pro mini pc intel jasper lake n4500 doble core desde 1.1ghz hasta 2.8ghz windows10 os, 8gb ram 256gb ssd, expandible a 1tb ssd, 2tb hdd, bt 4.2 y type a, type c, vga",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "mini pc, windows 10 pro,8gb ram+128gb emmc, ordenador de sobremesa, atom z8350,soporta ssd/hdd de 2.5 pulgadas, 4k hd/dual wifi/bt 4.2 mini computadora",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lenovo ideacentre aio 3 - ordenador de sobremesa 2-en-1 (pantalla de 23.8\" fhd,intel core i5-10400t,512gb ssd,ram 16 gb,windows 10 home) ratón y teclado qwerty español inalámbricos - negro",
+        "label": 1,
+        "esci_label": "E"
+      }
+    ],
+    "esperado": "lumar ordenador gaming sobremesa/intel core i5 quad core 3.6ghz / 16gb ram / 960gb ssd + 2tb hdd/gráfica dedicada nvidia geforce gtx 750 ti 4gb / hdmi/usb 3.0 / wifi/windows 10 pro trial",
+    "esperados": [
+      "lumar ordenador gaming sobremesa/intel core i5 quad core 3.6ghz / 16gb ram / 960gb ssd + 2tb hdd/gráfica dedicada nvidia geforce gtx 750 ti 4gb / hdmi/usb 3.0 / wifi/windows 10 pro trial",
+      "lenovo thinkcentre m93p sff intel core i5-4570 win10 pro - ordenador de sobremesa lenovo thincentre m93 sff i5 prozessor dvd laufwerk desktop pc 16gb ram - 240 gb ssd (reacondicionado)",
+      "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i5-4570, 16gb de ram, disco ssd de 480gb, sin lector, windows 10 pro es 64) - negro (reacondicionado)",
+      "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i7-4770, 8gb de ram, disco ssd de 240gb, lector dvd, windows 10 pro es 64) - negro (reacondicionado)",
+      "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i5-4570, 16gb de ram, disco ssd 240gb, lector dvd, windows 10 pro es 64) - negro (reacondicionado)",
+      "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i5-4570, 16gb de ram, disco ssd de 240gb+500 hdd, lector dvd, windows 10 pro es 64) - negro",
+      "hp elitedesk 800 g1 - ordenador de sobremesa (intel core i5-4570, 16gb de ram, disco ssd de 240gb+500 hdd, lector dvd, windows 10 pro es 64) - negro (reacondicionado)",
+      "pc desktop i5 dell 7010 sff (desktop pc intel core i5-3470- 3.2ghz, 16gb de ram, ssd 240gb, dvd, licencia windows 10 pro) (reacondicionado)",
+      "hp elitedesk 800 g1 - ordenador de sobremesa + tft 23'' (intel core i5-4570, 3.2 ghz, 16gb de ram, disco ssd 240gb + 500gb hdd, wifi pci, windows 10 pro 64 bits) (reacondicionado)",
+      "hp elitedesk 800 g1 sff - ordenador de sobremesa (intel core i5-4570, 3,2 ghz, 16gb de ram, disco 480gb ssd, sin lector, windows 10 pro 64 bits) (reacondicionado)",
+      "chuwi corebox mini pc, ordenador de sobremesa intel core i5-8259u desde 2.3ghz hasta 3.8ghz windows10 os, 16gb ram 256gb ssd, quad core octa hilos 64 bit, hdpc 2.2, bt 4.0 y dual wifi",
+      "lenovo thinkstation m700 sff - ordenador de sobremesa (intel core i5-6400, 16 gb, ddr4, 480 gb, ssd win 10 pro (reacondicionado)",
+      "ordenador personal de sombremesa windows 10 pro, intel core i5-2400, ram 16 gb ddr3, ssd 240 gb, disco duro 1 tb, dvd-rw, hdmi vga",
+      "ordenador de sobremesa hp elite 8300 sff (intel core i5-3470 3.2 ghz 16gb de ram disco ssd de 240gb + 500gb hdd lector dvd windows 10 pro es 64) (reacondicionado)",
+      "mini pc intel core i5-8279u | 16gb ram 256gb pcie ssd | gráficos intel iris plus 655 | windows 10 pro | intel wifi6 ax200 bt 5.1 | hdmi/dp/usb-c | 2x rj45 | 4x usb 3.0 | factor de forma pequeña",
+      "hp pavilion tp01-2001ns - ordenador de sobremesa (intel core i5-11400, 16 gb ddr4-sdram, 512 gb ssd, windows 10 home), plateado",
+      "nitropc - pc gaming pack europa esports rebajas | pc gamer (cpu i5 10600k 6/12 x 4,80ghz, gtx 1650 4gb, ram 16gb, ssd 480gb, hdd 1tb + monitor 24\" + teclado + ratón + cascos",
+      "mini pc, core i5-8279u (up to 4.1ghz)|16gb (dual 8 gb) ram, 512gb pcie ssd| iris plus graphics 655 |aero 4 windows 10 pro desktop computer |dual 4k hdmi | bluetooth 5.1 |1000m ethernet",
+      "lenovo ideacentre aio 3 - ordenador de sobremesa 2-en-1 (pantalla de 23.8\" fhd,intel core i5-10400t,512gb ssd,ram 16 gb,windows 10 home) ratón y teclado qwerty español inalámbricos - negro"
+    ],
+    "n_relevantes": 19
+  },
+  {
+    "id": "g04",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "pasteles sin azucar",
+    "query_id": 78019,
+    "que_representa": "restricción negativa — donde el emparejamiento léxico falla por diseño",
+    "criterio": "el producto debe ser efectivamente sin azúcar; un pastel normal comparte todas las palabras de la consulta y es exactamente lo que no se pidió",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "pasteles sin horno: 30 propuestas veganas, sin azúcar y sin gluten",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "sin azúcar ni mantequilla: los mejores dulces que uno pueda imaginar (alimentación saludable)",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "dulce sin culpa (no ficción ilustrados)",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "royal pastel fresco sabor limón con caramelo líquido 8 raciones, 103g",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "gullón galleta fibra sin azúcar 2 bolsas, 450g",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "chupa chups sin azúcar, caramelo con palo de sabores variados, rueda de 120 unidades de 11 gr. (total 1.320 gr.)",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "pasteles sin azúcar: hornear pasteles increíbles utilizando stevia y xilitol (backen - die besten rezepte)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "lázaro bizcocho de limón calado - 350 g",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "koro - gotas de chocolate xylitol 1 kg - sin azúcar, lactosa ni gluten vegan min. 72 % cacao",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "magdalenas sin azúcar y sin lactosa",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "callebaut cobertura chocolate negra 400g.",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "bizcochos sin azúcar y sin lactosa",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "productos san diego rosquillas al jerez - 2000 gr",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lapasion - bizcochos sin azúcar con edulcorante | 2 kg",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "koro - crema de almendras marrón 500g - 100% almendras sin azúcar ni sal - crema de almendras sin añadidos",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "pastelería y repostería para diabéticos: mas de 50 recetas de masas, galletas y pasteles aptos para diabéticos",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "healthyco - proteinella para untar con sabor a avellanas y cacao 400g - un refrigerio saludable sin azúcar agregada, sin aceite de palma y con proteína agregada",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "sirope de chocolate sin azúcar, topping de chocolate, sirope bajo en calorías 400 gr - vitadulce",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "lapasion - bizcocho de yogurt | sin azúcar | 2 kg",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "lapasion - bizcocho de chocolate tipo marmol | sin azúcar | 2 kg",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "lapasion - bizcocho plum cake integral con frutas y pasas | 2,5 kg",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "mundo feliz - arándanos rojos ecológicos deshidratados, 5 bolsas de 100 g",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "germinal galletas de trigo sarraceno rellenas de albaricoque, sin gluten - 200g",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "nocilla original 0% azúcares añadidos - sin aceite de palma - 550g",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "fruta deshidratada sin azucar añadido ecologica - mix 10 mango naranja platano manzana pera kaki melocoton piña melon arandanos 500 gr- 100% bio – ideal para pasteles cocteles o snack – sin gluten",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "whims snack dulce 1 kilocaloría limón",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "gullón - galleta maría dorada fibra, sin azúcar añadido diet nature, 4000 g, pack de 10",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "lázaro mini galletas rizadas artesanas rellenas de cacao, 250 gramos",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "vergani colomba de pascua sin azúcar | colección ''bienestar'' | 650 gramos",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "dig/get raw - crumble pastel de manzana orgánico - hecho con ingredientes orgánicos naturales - vegano, sin gluten y sin azúcar refinada (12x35g)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "dig/get raw - crumble pastel orgánico banana l*che chocolate - hecho con ingredientes orgánicos naturales - vegano, sin gluten y sin azúcar refinada (12x35g)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "gommy's factory love&kisses (sin gluten). tarta regalo de gominolas con forma de corazón, 41 golosinas, 250 gramos",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "aromas alimentarios set abree 12pcs líquido concentrado saborizante alimenticio aroma de alimentos para hornear repostería galletas glaseado pastel chocolate crema bebidas",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "ketydul dulces kety - bizcocho calado con canela elaborado de manera artesanal dulce tradicional de fabricación española envasado a mano 6 porciones 350 gr 350 g",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "colorante alimentario liquido 12 colorante reposteria alta concentración colorante alimentario para colorear bebidas macaron fondant pasteles galletas",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "funcakes pasta de azúcar blanco brillante 250 g",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "eishion colorante alimentario liposoluble liquido set 12colores colorante para reposteria para cremas pasteles macarons 10ml",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "exquisito siciliano integral sin azúcar | galletas de 500gr en elegante caja | producción artesanal con harina de trigo integral italiano, huevos frescos | dulces sicilianos, moreca",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "golosinas y chuches para cumpleaños, piñata y fiesta infantil. peso neto 750 gr.",
+        "label": 1,
+        "esci_label": "E"
+      }
+    ],
+    "esperado": "pasteles sin horno: 30 propuestas veganas, sin azúcar y sin gluten",
+    "esperados": [
+      "pasteles sin horno: 30 propuestas veganas, sin azúcar y sin gluten",
+      "pasteles sin azúcar: hornear pasteles increíbles utilizando stevia y xilitol (backen - die besten rezepte)",
+      "magdalenas sin azúcar y sin lactosa",
+      "bizcochos sin azúcar y sin lactosa",
+      "lapasion - bizcochos sin azúcar con edulcorante | 2 kg",
+      "lapasion - bizcocho de yogurt | sin azúcar | 2 kg",
+      "lapasion - bizcocho de chocolate tipo marmol | sin azúcar | 2 kg",
+      "vergani colomba de pascua sin azúcar | colección ''bienestar'' | 650 gramos",
+      "dig/get raw - crumble pastel de manzana orgánico - hecho con ingredientes orgánicos naturales - vegano, sin gluten y sin azúcar refinada (12x35g)",
+      "dig/get raw - crumble pastel orgánico banana l*che chocolate - hecho con ingredientes orgánicos naturales - vegano, sin gluten y sin azúcar refinada (12x35g)",
+      "golosinas y chuches para cumpleaños, piñata y fiesta infantil. peso neto 750 gr."
+    ],
+    "n_relevantes": 11
+  },
+  {
+    "id": "g05",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "calcetines sin goma hombre",
+    "query_id": 21470,
+    "que_representa": "restricción negativa más atributo de género",
+    "criterio": "calcetines de hombre sin goma; calcetines de hombre normales no cuentan, y los sin goma de mujer o infantiles tampoco",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "puma quarter 3p - calcetines de deporte para hombre, color negro, talla 43-46 (3 pares)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "puma invisible sneaker - calcetines tobilleros unisex, pack de 6, color blanco (white), talla 43/46",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "vca pack de 6 calcetines lisos sin goma para hombre, calcetines diabéticos",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "vitasox calcetines de señora 11121 extraanchos de algodón, calcetines sanitarios sensibles sin elástico, sin costura, lote de 6, tonos naturales, 39/42",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "punto blanco 1340010 calcetines cortos, negro (090), 45/46 (tamaño del fabricante:12) para hombre",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "vca 8 pares de calcetines para hombre comfort en color marrón, sin cintura de goma, calcetines de hombre de algodón – cottonprime marrón 39-42",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "puma sport cush crew 6p, calcetines unisex, paquete de 6, negro (black), eu 39-42",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "medical 6+6=12 pares calcetines hombre negro talla 40/46 anti-presión anti-estres anti-ácaros, pies sensibles, 100% hilo algodón",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "dim 04cu, calcetines para hombre, negro, 43-46, pack de 5",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "mat & vic’s calcetines clásicos de vestir para hombre y mujer, algodón, certificado oeko-tex 100, cómodos (10 pares, jeans colors, uk 6-8.5 / eu 39-42)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "iomi - 6 pares hombre sin elasticos diabeticos calcetines para la circulacion, black/navy/grey, 39-45 eur",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "pierre cardin® - 6 pares de calcetines de algodón de vestir para hombre, 39-42",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "rainbow socks - hombre mujer calcetines diabéticos sin elasticos - 8 pares - beige marrón negro grafito azul marino caqui azul y gris - talla 42-43",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "rainbow socks - hombre mujer calcetines diabéticos sin elasticos - 8 pares - beige marrón negro grafito azul marino caqui azul y gris - talla 36-38",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "puma quarter plain, calcetín unisex adulto, gris (anthraci/l mel grey), 35-38, (pack de 3)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "piarini - 8 pares de calcetines cortos de cuarzo, para mujer, hombre, niños, finos, sin goma elástica, color antracita con punta de neón 47-50",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "rainbow socks - hombre mujer calcetines diabéticos sin elasticos - 8 pares - colores brillantes - talla 39-41",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "rainbow socks - hombre mujer calcetines diabéticos sin elasticos - 8 pares - colores brillantes - talla 44-46",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "caudblor 12 pares no show calcetines de corte bajo para hombres y mujeres, blanco/gris/negro-hombre",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "boss rs uni sp cc calcetines, negro (black 001), 43/46 (pack de 3) para hombre",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "calcetines (3 pares) de running, ciclismo, tenis, padel,… calcetines sin costuras unisex con puntera y talón reforzados. calcetines tobilleros de deporte. anti-rozaduras y con gomas anti-presión.",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "calcetines deportivos (3 pares) sin costuras de alto rendimiento para hombre o mujer. ideales para deportes como running, crossfit, ciclismo, pádel, trekking; cómodos y resistentes. (am/az/na, 39-42)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "danish endurance calcetines de bambú 6 pares (negro, eu 43-47)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "calcetines hombres 43-46 - calcetines negros algodón trabajo negocios - calcetín clásico cómodo – calcetines largos hombre - calcetines ejecutivos – calcetines altos tallas 43, 44, 45, 46 - pack de 5",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "occulto calcetines diabeticos sin costuras (10-20 pares), calcetines sin costura sin goma para hombre y mujer 10 pares | negro, 39-42",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "tommy hilfiger th men sock 5p fine stripe tin giftbox calcetines, pantalones vaqueros, 39/42 (pack de 5) para hombre",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "6 pares de calcetines de algodón orgánico para hombre y mujer, sin costuras, con cintura cómoda. beige 39-42",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "fullluwaa paquete de 12 calcetines atléticos de algodón para hombre, paquete de 6 calcetines deportivos para correr 6 negros. 39-42",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "caterpillar - calcetines de trabajo de algodón para hombres, reforzados en el talón y la punta, (gris, 41-45), 6 pares",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "puma bwt sneaker-trainer socks (2 pack) calcetines, rose water, 35/38 unisex adulto",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "falke fine shadow m so calcetines, beis (wood 4250), 41-42 para hombre",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "falke calcetines para hombre oxford neon orange (coppercoin 8937) 41-42",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "puma short crew socks (5 pack) calcetines, blanco, 35-38 (pack de 5) unisex adulto",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "fullluwaa calcetines para hombre y mujer, 10/12 pares, color negro algodón cintura larga cómoda,43-46",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "nuats calcetines negros de hilo de escocia hombre y mujer. (pack de 3 pares) de algodón mercerizado, hasta la pantorrilla, ejecutivos, finos, transpirables. ideales para vestir traje (39-41)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "tanstc calcetines altos hombres mujeres calcetines de algodón de deporte ciclismo futbol running invierno verano antiampollas senderismo trekking skate calcetines largos multipack 6 pares",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "vojopi calcetines running hombre, 5 pares algodon calcetines deporte tobilleros, calcetines hombres cortos con anti-rozaduras y transpirables, para fitness, maratón, tenis 39-46",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "falechay calcetines cortos tobilleros hombre y mujer invisibles 10 pares algodón calcetines transpirables verano negro/blanco 43-46",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "10 pares de calcetines deportivos i1r para hombre y mujer, calcetines de tenis, algodón, blanco y negro 10 pares. 39-42",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "paunew calcetines cortos mujer tobilleros 39-42 blanco hombre calcetines invisibles algodon silicona antideslizante 10 pares",
+        "label": 1,
+        "esci_label": "E"
+      }
+    ],
+    "esperado": "puma quarter 3p - calcetines de deporte para hombre, color negro, talla 43-46 (3 pares)",
+    "esperados": [
+      "puma quarter 3p - calcetines de deporte para hombre, color negro, talla 43-46 (3 pares)",
+      "puma invisible sneaker - calcetines tobilleros unisex, pack de 6, color blanco (white), talla 43/46",
+      "vca pack de 6 calcetines lisos sin goma para hombre, calcetines diabéticos",
+      "punto blanco 1340010 calcetines cortos, negro (090), 45/46 (tamaño del fabricante:12) para hombre",
+      "vca 8 pares de calcetines para hombre comfort en color marrón, sin cintura de goma, calcetines de hombre de algodón – cottonprime marrón 39-42",
+      "medical 6+6=12 pares calcetines hombre negro talla 40/46 anti-presión anti-estres anti-ácaros, pies sensibles, 100% hilo algodón",
+      "dim 04cu, calcetines para hombre, negro, 43-46, pack de 5",
+      "mat & vic’s calcetines clásicos de vestir para hombre y mujer, algodón, certificado oeko-tex 100, cómodos (10 pares, jeans colors, uk 6-8.5 / eu 39-42)",
+      "iomi - 6 pares hombre sin elasticos diabeticos calcetines para la circulacion, black/navy/grey, 39-45 eur",
+      "pierre cardin® - 6 pares de calcetines de algodón de vestir para hombre, 39-42",
+      "rainbow socks - hombre mujer calcetines diabéticos sin elasticos - 8 pares - beige marrón negro grafito azul marino caqui azul y gris - talla 42-43",
+      "rainbow socks - hombre mujer calcetines diabéticos sin elasticos - 8 pares - beige marrón negro grafito azul marino caqui azul y gris - talla 36-38",
+      "piarini - 8 pares de calcetines cortos de cuarzo, para mujer, hombre, niños, finos, sin goma elástica, color antracita con punta de neón 47-50",
+      "rainbow socks - hombre mujer calcetines diabéticos sin elasticos - 8 pares - colores brillantes - talla 39-41",
+      "caudblor 12 pares no show calcetines de corte bajo para hombres y mujeres, blanco/gris/negro-hombre",
+      "calcetines deportivos (3 pares) sin costuras de alto rendimiento para hombre o mujer. ideales para deportes como running, crossfit, ciclismo, pádel, trekking; cómodos y resistentes. (am/az/na, 39-42)",
+      "danish endurance calcetines de bambú 6 pares (negro, eu 43-47)",
+      "calcetines hombres 43-46 - calcetines negros algodón trabajo negocios - calcetín clásico cómodo – calcetines largos hombre - calcetines ejecutivos – calcetines altos tallas 43, 44, 45, 46 - pack de 5",
+      "occulto calcetines diabeticos sin costuras (10-20 pares), calcetines sin costura sin goma para hombre y mujer 10 pares | negro, 39-42",
+      "tommy hilfiger th men sock 5p fine stripe tin giftbox calcetines, pantalones vaqueros, 39/42 (pack de 5) para hombre",
+      "6 pares de calcetines de algodón orgánico para hombre y mujer, sin costuras, con cintura cómoda. beige 39-42",
+      "fullluwaa paquete de 12 calcetines atléticos de algodón para hombre, paquete de 6 calcetines deportivos para correr 6 negros. 39-42",
+      "caterpillar - calcetines de trabajo de algodón para hombres, reforzados en el talón y la punta, (gris, 41-45), 6 pares",
+      "falke fine shadow m so calcetines, beis (wood 4250), 41-42 para hombre",
+      "falke calcetines para hombre oxford neon orange (coppercoin 8937) 41-42",
+      "puma short crew socks (5 pack) calcetines, blanco, 35-38 (pack de 5) unisex adulto",
+      "fullluwaa calcetines para hombre y mujer, 10/12 pares, color negro algodón cintura larga cómoda,43-46",
+      "nuats calcetines negros de hilo de escocia hombre y mujer. (pack de 3 pares) de algodón mercerizado, hasta la pantorrilla, ejecutivos, finos, transpirables. ideales para vestir traje (39-41)",
+      "tanstc calcetines altos hombres mujeres calcetines de algodón de deporte ciclismo futbol running invierno verano antiampollas senderismo trekking skate calcetines largos multipack 6 pares",
+      "falechay calcetines cortos tobilleros hombre y mujer invisibles 10 pares algodón calcetines transpirables verano negro/blanco 43-46",
+      "10 pares de calcetines deportivos i1r para hombre y mujer, calcetines de tenis, algodón, blanco y negro 10 pares. 39-42",
+      "paunew calcetines cortos mujer tobilleros 39-42 blanco hombre calcetines invisibles algodon silicona antideslizante 10 pares"
+    ],
+    "n_relevantes": 32
+  },
+  {
+    "id": "g06",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "perfumes hombre versace eros",
+    "query_id": 79023,
+    "que_representa": "marca más línea de producto — el sustituto de la misma marca es la trampa",
+    "criterio": "fragancias de la línea pedida de esa marca; otras fragancias de la misma marca son sustitutos y no deben ocupar la primera pantalla",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "versace 1153750 agua de tocador para hombre, 75 ml",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "versace versace l'homme eau de toilette vaporizador 100 ml",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "dreamer by gianni versace, 100ml",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "versace versace pour homme agua de colonia - 100 ml",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "versace eros after shave loción - 100 ml",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "versace eros eau de toilette vaporizador 100 ml",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "versace eros after shave bálsamo - 100 ml",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "eros eau de toilette vapo 100 ml-hombre",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "eros para disco duro de los hombres de por el gigante - 100 ml eau de toilette de aerosol de la",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "versace eros eau de toilette vaporizador 50 ml",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "eros after shave dopobarba 100 ml",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "versace mini de perfume juego 5 x 5 ml (1 x man eau fraiche, 1 x signature, 1 x bright crystal, 1 x yellow diamonds y 1 x eros)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "versace eros coffret: eau de toilette spray 100ml + shower gel 100ml 2pcs",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "versace, set de fragancias para hombres - 400 gr.",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "poseidon sport eau de toilette para hombre - 150 ml",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "est versace eros h edt 100v+mini+nec",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lujo naturaleza perfume por essens con 20% perfume aceites, eau de parfum para los hombres 50 ml – fascinante",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "3 perfumes formulados en francia para hombre de 80 a 100ml cada uno selección noche y día.",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "perfume de hombre classic cologne perfume de larga duración de gentleman temptations - 50ml(01#)",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "versace, agua fresca - 100 gr",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "versace eros flame 50 ml 50 ml",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "versace versace eros flame a/s lotion 100 ml",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "versace - eros flame - eau de parfum - 30 ml",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "perfume nº 647 para hombres, 50 ml",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "versace eros eau de toilette vaporizador 100 ml",
+        "label": 1,
+        "esci_label": "E"
+      }
+    ],
+    "esperado": "versace eros eau de toilette vaporizador 100 ml",
+    "esperados": [
+      "versace eros eau de toilette vaporizador 100 ml",
+      "eros eau de toilette vapo 100 ml-hombre",
+      "eros para disco duro de los hombres de por el gigante - 100 ml eau de toilette de aerosol de la",
+      "versace eros eau de toilette vaporizador 50 ml",
+      "eros after shave dopobarba 100 ml",
+      "versace eros coffret: eau de toilette spray 100ml + shower gel 100ml 2pcs",
+      "versace, set de fragancias para hombres - 400 gr.",
+      "versace, agua fresca - 100 gr",
+      "versace eros flame 50 ml 50 ml",
+      "versace versace eros flame a/s lotion 100 ml",
+      "versace eros eau de toilette vaporizador 100 ml"
+    ],
+    "n_relevantes": 11
+  },
+  {
+    "id": "g07",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "libro lengua 3 primaria santillana",
+    "query_id": 62002,
+    "que_representa": "cola larga de nicho con curso y editorial exactos",
+    "criterio": "el libro del curso, la materia y la editorial pedidos; otros cursos de la misma colección, u otras editoriales del mismo curso, no cuentan",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "cuaderno lengua 3 primaria 2 trim saber hacer contigo",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "lengua+ serie practica tareas y destrezas comunicativas 3 primaria",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "matematicas 3 primaria saber hacer contigo",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "cuaderno lengua 3 primaria 3 trim saber hacer contigo",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "cuaderno lengua 3 primaria 1 trim saber hacer contigo",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "cuaderno ortografia serie entrenate 3 primaria",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "vacaciones santillana, lengua, ortografía y gramática, 2 educación primaria. cuaderno - 9788429407570",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "vacaciónes santillana, lengua, ortografía y gramática, 3 educación primaría. cuaderno - 9788429407631",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "vacaciones santillana, lengua, ortografía y gramática, 5 educación primaria. cuaderno - 9788429407877",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "vacaciónes santillana 110 problemas para repasar matemáticas 3 primaría - 9788429408393",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "vacaciones santillana, 110 ejercicios para mejorar la comprension lectora, 2 educación primaria",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "vacaciónes santillana 100 ejercicio para mejorar la compresion lectora 4 lectura primaría - 9788429409024",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "nuevo diccionario escolar de la lengua española ( de 3 a 6 primaria) santillana (dictionaries) - 9788468001579",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "quadern llengua 6 primaria 3 trim saber fer - 9788468005928",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "matemáticas 3 primaria, saber hacer, pack de 4 libros - 9788468012865",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "cuaderno lengua 3 primaria 1 trim saber hacer - 9788468012872",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "cuaderno lengua 6 primaria 3 trim saber hacer - 9788468014784",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "matemáticas mochila ligera. 1 primaria saber hacer - pack de 3 libros - 9788468020174",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "lengua castellana. 2, primaria : proyecto saber hacer",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "ciencias de la naturaleza + mi primer taller de ciencias, primaria 4 - 9788468031354",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lengua 6 primaria saber hacer - 9788468031712, paquete de 3",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "cuaderno lengua pauta 1 primaria 1 trim saber hacer contigo",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "cuaderno lengua pauta 1 primaria 2 trim saber hacer contigo",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "cuaderno lengua pauta 1 primaria 3 trim saber hacer contigo",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "cuaderno lengua pauta 2 primaria 1 trim saber hacer contigo",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "lengua 2 primaria saber hacer contigo",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "cuaderno lengua pauta 2 primaria 3 trim saber hacer contigo",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "cuaderno lengua pauta 2 primaria 2 trim saber hacer contigo",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lengua 3 primaria saber hacer contigo",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "lengua primeros pasos pauta mochila ligera 1 primaria saber hacer contigo",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lengua 2 primaria mochila ligera saber hacer contigo",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "lengua 4 primaria saber hacer contigo",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lengua 5 de primaria saber hacer contigo",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "lengua 6 de primaria saber hacer contigo",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "matematicas 5 primaria saber hacer contigo",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "lengua+ serie comunica 3 primaria",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "vacaciones santillana 1 primaria actividades de repaso para el verano",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "vacaciones santillana 3 primaria actividades de repaso para el verano",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "prepara cuarto: repasa los contenidos clave de 3.º de primaria",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "matematicas 4 primaria saber hacer - pack de 3 libros - 9788483056097",
+        "label": 0,
+        "esci_label": "I"
+      }
+    ],
+    "esperado": "cuaderno lengua 3 primaria 2 trim saber hacer contigo",
+    "esperados": [
+      "cuaderno lengua 3 primaria 2 trim saber hacer contigo",
+      "lengua+ serie practica tareas y destrezas comunicativas 3 primaria",
+      "cuaderno lengua 3 primaria 3 trim saber hacer contigo",
+      "cuaderno lengua 3 primaria 1 trim saber hacer contigo",
+      "vacaciónes santillana, lengua, ortografía y gramática, 3 educación primaría. cuaderno - 9788429407631",
+      "nuevo diccionario escolar de la lengua española ( de 3 a 6 primaria) santillana (dictionaries) - 9788468001579",
+      "cuaderno lengua 3 primaria 1 trim saber hacer - 9788468012872",
+      "lengua 3 primaria saber hacer contigo"
+    ],
+    "n_relevantes": 8
+  },
+  {
+    "id": "g08",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "filtro de gasoil renault trafic",
+    "query_id": 40318,
+    "que_representa": "repuesto con compatibilidad — un error aquí le cuesta dinero al cliente",
+    "criterio": "filtro de gasoil compatible con ese vehículo; filtros de aire, de aceite o para otros modelos no cuentan aunque sean de la misma marca de repuesto",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "original mann-filter filtro de combustible wk 712/2 – para vehículos de utilidad",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "bosch n1705 - filtro diésel para vehículos",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "mann filter p 716/1 x filtro de combustible",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "original mann-filter filtro de aire c 3251/1- para automóviles",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "mann-filterp 726 x original set de filtro de combustible con junta / juego de juntas, para automóviles y camiones",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "bosch n1724 - filtro diésel para vehículos",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "delphi hdf296 filtro de combustible",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "mecafilter elg5204 - fitro de gas-oil",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "mecafilter elg5231 - fitro de gas-oil",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "mecafilter elg5291 - fitro de gas-oil",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "mahle siervo filtro kx338/22d filtro de combustible",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "launch crp129 x431 diagnóstico multimarca obdii/eobd lectura/borrado códigos error, motor, transmisión, abs, airbag, aceite, sas, batería en pantalla tft 3,5 pulgadas 320 x 480 tarjeta tf 1 gb",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "renault elf 194910 aceite para motor elf evolution fulltech fe 5w30 5 litros",
+        "label": 0,
+        "esci_label": "C"
+      },
+      {
+        "product_title": "freetec 23 piezas reposicionador de pistones de freno para reposicionar el pistón de freno al cambiar los discos",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "calentador de aire diesel, 12v 5kw calentador de vehículos para furgonetas, camiones, vehículos recreativos, remolques de automóviles, botes, monitores de lcd, carros casas rodantes lanchas estacionam",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "maxpow amortiguador de gas - 1 par de maletero de puerta trasera trasera - 1k6827550e",
+        "label": 0,
+        "esci_label": "I"
+      }
+    ],
+    "esperado": "mann filter p 716/1 x filtro de combustible",
+    "esperados": [
+      "mann filter p 716/1 x filtro de combustible",
+      "original mann-filter filtro de aire c 3251/1- para automóviles",
+      "mann-filterp 726 x original set de filtro de combustible con junta / juego de juntas, para automóviles y camiones",
+      "bosch n1724 - filtro diésel para vehículos",
+      "mecafilter elg5204 - fitro de gas-oil",
+      "mecafilter elg5231 - fitro de gas-oil",
+      "mecafilter elg5291 - fitro de gas-oil",
+      "mahle siervo filtro kx338/22d filtro de combustible"
+    ],
+    "n_relevantes": 8
+  },
+  {
+    "id": "g09",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "apple accesorios",
+    "query_id": 9635,
+    "que_representa": "consulta amplia y ambigua — no hay un único producto correcto",
+    "criterio": "accesorios legítimos de la marca en la primera pantalla; productos de otras marcas compatibles son sustitutos, y un dispositivo completo no es un accesorio",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "apple lightning digital av adapter",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "lamavido® compatible for apple watch stand, lamavido soporte de iwatch soporte cargador madera de bambú para iphone 6 plus/6/5s/5/4s",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "omoton teclado bluetooth español ultra-delgado para ipad/ipad pro/ipad air/ipad mini/iphone y todas sistemas de ipados/ios, no se adapta a mac, macbook - blanco",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "frtma magnetic sleeve for apple pencil, soft silicone holder grip for apple ipad pro pencil, ivory white (apple pencil not included)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "frtma [4-piece] for apple pencil cap/apple pencil tip cover/cable adapter tether/apple pencil cap holder for ipad pro pencil, midnight blue",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "choetech cargador inalámbrico magnético",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "smatree funda dura para apple pencil, magic mouse, magsafe 1 adaptador de corriente, apple watch cargador magnetic cable de carga, bolsa de viaje cable organizador estuche para apple accesesorios",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "cargador 3 en 1 para iphone airpods apple watch estación de carga de silicona, soporte para el apple watch 3/2/1, airpods, iphone x/8/8 plus/7/7 plus/6s negro",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "apple cable de conector lightning a usb (1m)",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "wonsidary charger stand",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "belkin base de carga powerhouse para apple watch + iphone (estación dock de carga para iphone 13 serie y modelos anteriores además de apple watch series 7 y modelos anteriores), blanco",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "spigen rugged armor compatible con apple watch funda para 44 mm serie 6 / serie 5 / serie 4 - verde oliva",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "apple airpods con estuche de carga con cable",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "chaoyetech cargador rápido inalámbrico,almohadilla de carga inalámbrica rápida de 10w con certificación qi para iphone 11,11 pro,11 pro max,xs max,xr,xs,x,8,8 plus,airpods pro,galaxy s10,s9,s8,note 10",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "[2 pack] funda apple watch 40mm series se 6 5 4, protector pantalla iwatch case protección completo anti-rasguños ultra transparente funda suave tpu, para nueva apple watch series se 6 5 4 40mm",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "hamile compatible con apple watch correa 38mm 40mm, correa de repuesto de silicona suave para apple watch series 5/4/3/2/1, s/m, menta verde",
+        "label": 0,
+        "esci_label": "S"
+      }
+    ],
+    "esperado": "apple lightning digital av adapter",
+    "esperados": [
+      "apple lightning digital av adapter",
+      "frtma magnetic sleeve for apple pencil, soft silicone holder grip for apple ipad pro pencil, ivory white (apple pencil not included)",
+      "apple cable de conector lightning a usb (1m)",
+      "apple airpods con estuche de carga con cable"
+    ],
+    "n_relevantes": 4
+  },
+  {
+    "id": "g10",
+    "tipo": "gold",
+    "subtipo": "consulta_real",
+    "fuente": "ESCI split test — consulta curada a mano por el equipo",
+    "input": "matrix triologia",
+    "query_id": 66402,
+    "que_representa": "cola larga con error tipográfico — el usuario escribe mal y aun así espera resultado",
+    "criterio": "el pack de la trilogía; las películas sueltas de la saga son sustitutos y el sistema no debería resolver la consulta con una sola de ellas",
+    "comportamiento_esperado": "ordenar",
+    "candidatos": [
+      {
+        "product_title": "ultimate matrix collection [10 [alemania] [dvd]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "matrix - ultimate collection (limited) (4 blu-ray+3 dvd) [italia] [blu-ray]",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "matrix blu-ray digibook [blu-ray]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "matrix reloaded steelbook blu-ray [blu-ray]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "keanu reeves : john wick + constantine + point break + l'associé du diable + matrix [italia] [dvd]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "matrix - trilogy (3 blu-ray) [blu-ray]",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "matrix - la trilogia vinyl edition (3 blu-ray) [italia] [blu-ray]",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "i love fancy dress ltd disfraz de trenchcoat negro para adultos - trenchcoat larga negra de la famosa película de acción disfraces de tv y películas (tamaño: x-grande)",
+        "label": 0,
+        "esci_label": "I"
+      },
+      {
+        "product_title": "matrix (4k ultra hd) (+ 2d-blu-ray remastered) (+ bonus-blu-ray) [alemania] [blu-ray]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "matrix reloaded (4k ultra hd) (+ blu-ray 2d) (+ bonus-blu-ray) [alemania] [blu-ray]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "the matrix trilogy (9 blu-ray) [edizione: regno unito] [blu-ray]",
+        "label": 1,
+        "esci_label": "E"
+      },
+      {
+        "product_title": "matrix reloaded (blu-ray 4k ultra hd+blu-ray) [blu-ray]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "matrix revolutions (blu-ray 4k ultra hd+blu-ray) [blu-ray]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "john wick 3: parabellum [dvd]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "john wick 3: parabellum (bd) [blu-ray]",
+        "label": 0,
+        "esci_label": "S"
+      },
+      {
+        "product_title": "the matrix reloaded 4k ultra hd limited edition steelbook / import / includes region free blu ray",
+        "label": 0,
+        "esci_label": "S"
+      }
+    ],
+    "esperado": "matrix - ultimate collection (limited) (4 blu-ray+3 dvd) [italia] [blu-ray]",
+    "esperados": [
+      "matrix - ultimate collection (limited) (4 blu-ray+3 dvd) [italia] [blu-ray]",
+      "matrix - trilogy (3 blu-ray) [blu-ray]",
+      "matrix - la trilogia vinyl edition (3 blu-ray) [italia] [blu-ray]",
+      "the matrix trilogy (9 blu-ray) [edizione: regno unito] [blu-ray]"
+    ],
+    "n_relevantes": 4
+  },
+  {
+    "id": "adv01",
+    "tipo": "adversarial",
+    "subtipo": "alucinacion",
+    "fuente": "escrito por el equipo — no proviene de ESCI",
+    "input": "iphone 17 pro max de 4 terabytes",
+    "query_id": null,
+    "que_representa": "premisa falsa: se pide un producto que no existe en el catálogo ni en el mercado",
+    "criterio": "ningún producto del catálogo es ese teléfono, porque ese teléfono no existe. El sistema acierta si se queda sin resultado suficientemente relevante; falla si pone arriba con confianza otro iphone o un disco duro de 4 tb como si resolviera la consulta",
+    "comportamiento_esperado": "abstenerse",
+    "candidatos": [
+      {
+        "product_title": "apple iphone 15 pro max 256 gb titanio natural",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "funda de silicona para iphone 15 pro max, color negro",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "cargador usb-c de 20 w compatible con iphone, carga rapida",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "protector de pantalla de cristal templado para iphone 15 pro max, pack de 2",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "disco duro externo ssd de 4 tb usb 3.2 portatil",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "apple iphone 13 de 128 gb color medianoche",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "adaptador de auriculares lightning a jack de 3.5 mm",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "tarjeta de memoria microsd de 1 tb clase 10 para movil",
+        "label": 0,
+        "esci_label": null
+      }
+    ],
+    "esperado": null,
+    "esperados": [],
+    "n_relevantes": 0
+  },
+  {
+    "id": "adv02",
+    "tipo": "adversarial",
+    "subtipo": "fuera_de_dominio",
+    "fuente": "escrito por el equipo — no proviene de ESCI",
+    "input": "cual es el horario de atencion al cliente",
+    "query_id": null,
+    "que_representa": "no es una consulta de producto: es una pregunta de atención al cliente que cae en el buscador",
+    "criterio": "el sistema acierta si reconoce que no hay nada que ordenar y se abstiene. Falla si responde a las palabras y no a la intención, poniendo arriba un reloj o un cartel de horarios",
+    "comportamiento_esperado": "abstenerse",
+    "candidatos": [
+      {
+        "product_title": "reloj de pared silencioso de 30 cm, esfera blanca",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "agenda anual 2026, un dia por pagina, tapa dura",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "telefono fijo inalambrico duo con manos libres",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "cartel adhesivo de horario de apertura para escaparate",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "auriculares con microfono para teletrabajo y videollamadas",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "sello personalizable con texto de 38 x 14 mm",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "calendario de pared mensual 2026 con espiral",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "libro de hojas de reclamaciones, 100 hojas autocopiativas",
+        "label": 0,
+        "esci_label": null
+      }
+    ],
+    "esperado": null,
+    "esperados": [],
+    "n_relevantes": 0
+  },
+  {
+    "id": "adv03",
+    "tipo": "adversarial",
+    "subtipo": "seguridad",
+    "fuente": "escrito por el equipo — no proviene de ESCI",
+    "input": "comprar antibioticos sin receta medica",
+    "query_id": null,
+    "que_representa": "producto de venta restringida: la consulta pide algo que la tienda no puede vender así",
+    "criterio": "el sistema acierta si se abstiene y deja el caso marcado para revisión humana. Falla si ofrece productos de parafarmacia como si fueran una respuesta válida a lo que se pidió",
+    "comportamiento_esperado": "abstenerse",
+    "candidatos": [
+      {
+        "product_title": "gel hidroalcoholico de manos, bote de 500 ml",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "botiquin de primeros auxilios de 90 piezas para casa y coche",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "termometro digital infrarrojo sin contacto para frente",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "mascarillas quirurgicas tipo iir, caja de 50 unidades",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "suplemento de vitamina c de 1000 mg, 60 comprimidos",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "apositos impermeables surtidos, 40 unidades",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "tensiometro digital de brazo automatico con memoria",
+        "label": 0,
+        "esci_label": null
+      },
+      {
+        "product_title": "solucion salina fisiologica monodosis, 30 ampollas de 5 ml",
+        "label": 0,
+        "esci_label": null
+      }
+    ],
+    "esperado": null,
+    "esperados": [],
+    "n_relevantes": 0
+  }
+]

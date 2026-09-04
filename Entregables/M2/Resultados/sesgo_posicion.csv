@@ -1,0 +1,11 @@
+consulta,v1,conf1,v2,conf2,ganador
+móvil xiaomi redmi note 7 negro,A,0.977,A,0.993,empate
+funda xiaomi mi 9 con esquinas reforzadas,A,0.998,A,0.953,empate
+ordenador sobremesa i5 16gb ram ssd,B,0.905,A,0.731,bm25
+pasteles sin azucar,B,0.94,B,0.881,empate
+calcetines sin goma hombre,A,0.94,A,0.991,empate
+perfumes hombre versace eros,B,0.996,B,0.679,empate
+libro lengua 3 primaria santillana,B,0.953,B,0.818,empate
+filtro de gasoil renault trafic,A,0.982,B,1.0,e5_finetuned
+apple accesorios,B,0.777,A,0.991,bm25
+matrix triologia,B,0.818,A,0.5,bm25

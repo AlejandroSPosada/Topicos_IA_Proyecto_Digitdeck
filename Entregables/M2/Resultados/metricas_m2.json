@@ -1,0 +1,125 @@
+{
+  "eval_set": {
+    "casos": 13,
+    "gold": 10,
+    "adversariales": 3,
+    "fuente_gold": "ESCI split test (Apache 2.0), consultas curadas a mano por el equipo",
+    "fuente_adversariales": "escritos por el equipo"
+  },
+  "configuracion": {
+    "modelo_base": "intfloat/multilingual-e5-small",
+    "modelo_evaluado": "modelo_e5_small_finetuned",
+    "modelo_juez": "Qwen/Qwen2.5-3B-Instruct",
+    "juez_puntaje": "argmax sobre los logits de 1/0 por producto, agregado con pesos de posicion 3-2-1",
+    "juez_version": "juicio binario por item; ver INFORME_M2.md seccion 6",
+    "modelo_embeddings": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "top_k_pantalla": 5,
+    "top_k_acierto": 3,
+    "umbrales_abstencion": {
+      "bm25": null,
+      "e5_congelado": 0.8386,
+      "e5_finetuned": 0.5993
+    },
+    "semilla": 42,
+    "dispositivo": "cuda"
+  },
+  "scorecard": {
+    "bm25": {
+      "sistema": "bm25",
+      "umbral_abstencion": null,
+      "ndcg10_gold": 0.6596934208353022,
+      "mrr_gold": 0.745,
+      "sim_top1_gold": 0.8471948832273484,
+      "juez_total": 2.0,
+      "juez_gold": 2.3,
+      "juez_adversarial": 1.0,
+      "juzgados_total": 13,
+      "juzgados_gold": 10,
+      "juzgados_adversarial": 3,
+      "aciertos": 6,
+      "aciertos_gold": 6,
+      "aciertos_adversarial": 0,
+      "abstenciones": 0,
+      "total": 13,
+      "total_gold": 10,
+      "total_adversarial": 3,
+      "segundos": 2.7
+    },
+    "e5_congelado": {
+      "sistema": "e5_congelado",
+      "umbral_abstencion": 0.8386,
+      "ndcg10_gold": 0.721094409167726,
+      "mrr_gold": 0.8,
+      "sim_top1_gold": 0.8828869253396988,
+      "juez_total": 2.3333333333333335,
+      "juez_gold": 2.6,
+      "juez_adversarial": 1.0,
+      "juzgados_total": 12,
+      "juzgados_gold": 10,
+      "juzgados_adversarial": 2,
+      "aciertos": 8,
+      "aciertos_gold": 7,
+      "aciertos_adversarial": 1,
+      "abstenciones": 1,
+      "total": 13,
+      "total_gold": 10,
+      "total_adversarial": 3,
+      "segundos": 2.7
+    },
+    "e5_finetuned": {
+      "sistema": "e5_finetuned",
+      "umbral_abstencion": 0.5993,
+      "ndcg10_gold": 0.8344202661140049,
+      "mrr_gold": 0.95,
+      "sim_top1_gold": 0.9983417868614197,
+      "juez_total": 3.4,
+      "juez_gold": 3.4,
+      "juez_adversarial": null,
+      "juzgados_total": 10,
+      "juzgados_gold": 10,
+      "juzgados_adversarial": 0,
+      "aciertos": 11,
+      "aciertos_gold": 8,
+      "aciertos_adversarial": 3,
+      "abstenciones": 3,
+      "total": 13,
+      "total_gold": 10,
+      "total_adversarial": 3,
+      "segundos": 2.4
+    }
+  },
+  "pruebas_del_juez": {
+    "puerta_de_entrada": {
+      "casos": 10,
+      "vs_cruzado": {
+        "mejor": 7,
+        "empate": 3,
+        "inversion": 0
+      },
+      "vs_invertido": {
+        "mejor": 5,
+        "empate": 4,
+        "inversion": 1
+      },
+      "regla": "aprueba con cero inversiones contra el cruzado",
+      "aprueba": true
+    },
+    "banco_de_variantes": "Resultados/banco_pruebas_juez.csv — cuatro formas del juez medidas contra esta misma puerta",
+    "sesgo_posicion": {
+      "comparaciones": 10,
+      "empates_por_contradiccion": 6,
+      "gana_e5_finetuned": 1,
+      "gana_bm25": 3,
+      "confianza_media": 0.891
+    },
+    "desacuerdos_con_esci": {
+      "productos_revisados": 30,
+      "desacuerdos": 18,
+      "detalle": "Resultados/desacuerdos_juez_vs_esci.csv"
+    },
+    "sesgo_longitud": {
+      "delta_medio_8_menos_3_juez_adoptado": 0.0,
+      "delta_medio_8_menos_3_juez_holistico_v2": 0.2
+    }
+  }
+}

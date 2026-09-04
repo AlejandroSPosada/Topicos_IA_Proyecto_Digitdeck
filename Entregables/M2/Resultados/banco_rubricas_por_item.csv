@@ -1,0 +1,4 @@
+variante,cru_mejor,cru_empate,cru_inv,inv_mejor,inv_empate,inv_inv,media_ora,media_inv,media_cru,niveles,seg
+v5 · actual ('exactamente'),6,4,0,4,5,1,2.2,1.5,1.0,4,4.7
+v6 · '¿lo aceptaría?',7,3,0,5,4,1,2.6,1.6,1.0,4,4.8
+v7 · v6 + regla de amplias,7,3,0,3,4,3,2.6,2.2,1.0,5,5.0

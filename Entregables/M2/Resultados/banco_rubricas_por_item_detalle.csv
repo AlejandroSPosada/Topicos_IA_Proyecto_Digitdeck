@@ -1,0 +1,31 @@
+variante,id,consulta,oraculo,invertido,cruzado,vs_invertido,vs_cruzado
+v5 · actual ('exactamente'),g01,móvil xiaomi redmi note 7 negro,4,1,1,mejor,mejor
+v5 · actual ('exactamente'),g02,funda xiaomi mi 9 con esquinas reforzadas,4,1,1,mejor,mejor
+v5 · actual ('exactamente'),g03,ordenador sobremesa i5 16gb ram ssd,2,1,1,mejor,mejor
+v5 · actual ('exactamente'),g04,pasteles sin azucar,2,3,1,inversion,mejor
+v5 · actual ('exactamente'),g05,calcetines sin goma hombre,1,1,1,empate,empate
+v5 · actual ('exactamente'),g06,perfumes hombre versace eros,4,4,1,empate,mejor
+v5 · actual ('exactamente'),g07,libro lengua 3 primaria santillana,1,1,1,empate,empate
+v5 · actual ('exactamente'),g08,filtro de gasoil renault trafic,1,1,1,empate,empate
+v5 · actual ('exactamente'),g09,apple accesorios,1,1,1,empate,empate
+v5 · actual ('exactamente'),g10,matrix triologia,2,1,1,mejor,mejor
+v6 · '¿lo aceptaría?',g01,móvil xiaomi redmi note 7 negro,5,1,1,mejor,mejor
+v6 · '¿lo aceptaría?',g02,funda xiaomi mi 9 con esquinas reforzadas,4,1,1,mejor,mejor
+v6 · '¿lo aceptaría?',g03,ordenador sobremesa i5 16gb ram ssd,2,4,1,inversion,mejor
+v6 · '¿lo aceptaría?',g04,pasteles sin azucar,2,1,1,mejor,mejor
+v6 · '¿lo aceptaría?',g05,calcetines sin goma hombre,1,1,1,empate,empate
+v6 · '¿lo aceptaría?',g06,perfumes hombre versace eros,4,4,1,empate,mejor
+v6 · '¿lo aceptaría?',g07,libro lengua 3 primaria santillana,1,1,1,empate,empate
+v6 · '¿lo aceptaría?',g08,filtro de gasoil renault trafic,1,1,1,empate,empate
+v6 · '¿lo aceptaría?',g09,apple accesorios,4,1,1,mejor,mejor
+v6 · '¿lo aceptaría?',g10,matrix triologia,2,1,1,mejor,mejor
+v7 · v6 + regla de amplias,g01,móvil xiaomi redmi note 7 negro,5,3,1,mejor,mejor
+v7 · v6 + regla de amplias,g02,funda xiaomi mi 9 con esquinas reforzadas,4,1,1,mejor,mejor
+v7 · v6 + regla de amplias,g03,ordenador sobremesa i5 16gb ram ssd,2,4,1,inversion,mejor
+v7 · v6 + regla de amplias,g04,pasteles sin azucar,2,3,1,inversion,mejor
+v7 · v6 + regla de amplias,g05,calcetines sin goma hombre,1,1,1,empate,empate
+v7 · v6 + regla de amplias,g06,perfumes hombre versace eros,4,4,1,empate,mejor
+v7 · v6 + regla de amplias,g07,libro lengua 3 primaria santillana,1,1,1,empate,empate
+v7 · v6 + regla de amplias,g08,filtro de gasoil renault trafic,1,1,1,empate,empate
+v7 · v6 + regla de amplias,g09,apple accesorios,4,1,1,mejor,mejor
+v7 · v6 + regla de amplias,g10,matrix triologia,2,3,1,inversion,mejor

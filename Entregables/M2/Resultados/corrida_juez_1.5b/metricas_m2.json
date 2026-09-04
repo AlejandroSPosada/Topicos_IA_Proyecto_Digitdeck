@@ -1,0 +1,91 @@
+{
+  "eval_set": {
+    "casos": 13,
+    "gold": 10,
+    "adversariales": 3,
+    "fuente_gold": "ESCI split test (Apache 2.0), consultas curadas a mano por el equipo",
+    "fuente_adversariales": "escritos por el equipo"
+  },
+  "configuracion": {
+    "modelo_base": "intfloat/multilingual-e5-small",
+    "modelo_evaluado": "modelo_e5_small_finetuned",
+    "modelo_juez": "Qwen/Qwen2.5-1.5B-Instruct",
+    "modelo_embeddings": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "top_k_pantalla": 5,
+    "top_k_acierto": 3,
+    "umbrales_abstencion": {
+      "bm25": null,
+      "e5_congelado": 0.8386,
+      "e5_finetuned": 0.5993
+    },
+    "semilla": 42,
+    "dispositivo": "cuda"
+  },
+  "scorecard": {
+    "bm25": {
+      "sistema": "bm25",
+      "umbral_abstencion": null,
+      "ndcg10_gold": 0.6596934208353022,
+      "mrr_gold": 0.745,
+      "sim_top1_gold": 0.8471948832273484,
+      "juez_total": 3.4615384615384617,
+      "juez_gold": 4.2,
+      "juez_adversarial": 1.0,
+      "aciertos": 6,
+      "aciertos_gold": 6,
+      "aciertos_adversarial": 0,
+      "total": 13,
+      "total_gold": 10,
+      "total_adversarial": 3,
+      "segundos": 2.3
+    },
+    "e5_congelado": {
+      "sistema": "e5_congelado",
+      "umbral_abstencion": 0.8386,
+      "ndcg10_gold": 0.721094409167726,
+      "mrr_gold": 0.8,
+      "sim_top1_gold": 0.8828869253396988,
+      "juez_total": 3.4615384615384617,
+      "juez_gold": 4.2,
+      "juez_adversarial": 1.0,
+      "aciertos": 8,
+      "aciertos_gold": 7,
+      "aciertos_adversarial": 1,
+      "total": 13,
+      "total_gold": 10,
+      "total_adversarial": 3,
+      "segundos": 2.4
+    },
+    "e5_finetuned": {
+      "sistema": "e5_finetuned",
+      "umbral_abstencion": 0.5993,
+      "ndcg10_gold": 0.8344202661140049,
+      "mrr_gold": 0.95,
+      "sim_top1_gold": 0.9983417868614197,
+      "juez_total": 3.4615384615384617,
+      "juez_gold": 4.2,
+      "juez_adversarial": 1.0,
+      "aciertos": 11,
+      "aciertos_gold": 8,
+      "aciertos_adversarial": 3,
+      "total": 13,
+      "total_gold": 10,
+      "total_adversarial": 3,
+      "segundos": 2.2
+    }
+  },
+  "sesgo_posicion": {
+    "comparaciones": 10,
+    "empates_por_contradiccion": 10,
+    "gana_e5_finetuned": 0,
+    "gana_bm25": 0
+  },
+  "prueba_discriminacion_juez": {
+    "oraculo": 5,
+    "invertido": 5
+  },
+  "prueba_sesgo_longitud": {
+    "lista_3": 5,
+    "lista_8": 5
+  }
+}

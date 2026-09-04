@@ -1,0 +1,11 @@
+id,consulta,oraculo,invertido,cruzado,vs_invertido,vs_cruzado
+g01,móvil xiaomi redmi note 7 negro,5,1,1,mejor,mejor
+g02,funda xiaomi mi 9 con esquinas reforzadas,4,1,1,mejor,mejor
+g03,ordenador sobremesa i5 16gb ram ssd,2,4,1,inversion,mejor
+g04,pasteles sin azucar,2,1,1,mejor,mejor
+g05,calcetines sin goma hombre,1,1,1,empate,empate
+g06,perfumes hombre versace eros,4,4,1,empate,mejor
+g07,libro lengua 3 primaria santillana,1,1,1,empate,empate
+g08,filtro de gasoil renault trafic,1,1,1,empate,empate
+g09,apple accesorios,4,1,1,mejor,mejor
+g10,matrix triologia,2,1,1,mejor,mejor
