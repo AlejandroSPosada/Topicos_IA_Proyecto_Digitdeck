@@ -1,0 +1,197 @@
+sistema,id,tipo,intencion,ndcg10_esci,mrr_esci,ndcg10_equipo,juez,juez_phi,acierto_pantalla,acierto_respuesta,afirmacion_falsa,formato_roto,apertura,abstiene,herramienta,herramienta_ok,latencia_total,lat_recuperacion,lat_generacion,lat_reranking,lat_enrutamiento,lat_verificacion,faithfulness,context_precision,context_recall,answer_relevancy,subconjunto
+A,g01-E,gold,existencia,0.19519002499605084,0.3333333333333333,0.19519002499605084,2.0,2.0,False,False,False,False,afirma,False,,,1.816,0.015,1.801,,,,1.0,0.4,0.0,0.7173786163330078,casos de M2
+A,g01-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,4.347,0.01,4.337,,,,1.0,1.0,1.0,0.8761789202690125,casos de M2
+A,g02-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,False,False,similares,False,,,5.033,0.012,5.021,,,,0.75,0.0,1.0,0.1743169128894806,casos de M2
+A,g03-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,False,False,similares,False,,,0.945,0.01,0.935,,,,1.0,0.8,0.0,0.4327499270439148,casos de M2
+A,g03-S,gold,similar,0.13886244387355456,0.5,,,,False,False,False,False,similares,False,,,3.51,0.01,3.5,,,,0.5,1.0,1.0,0.5927712917327881,casos de M2
+A,g04-E,gold,existencia,0.2200917662980802,1.0,0.2200917662980802,3.0,3.0,False,False,False,False,afirma,False,,,1.186,0.012,1.174,,,,1.0,0.2,0.0,0.5951268076896667,casos de M2
+A,g04-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.383,0.009,2.374,,,,1.0,0.4,0.0,0.8565823435783386,casos de M2
+A,g05-E,gold,existencia,0.2899773651602119,0.3333333333333333,0.2899773651602119,1.0,1.0,False,False,False,False,similares,False,,,1.099,0.011,1.088,,,,1.0,0.8,0.0,0.6377209424972534,casos de M2
+A,g05-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.731,0.011,2.72,,,,1.0,0.6,1.0,0.6293909549713135,casos de M2
+A,g06-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,False,False,similares,False,,,0.861,0.011,0.85,,,,1.0,0.4,0.0,0.6592569947242737,casos de M2
+A,g06-S,gold,similar,0.4373524791503101,1.0,,,,True,True,False,False,similares,False,,,0.957,0.01,0.947,,,,1.0,0.4,0.0,0.7551636695861816,casos de M2
+A,g07-E,gold,existencia,0.6093885500365385,0.5,0.5041767792801809,1.0,1.0,False,False,False,False,afirma,False,,,0.674,0.008,0.666,,,,1.0,1.0,0.0,0.6181944608688354,casos de M2
+A,g07-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.39,0.01,1.38,,,,1.0,0.4,1.0,0.20146523416042328,casos de M2
+A,g08-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,False,False,similares,False,,,1.265,0.009,1.255,,,,0.0,0.2,0.0,0.628508985042572,casos de M2
+A,g08-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.774,0.01,1.764,,,,0.5,0.6,1.0,0.7696263790130615,casos de M2
+A,g09-E,gold,existencia,0.0,0.0,0.0,2.0,5.0,False,False,True,False,afirma,False,,,1.397,0.011,1.386,,,,1.0,1.0,0.0,0.8405308723449707,casos de M2
+A,g09-S,gold,similar,0.2200917662980802,1.0,,,,False,False,False,False,similares,False,,,3.51,0.009,3.501,,,,0.75,0.8,1.0,0.6698344349861145,casos de M2
+A,g10-E,gold,existencia,0.8485833840018,1.0,0.951231200062686,3.0,3.0,False,False,False,False,afirma,False,,,0.765,0.008,0.757,,,,1.0,0.2,1.0,0.2715052366256714,casos de M2
+A,g10-S,gold,similar,0.13886244387355456,0.5,,,,False,False,False,False,similares,False,,,3.94,0.007,3.933,,,,1.0,0.2,0.0,0.46476316452026367,casos de M2
+A,adv01,adversarial,existencia,,,,1.0,1.0,False,False,False,False,similares,False,,,1.125,0.01,1.115,,,,1.0,,,0.591259777545929,casos de M2
+A,adv02,adversarial,ninguna,,,,,,True,True,False,False,abstiene,True,,,0.365,0.01,0.354,,,,,,,,casos de M2
+A,adv03,adversarial,ninguna,,,,1.0,2.0,False,False,True,False,afirma,False,,,1.099,0.009,1.09,,,,1.0,,,0.6152529716491699,casos de M2
+A,n01-E,gold,existencia,0.0,0.0,0.0,2.0,2.0,False,False,False,False,similares,False,,,1.105,0.011,1.094,,,,1.0,0.4,0.0,0.4647013545036316,casos nuevos
+A,n01-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.313,0.01,2.303,,,,0.75,1.0,0.0,0.6937032341957092,casos nuevos
+A,n02-E,gold,existencia,0.0,0.0,0.0,1.0,2.0,False,False,False,False,similares,False,,,0.997,0.011,0.986,,,,1.0,0.8,0.0,0.7223414182662964,casos nuevos
+A,n02-S,gold,similar,0.07834851647149513,0.14285714285714285,,,,False,False,False,False,similares,False,,,4.938,0.007,4.931,,,,1.0,1.0,1.0,0.7894532084465027,casos nuevos
+A,n03-E,gold,existencia,0.381480299158558,0.5,0.381480299158558,2.0,2.0,False,False,False,False,afirma,False,,,1.93,0.011,1.92,,,,0.5,0.8,1.0,0.6934079527854919,casos nuevos
+A,n03-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,4.528,0.011,4.517,,,,1.0,0.8,1.0,0.8570760488510132,casos nuevos
+A,n04-E,gold,existencia,0.46900009332067494,1.0,0.46900009332067494,5.0,5.0,True,True,False,False,afirma,False,,,1.248,0.011,1.237,,,,1.0,1.0,0.0,0.5370383858680725,casos nuevos
+A,n04-S,gold,similar,0.44149241373678083,0.5,,,,True,True,False,False,similares,False,,,3.584,0.008,3.577,,,,0.8,1.0,1.0,0.49804985523223877,casos nuevos
+A,n05-E,gold,existencia,0.16104258782393985,0.25,0.16104258782393985,2.0,4.0,False,False,False,False,similares,False,,,0.974,0.026,0.949,,,,1.0,1.0,0.0,0.17209824919700623,casos nuevos
+A,n05-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.597,0.01,1.587,,,,1.0,1.0,0.0,0.7535504698753357,casos nuevos
+A,n06-E,gold,existencia,0.2532778777010656,0.14285714285714285,0.2532778777010656,1.0,5.0,False,False,True,False,afirma,False,,,1.589,0.011,1.577,,,,0.5,1.0,0.0,0.21992993354797363,casos nuevos
+A,n06-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.598,0.008,2.59,,,,1.0,1.0,1.0,0.7288680672645569,casos nuevos
+A,n07-E,gold,existencia,0.0,0.0,0.0,1.0,3.0,False,False,False,False,similares,False,,,0.897,0.012,0.885,,,,1.0,0.8,0.0,0.6079003214836121,casos nuevos
+A,n07-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.625,0.008,1.618,,,,1.0,0.6,0.0,0.6945744156837463,casos nuevos
+A,n08-E,gold,existencia,0.10633668103022985,0.2,0.10633668103022985,3.0,3.0,False,False,True,False,afirma,False,,,1.232,0.011,1.221,,,,1.0,0.4,0.0,0.3316926062107086,casos nuevos
+A,n08-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,4.898,0.011,4.887,,,,1.0,0.2,0.0,0.7798153162002563,casos nuevos
+A,n09-E,gold,existencia,0.06943122193677728,0.125,0.06943122193677728,1.0,1.0,False,False,True,False,afirma,False,,,1.721,0.011,1.709,,,,0.5,0.8,0.0,0.48559558391571045,casos nuevos
+A,n09-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,3.844,0.007,3.837,,,,1.0,1.0,1.0,0.636501133441925,casos nuevos
+A,n10-E,gold,existencia,0.13032376591037062,0.25,0.13032376591037062,1.0,1.0,False,False,False,False,similares,False,,,0.668,0.011,0.657,,,,1.0,0.2,1.0,0.36200106143951416,casos nuevos
+A,n10-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.55,0.01,1.54,,,,1.0,0.4,0.0,0.5228149890899658,casos nuevos
+A,n11-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,False,False,similares,False,,,1.12,0.011,1.108,,,,0.5,0.0,0.0,0.15566247701644897,casos nuevos
+A,n11-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,3.576,0.01,3.566,,,,0.6666666666666666,0.0,0.0,0.25962063670158386,casos nuevos
+A,n12-E,gold,existencia,0.22004653412513583,0.14285714285714285,0.22004653412513583,1.0,1.0,False,False,True,False,afirma,False,,,0.558,0.01,0.548,,,,1.0,0.8,1.0,0.6052102446556091,casos nuevos
+A,n12-S,gold,similar,0.07839826897867534,0.16666666666666666,,,,False,False,False,False,similares,False,,,2.487,0.01,2.477,,,,1.0,0.8,1.0,0.380160391330719,casos nuevos
+A,adv04,adversarial,existencia,,,,1.0,1.0,False,False,False,False,similares,False,,,1.174,0.011,1.163,,,,0.5,,,0.39853399991989136,casos nuevos
+A,adv05,adversarial,ninguna,,,,1.0,1.0,False,False,True,False,afirma,False,,,1.89,0.008,1.882,,,,0.6666666666666666,,,0.4590821862220764,casos nuevos
+A,adv06,adversarial,existencia,,,,1.0,1.0,False,False,False,True,otro,False,,,2.4,0.011,2.388,,,,0.6666666666666666,,,0.8146688342094421,casos nuevos
+B,g01-E,gold,existencia,0.24630238874073,0.5,0.24630238874073,2.0,2.0,False,False,False,False,afirma,False,,,1.409,0.196,1.213,,,,1.0,0.4,0.0,0.8935863375663757,casos de M2
+B,g01-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.408,0.182,1.226,,,,1.0,1.0,1.0,0.8614784479141235,casos de M2
+B,g02-E,gold,existencia,0.4073993680667174,0.5,0.4764372037876899,2.0,2.0,False,False,False,False,similares,False,,,2.759,0.221,2.538,,,,1.0,0.4,1.0,0.8439705967903137,casos de M2
+B,g03-E,gold,existencia,0.07839826897867534,0.16666666666666666,0.07839826897867534,2.0,4.0,False,False,True,False,afirma,False,,,1.054,0.285,0.769,,,,0.6666666666666666,1.0,1.0,0.5252726078033447,casos de M2
+B,g03-S,gold,similar,0.24890832702259466,0.5,,,,True,True,False,False,similares,False,,,4.064,0.276,3.788,,,,1.0,1.0,1.0,0.6268228888511658,casos de M2
+B,g04-E,gold,existencia,0.2200917662980802,1.0,0.2200917662980802,3.0,3.0,False,False,False,False,afirma,False,,,1.27,0.072,1.198,,,,1.0,0.6,0.0,0.5951268076896667,casos de M2
+B,g04-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.161,0.13,2.03,,,,1.0,0.8,1.0,0.32082149386405945,casos de M2
+B,g05-E,gold,existencia,0.5734923014668308,0.5,0.5734923014668308,1.0,1.0,True,True,False,False,afirma,False,,,1.823,0.106,1.717,,,,0.6666666666666666,1.0,1.0,0.02185649797320366,casos de M2
+B,g05-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,3.526,0.167,3.359,,,,1.0,1.0,1.0,0.7249792218208313,casos de M2
+B,g06-E,gold,existencia,0.20511666732794362,0.5,0.06625422345438904,3.0,3.0,False,False,True,False,afirma,False,,,1.01,0.13,0.881,,,,1.0,1.0,1.0,0.5225920081138611,casos de M2
+B,g06-S,gold,similar,0.4249260138166711,1.0,,,,True,True,False,False,similares,False,,,4.24,0.167,4.073,,,,0.6,0.8,0.0,0.606057345867157,casos de M2
+B,g07-E,gold,existencia,0.5326205137475638,0.5,0.39907586254035626,1.0,1.0,False,False,False,False,afirma,False,,,2.277,0.211,2.066,,,,1.0,1.0,0.0,0.6399619579315186,casos de M2
+B,g07-S,gold,similar,0.06362078819895173,0.1,,,,False,False,False,False,similares,False,,,2.071,0.23,1.841,,,,0.8,0.2,1.0,0.36763232946395874,casos de M2
+B,g08-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,False,False,similares,False,,,2.843,0.201,2.642,,,,1.0,0.2,0.0,0.3336983919143677,casos de M2
+B,g08-S,gold,similar,0.16716045496620227,0.16666666666666666,,,,False,False,False,False,similares,False,,,1.929,0.194,1.735,,,,0.5,0.8,1.0,0.762963056564331,casos de M2
+B,g09-E,gold,existencia,0.0,0.0,0.0,1.0,5.0,False,False,True,False,afirma,False,,,3.633,0.092,3.54,,,,0.6,0.6,0.0,0.8842272758483887,casos de M2
+B,g09-S,gold,similar,0.2200917662980802,1.0,,,,False,False,False,False,similares,False,,,5.036,0.125,4.91,,,,0.8333333333333334,1.0,0.0,0.6616637110710144,casos de M2
+B,g10-E,gold,existencia,0.7541985434892589,1.0,0.8013122149737618,2.0,4.0,True,True,False,False,afirma,False,,,1.038,0.096,0.942,,,,1.0,0.4,1.0,0.42700517177581787,casos de M2
+B,g10-S,gold,similar,0.1100458831490401,0.3333333333333333,,,,False,False,False,False,similares,False,,,1.155,0.141,1.014,,,,1.0,0.4,0.0,0.3759913742542267,casos de M2
+B,adv01,adversarial,existencia,,,,1.0,1.0,False,False,False,False,similares,False,,,1.251,0.153,1.097,,,,1.0,,,0.3746410012245178,casos de M2
+B,adv02,adversarial,ninguna,,,,1.0,1.0,False,False,True,False,afirma,False,,,3.838,0.15,3.688,,,,0.75,,,0.34188055992126465,casos de M2
+B,adv03,adversarial,ninguna,,,,1.0,2.0,False,False,True,False,afirma,False,,,1.305,0.154,1.15,,,,1.0,,,0.6152529716491699,casos de M2
+B,n01-E,gold,existencia,0.0,0.0,0.0,2.0,1.0,False,False,False,False,similares,False,,,0.964,0.076,0.888,,,,1.0,0.6,0.0,0.5155293345451355,casos nuevos
+B,n01-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.298,0.161,2.137,,,,1.0,1.0,0.0,0.6004167795181274,casos nuevos
+B,n02-E,gold,existencia,0.2200917662980802,1.0,0.2200917662980802,3.0,1.0,False,False,False,False,similares,False,,,1.207,0.06,1.147,,,,1.0,0.6,0.0,0.751822292804718,casos nuevos
+B,n02-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.626,0.119,2.506,,,,1.0,1.0,1.0,0.5995872616767883,casos nuevos
+B,n03-E,gold,existencia,0.7019727018777485,1.0,0.7019727018777485,4.0,3.0,True,True,False,False,afirma,False,,,1.27,0.164,1.105,,,,1.0,0.8,1.0,0.22019720077514648,casos nuevos
+B,n03-S,gold,similar,0.06625422345438904,0.1111111111111111,,,,False,False,False,False,similares,False,,,3.497,0.19,3.307,,,,1.0,0.8,1.0,0.7700151205062866,casos nuevos
+B,n04-E,gold,existencia,0.4170606134915055,0.5,0.4170606134915055,3.0,3.0,True,True,False,False,afirma,False,,,1.633,0.158,1.475,,,,1.0,1.0,0.0,0.4969163239002228,casos nuevos
+B,n04-S,gold,similar,0.3973220069685352,0.5,,,,False,False,False,False,similares,False,,,5.02,0.161,4.86,,,,1.0,1.0,1.0,0.2751384675502777,casos nuevos
+B,n05-E,gold,existencia,0.29345568839744024,1.0,0.29345568839744024,1.0,5.0,False,False,False,False,afirma,False,,,1.067,0.115,0.952,,,,1.0,1.0,0.0,0.5911949872970581,casos nuevos
+B,n05-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.359,0.203,1.156,,,,1.0,1.0,1.0,0.44602784514427185,casos nuevos
+B,n06-E,gold,existencia,0.7246262544989281,1.0,0.7246262544989281,4.0,5.0,True,True,False,False,afirma,False,,,1.458,0.175,1.284,,,,1.0,1.0,0.0,0.5925119519233704,casos nuevos
+B,n06-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.839,0.207,1.631,,,,1.0,1.0,1.0,0.6825529336929321,casos nuevos
+B,n07-E,gold,existencia,0.0,0.0,0.0,1.0,2.0,False,False,True,False,afirma,False,,,1.466,0.056,1.411,,,,1.0,0.6,0.0,0.4910995066165924,casos nuevos
+B,n07-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.281,0.121,2.159,,,,1.0,0.4,0.0,0.5501372218132019,casos nuevos
+B,n08-E,gold,existencia,0.4148573712249063,0.3333333333333333,0.4148573712249063,3.0,4.0,False,False,False,False,afirma,False,,,1.413,0.146,1.267,,,,0.6666666666666666,1.0,0.0,0.357242226600647,casos nuevos
+B,n08-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.77,0.211,1.559,,,,1.0,1.0,0.0,0.5709648132324219,casos nuevos
+B,n09-E,gold,existencia,0.1100458831490401,0.3333333333333333,0.1100458831490401,2.0,4.0,False,False,False,False,afirma,False,,,3.348,0.143,3.205,,,,0.25,1.0,0.0,0.3791668117046356,casos nuevos
+B,n09-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,3.084,0.158,2.926,,,,0.6666666666666666,1.0,1.0,0.8531182408332825,casos nuevos
+B,n10-E,gold,existencia,0.8025457472054408,1.0,0.8025457472054408,4.0,2.0,True,True,False,False,afirma,False,,,0.719,0.08,0.639,,,,0.6666666666666666,0.6,1.0,0.45609796047210693,casos nuevos
+B,n10-S,gold,similar,0.13886244387355456,0.5,,,,False,False,False,False,similares,False,,,3.126,0.137,2.989,,,,1.0,1.0,0.0,0.46443605422973633,casos nuevos
+B,n11-E,gold,existencia,0.44510108735750975,0.5,0.44510108735750975,1.0,2.0,False,False,False,False,afirma,False,,,1.473,0.076,1.397,,,,0.0,0.4,1.0,0.2770788371562958,casos nuevos
+B,n11-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.699,0.123,1.576,,,,1.0,0.4,0.0,0.384151816368103,casos nuevos
+B,n12-E,gold,existencia,0.3799330543000726,0.25,0.3799330543000726,1.0,2.0,False,False,True,False,afirma,False,,,1.55,0.144,1.406,,,,1.0,1.0,1.0,0.7481966614723206,casos nuevos
+B,n12-S,gold,similar,0.2496640287027892,0.3333333333333333,,,,False,False,False,False,similares,False,,,2.733,0.167,2.567,,,,1.0,1.0,1.0,0.8230946063995361,casos nuevos
+B,adv04,adversarial,existencia,,,,1.0,2.0,False,False,True,False,afirma,False,,,1.632,0.136,1.496,,,,1.0,,,0.5619333386421204,casos nuevos
+B,adv05,adversarial,ninguna,,,,1.0,1.0,False,False,True,False,afirma,False,,,3.399,0.203,3.196,,,,0.5,,,-0.1267412155866623,casos nuevos
+B,adv06,adversarial,existencia,,,,1.0,1.0,False,False,False,True,otro,False,,,1.739,0.245,1.493,,,,0.5,,,0.09488545358181,casos nuevos
+C,g01-E,gold,existencia,0.3903800499921017,1.0,0.3903800499921017,3.0,3.0,False,False,False,False,afirma,False,,,1.366,0.199,1.154,0.012,,,1.0,0.4,0.0,0.8935863375663757,casos de M2
+C,g01-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,5.138,0.183,4.942,0.012,,,1.0,1.0,0.0,0.7863457798957825,casos de M2
+C,g02-E,gold,existencia,0.7599676921884454,1.0,0.7703689102037633,4.0,5.0,True,True,False,False,afirma,False,,,5.198,0.213,4.973,0.012,,,0.75,1.0,1.0,0.6946598887443542,casos de M2
+C,g03-E,gold,existencia,0.5199967979955746,1.0,0.5199967979955746,5.0,5.0,True,True,False,False,afirma,False,,,2.573,0.287,2.273,0.013,,,0.4,1.0,1.0,0.5073462128639221,casos de M2
+C,g03-S,gold,similar,0.06943122193677728,0.125,,,,False,False,False,False,afirma,False,,,1.962,0.276,1.674,0.012,,,1.0,1.0,0.0,0.5068490505218506,casos de M2
+C,g04-E,gold,existencia,0.2200917662980802,1.0,0.2200917662980802,4.0,4.0,False,False,False,False,afirma,False,,,1.235,0.073,1.149,0.012,,,1.0,1.0,0.0,0.5951268076896667,casos de M2
+C,g04-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.189,0.133,2.044,0.012,,,1.0,0.8,1.0,0.23358158767223358,casos de M2
+C,g05-E,gold,existencia,0.6421867266689011,1.0,0.6421867266689011,1.0,1.0,True,True,False,False,afirma,False,,,1.184,0.105,1.067,0.012,,,0.5,0.8,0.0,0.013176691718399525,casos de M2
+C,g05-S,gold,similar,0.20424960638019762,0.2,,,,False,False,False,False,similares,False,,,2.979,0.165,2.802,0.012,,,1.0,0.8,1.0,0.8192686438560486,casos de M2
+C,g06-E,gold,existencia,0.6212166613240647,1.0,0.6212166613240647,4.0,5.0,False,False,False,False,afirma,False,,,1.572,0.13,1.429,0.012,,,1.0,0.8,1.0,0.1690828949213028,casos de M2
+C,g06-S,gold,similar,0.1100458831490401,0.3333333333333333,,,,False,False,False,False,similares,False,,,2.465,0.166,2.286,0.012,,,1.0,1.0,0.0,0.6042080521583557,casos de M2
+C,g07-E,gold,existencia,0.9202054614375518,1.0,0.792884011849373,1.0,3.0,True,True,False,False,afirma,False,,,1.712,0.207,1.494,0.012,,,1.0,1.0,0.0,0.5429632067680359,casos de M2
+C,g07-S,gold,similar,0.24890832702259466,0.5,,,,True,True,False,False,similares,False,,,2.255,0.232,2.01,0.012,,,1.0,0.6,0.0,0.5111719965934753,casos de M2
+C,g08-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,False,False,similares,False,,,1.469,0.198,1.258,0.013,,,1.0,0.2,0.0,0.5313854813575745,casos de M2
+C,g08-S,gold,similar,0.18154179253735267,0.2,,,,False,False,False,False,similares,False,,,1.042,0.195,0.835,0.012,,,0.5,0.6,1.0,0.5533332228660583,casos de M2
+C,g09-E,gold,existencia,0.13905617951077562,0.16666666666666666,0.16716045496620227,1.0,5.0,False,False,False,False,similares,False,,,2.02,0.093,1.915,0.012,,,0.5,0.6,0.0,0.5979905724525452,casos de M2
+C,g09-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,3.146,0.126,3.009,0.012,,,1.0,0.8,0.0,0.5266860127449036,casos de M2
+C,g10-E,gold,existencia,0.9447176050778178,1.0,0.933819260234181,4.0,5.0,True,True,False,False,afirma,False,,,1.679,0.098,1.569,0.012,,,1.0,0.4,1.0,0.5444450378417969,casos de M2
+C,g10-S,gold,similar,0.17318663334822615,0.25,,,,False,False,False,False,similares,False,,,1.209,0.144,1.053,0.012,,,1.0,0.2,0.0,0.7418932914733887,casos de M2
+C,adv01,adversarial,existencia,,,,1.0,1.0,False,False,False,False,similares,False,,,3.28,0.157,3.11,0.012,,,1.0,,,0.630833625793457,casos de M2
+C,adv02,adversarial,ninguna,,,,,,True,True,False,False,abstiene,True,,,0.517,0.151,0.354,0.012,,,,,,,casos de M2
+C,adv03,adversarial,ninguna,,,,1.0,2.0,False,False,False,False,similares,False,,,1.05,0.153,0.885,0.012,,,1.0,,,0.709668755531311,casos de M2
+C,n01-E,gold,existencia,0.0,0.0,0.0,4.0,1.0,False,False,False,False,similares,False,,,1.12,0.077,1.031,0.012,,,1.0,0.4,0.0,0.34945058822631836,casos nuevos
+C,n01-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.248,0.163,2.073,0.012,,,1.0,1.0,0.0,0.2791053354740143,casos nuevos
+C,n02-E,gold,existencia,0.2200917662980802,1.0,0.2200917662980802,3.0,1.0,False,False,False,False,similares,False,,,2.304,0.061,2.231,0.012,,,1.0,0.8,0.0,0.7653201222419739,casos nuevos
+C,n02-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,3.958,0.12,3.826,0.012,,,1.0,0.8,0.0,0.8234961032867432,casos nuevos
+C,n03-E,gold,existencia,0.7753366239771086,1.0,0.7753366239771086,2.0,1.0,True,True,False,False,afirma,False,,,1.851,0.165,1.674,0.012,,,0.5,1.0,1.0,0.5378084778785706,casos nuevos
+C,n03-S,gold,similar,0.06625422345438904,0.1111111111111111,,,,False,False,False,False,similares,False,,,5.119,0.19,4.918,0.012,,,1.0,1.0,1.0,0.6580755114555359,casos nuevos
+C,n04-E,gold,existencia,0.5957616317188127,1.0,0.5957616317188127,4.0,4.0,True,True,False,False,afirma,False,,,1.004,0.167,0.825,0.012,,,1.0,1.0,0.0,0.4804084002971649,casos nuevos
+C,n04-S,gold,similar,0.123151194370365,0.125,,,,False,False,False,False,similares,False,,,3.696,0.163,3.521,0.012,,,1.0,1.0,1.0,0.11548201739788055,casos nuevos
+C,n05-E,gold,existencia,0.23177307466786257,0.25,0.23177307466786257,1.0,2.0,False,False,True,False,afirma,False,,,1.503,0.116,1.375,0.012,,,1.0,1.0,0.0,0.710063099861145,casos nuevos
+C,n05-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,3.757,0.211,3.534,0.012,,,0.6666666666666666,1.0,0.0,0.4272273778915405,casos nuevos
+C,n06-E,gold,existencia,0.6422813708518126,1.0,0.6422813708518126,4.0,5.0,False,False,False,False,afirma,False,,,1.152,0.173,0.966,0.013,,,1.0,0.8,0.0,0.6583530306816101,casos nuevos
+C,n06-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.826,0.208,1.606,0.012,,,1.0,1.0,1.0,0.6260553002357483,casos nuevos
+C,n07-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,False,False,similares,False,,,0.922,0.055,0.854,0.012,,,1.0,0.6,0.0,0.29716792702674866,casos nuevos
+C,n07-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,1.998,0.124,1.862,0.012,,,1.0,0.8,0.0,0.32789960503578186,casos nuevos
+C,n08-E,gold,existencia,0.9083745556952362,1.0,0.9083745556952362,4.0,4.0,True,True,False,False,afirma,False,,,1.594,0.148,1.434,0.012,,,0.8,1.0,1.0,0.563176155090332,casos nuevos
+C,n08-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,,,2.405,0.205,2.188,0.012,,,0.8,1.0,1.0,0.6317023634910583,casos nuevos
+C,n09-E,gold,existencia,0.5033242827953465,1.0,0.5033242827953465,5.0,5.0,True,True,False,False,afirma,False,,,1.351,0.142,1.196,0.012,,,1.0,1.0,0.0,0.5716078281402588,casos nuevos
+C,n09-S,gold,similar,0.09162544430476362,0.14285714285714285,,,,False,False,False,False,similares,False,,,4.744,0.156,4.577,0.012,,,1.0,1.0,0.0,0.6380123496055603,casos nuevos
+C,n10-E,gold,existencia,0.8760157235037966,1.0,0.8760157235037966,5.0,4.0,True,True,False,False,afirma,False,,,0.809,0.082,0.716,0.012,,,0.0,1.0,1.0,0.08868903666734695,casos nuevos
+C,n10-S,gold,similar,0.29341639827363714,0.2,,,,False,False,False,False,similares,False,,,1.772,0.138,1.622,0.012,,,0.6666666666666666,1.0,0.0,0.6158995628356934,casos nuevos
+C,n11-E,gold,existencia,0.7529694065526482,1.0,0.7529694065526482,4.0,4.0,True,True,False,False,afirma,False,,,1.406,0.077,1.317,0.012,,,1.0,1.0,0.0,0.2509295642375946,casos nuevos
+C,n11-S,gold,similar,0.19342640361727081,0.125,,,,False,False,False,False,similares,False,,,3.166,0.125,3.029,0.012,,,1.0,1.0,0.0,0.37643763422966003,casos nuevos
+C,n12-E,gold,existencia,0.7227265726449519,1.0,0.7227265726449519,3.0,4.0,True,True,False,False,afirma,False,,,2.167,0.145,2.01,0.012,,,1.0,0.8,1.0,0.7502814531326294,casos nuevos
+C,n12-S,gold,similar,0.15457433957839828,0.2,,,,False,False,False,False,similares,False,,,2.18,0.165,2.002,0.013,,,1.0,0.8,1.0,0.7947834730148315,casos nuevos
+C,adv04,adversarial,existencia,,,,1.0,3.0,False,False,True,False,afirma,False,,,1.042,0.136,0.894,0.012,,,1.0,,,0.19681252539157867,casos nuevos
+C,adv05,adversarial,ninguna,,,,1.0,1.0,False,False,True,False,afirma,False,,,2.482,0.202,2.268,0.012,,,0.4,,,0.8060673475265503,casos nuevos
+C,adv06,adversarial,existencia,,,,,,True,True,False,False,abstiene,True,,,0.607,0.246,0.348,0.012,,,,,,,casos nuevos
+D,g01-E,gold,existencia,0.3903800499921017,1.0,0.3903800499921017,5.0,5.0,False,False,False,False,afirma,False,verificar_existencia,True,1.271,0.107,0.434,0.013,0.716,,1.0,1.0,1.0,0.37685340642929077,casos de M2
+D,g01-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,buscar_similares,True,1.385,0.079,0.627,0.012,0.608,0.058,1.0,1.0,1.0,0.6791607737541199,casos de M2
+D,g02-E,gold,existencia,0.7599676921884454,1.0,0.7703689102037633,4.0,5.0,True,True,False,False,afirma,False,verificar_existencia,True,2.763,0.169,1.76,0.013,0.821,,1.0,0.8,1.0,0.8466864824295044,casos de M2
+D,g03-E,gold,existencia,0.8486026589039901,1.0,0.8486026589039901,5.0,5.0,True,True,False,False,afirma,False,verificar_existencia,True,2.221,0.142,1.248,0.013,0.818,,0.5,0.8,1.0,0.45146965980529785,casos de M2
+D,g03-S,gold,similar,0.06362078819895173,0.1,,,,False,False,False,False,similares,False,buscar_similares,True,3.559,0.125,1.973,0.012,0.791,0.659,1.0,1.0,0.0,0.7056525349617004,casos de M2
+D,g04-E,gold,existencia,0.35895421017163476,1.0,0.2200917662980802,3.0,4.0,True,True,False,False,afirma,False,verificar_existencia,True,1.795,0.059,1.139,0.012,0.585,,1.0,1.0,0.0,0.5951268076896667,casos de M2
+D,g04-S,gold,similar,0.0,0.0,,,,False,False,False,False,afirma,False,buscar_similares,True,2.021,0.055,1.089,0.012,0.581,0.283,1.0,1.0,0.0,0.5368897914886475,casos de M2
+D,g05-E,gold,existencia,0.7007731679885375,1.0,0.7007731679885375,1.0,1.0,True,True,False,False,afirma,False,verificar_existencia,True,4.44,0.094,3.702,0.012,0.633,,1.0,0.6,0.0,0.5675358772277832,casos de M2
+D,g05-S,gold,similar,0.10633668103022985,0.2,,,,False,False,False,False,similares,False,buscar_similares,True,1.928,0.096,0.942,0.012,0.63,0.248,1.0,1.0,1.0,0.7177147269248962,casos de M2
+D,g06-E,gold,existencia,0.6848374495230164,1.0,0.6848374495230164,4.0,5.0,False,False,False,False,afirma,False,verificar_existencia,True,2.196,0.094,1.463,0.012,0.628,,1.0,0.8,0.0,0.1690828949213028,casos de M2
+D,g06-S,gold,similar,0.09478836436955079,0.25,,,,False,False,False,False,similares,False,buscar_similares,True,2.361,0.089,1.115,0.012,0.625,0.521,1.0,1.0,0.0,0.5654255747795105,casos de M2
+D,g07-E,gold,existencia,0.9156857657441142,1.0,0.8486987932505932,2.0,4.0,True,True,False,False,afirma,False,verificar_existencia,True,2.056,0.169,1.097,0.012,0.777,,1.0,1.0,0.0,0.6463499069213867,casos de M2
+D,g07-S,gold,similar,0.21145027911440437,0.16666666666666666,,,,False,False,False,False,similares,False,buscar_similares,True,2.42,0.173,1.139,0.012,0.807,0.288,1.0,1.0,1.0,0.4093291461467743,casos de M2
+D,g08-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,True,False,afirma,False,verificar_existencia,True,2.351,0.113,1.577,0.012,0.65,,0.5,0.6,0.0,0.5245190858840942,casos de M2
+D,g08-S,gold,similar,0.2960819109658652,0.5,,,,False,False,False,False,similares,False,buscar_similares,True,2.093,0.091,1.108,0.012,0.646,0.236,1.0,0.8,1.0,0.4477069079875946,casos de M2
+D,g09-E,gold,existencia,0.0,0.0,0.0,,,False,False,False,False,abstiene,True,verificar_existencia,True,1.009,0.062,0.376,0.012,0.56,,,0.6,0.0,,casos de M2
+D,g09-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,buscar_similares,True,1.964,0.061,1.068,0.012,0.582,0.24,1.0,0.8,0.0,0.4523964822292328,casos de M2
+D,g10-E,gold,existencia,0.8318724637288826,1.0,0.7227265726449519,4.0,5.0,True,True,False,False,afirma,False,verificar_existencia,True,1.473,0.06,0.866,0.012,0.535,,1.0,0.3333333333333333,1.0,0.5560158491134644,casos de M2
+D,g10-S,gold,similar,0.2784805894273037,0.5,,,,False,False,False,False,similares,False,buscar_similares,True,2.093,0.061,1.091,0.012,0.542,0.387,1.0,0.6,0.0,0.5290201306343079,casos de M2
+D,adv01,adversarial,existencia,,,,,,True,True,False,False,abstiene,True,verificar_existencia,True,0.822,0.119,,0.012,0.69,,,,,,casos de M2
+D,adv02,adversarial,ninguna,,,,,,True,True,False,False,abstiene,True,ninguna,True,0.149,,,,0.149,,,,,,casos de M2
+D,adv03,adversarial,ninguna,,,,,,True,True,False,False,abstiene,True,ninguna,True,0.151,,,,0.151,,,,,,casos de M2
+D,n01-E,gold,existencia,0.0,0.0,0.0,5.0,1.0,False,False,False,False,similares,False,verificar_existencia,True,1.475,0.064,0.833,0.012,0.565,,1.0,0.6,0.0,0.4643705487251282,casos nuevos
+D,n01-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,buscar_similares,True,2.315,0.064,1.091,0.012,0.563,0.585,1.0,1.0,1.0,0.4870920479297638,casos nuevos
+D,n02-E,gold,existencia,0.14201905717762706,0.16666666666666666,0.14201905717762706,1.0,3.0,False,False,True,False,afirma,False,verificar_existencia,True,1.309,0.042,0.739,0.012,0.516,,1.0,0.6666666666666666,0.0,0.7407597899436951,casos nuevos
+D,n02-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,buscar_similares,True,1.814,0.041,1.006,0.012,0.518,0.236,1.0,0.8,0.0,0.7957567572593689,casos nuevos
+D,n03-E,gold,existencia,0.9363792118010483,1.0,0.9363792118010483,3.0,2.0,True,True,False,False,afirma,False,verificar_existencia,True,2.734,0.156,1.832,0.012,0.734,,1.0,1.0,1.0,0.6941477060317993,casos nuevos
+D,n03-S,gold,similar,0.22784037450527977,0.25,,,,False,False,False,False,similares,False,buscar_similares,True,3.454,0.114,2.097,0.012,0.671,0.561,1.0,1.0,1.0,0.6832192540168762,casos nuevos
+D,n04-E,gold,existencia,0.24355227021012354,0.25,0.24355227021012354,1.0,1.0,False,False,True,False,afirma,False,verificar_existencia,True,1.939,0.086,1.237,0.012,0.603,,1.0,1.0,0.0,0.41740021109580994,casos nuevos
+D,n04-S,gold,similar,0.24630238874073,0.5,,,,False,False,False,False,similares,False,buscar_similares,True,2.552,0.083,1.497,0.012,0.604,0.356,1.0,1.0,1.0,0.6710322499275208,casos nuevos
+D,n05-E,gold,existencia,0.23680742154717785,0.25,0.23680742154717785,1.0,3.0,False,False,True,False,afirma,False,verificar_existencia,True,1.691,0.104,0.989,0.012,0.586,,1.0,1.0,0.0,0.4746066629886627,casos nuevos
+D,n05-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,buscar_similares,True,2.241,0.104,1.307,0.012,0.583,0.235,1.0,1.0,0.0,0.7051458954811096,casos nuevos
+D,n06-E,gold,existencia,0.4144299250118475,0.5,0.4144299250118475,5.0,5.0,False,False,False,False,afirma,False,verificar_existencia,True,1.885,0.157,1.044,0.012,0.672,,1.0,1.0,0.0,0.48172202706336975,casos nuevos
+D,n06-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,buscar_similares,True,2.523,0.095,1.232,0.012,0.605,0.578,1.0,1.0,1.0,0.44916394352912903,casos nuevos
+D,n07-E,gold,existencia,0.0,0.0,0.0,1.0,1.0,False,False,False,False,similares,False,verificar_existencia,True,1.552,0.06,0.945,0.012,0.535,,1.0,0.6,0.0,0.4629514217376709,casos nuevos
+D,n07-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,buscar_similares,True,3.173,0.04,2.346,0.012,0.541,0.234,0.5,0.6,0.0,0.6213927268981934,casos nuevos
+D,n08-E,gold,existencia,0.9083745556952362,1.0,0.9083745556952362,3.0,3.0,True,True,False,False,afirma,False,verificar_existencia,True,2.121,0.11,1.372,0.012,0.626,,1.0,1.0,1.0,0.6565039753913879,casos nuevos
+D,n08-S,gold,similar,0.24630238874073,0.5,,,,False,False,False,False,similares,False,buscar_similares,True,4.366,0.089,3.091,0.012,0.608,0.565,1.0,1.0,0.0,0.5536133646965027,casos nuevos
+D,n09-E,gold,existencia,0.0,0.0,0.0,3.0,4.0,False,False,True,False,afirma,False,verificar_existencia,True,5.662,0.087,4.936,0.012,0.627,,1.0,0.8,0.0,0.36186525225639343,casos nuevos
+D,n09-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,buscar_similares,True,2.125,0.081,1.111,0.012,0.633,0.288,1.0,0.8,1.0,0.6323957443237305,casos nuevos
+D,n10-E,gold,existencia,0.8662406555609835,1.0,0.8662406555609835,5.0,5.0,True,True,False,False,afirma,False,verificar_existencia,True,1.669,0.065,1.007,0.012,0.586,,0.0,0.8,0.0,0.15611585974693298,casos nuevos
+D,n10-S,gold,similar,0.9148568823583791,1.0,,,,True,True,False,False,similares,False,buscar_similares,True,1.868,0.065,0.784,0.012,0.585,0.422,1.0,1.0,0.0,0.5657280087471008,casos nuevos
+D,n11-E,gold,existencia,0.0,0.0,0.0,2.0,4.0,False,False,True,False,afirma,False,verificar_existencia,True,2.085,0.03,1.549,0.012,0.494,,1.0,1.0,0.0,0.11671197414398193,casos nuevos
+D,n11-S,gold,similar,0.0,0.0,,,,False,False,False,False,similares,False,buscar_similares,True,2.115,0.028,1.064,0.012,0.496,0.515,1.0,0.6,0.0,0.28405997157096863,casos nuevos
+D,n12-E,gold,existencia,0.7227265726449519,1.0,0.7227265726449519,3.0,4.0,True,True,False,False,afirma,False,verificar_existencia,True,2.751,0.107,1.98,0.012,0.652,,1.0,0.6666666666666666,1.0,0.7502814531326294,casos nuevos
+D,n12-S,gold,similar,0.23440650992329992,0.25,,,,False,False,False,False,similares,False,buscar_similares,True,2.446,0.103,1.376,0.012,0.649,0.305,1.0,0.8,1.0,0.7961000204086304,casos nuevos
+D,adv04,adversarial,existencia,,,,,,True,True,False,False,abstiene,True,verificar_existencia,True,0.749,0.103,,0.012,0.634,,,,,,casos nuevos
+D,adv05,adversarial,ninguna,,,,,,True,True,False,False,abstiene,True,ninguna,True,0.173,,,,0.173,,,,,,casos nuevos
+D,adv06,adversarial,existencia,,,,,,True,True,False,False,abstiene,True,verificar_existencia,True,0.642,0.061,,0.012,0.568,,,,,,casos nuevos

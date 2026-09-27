@@ -1,0 +1,9 @@
+subconjunto,sistema,preguntas,nDCG existencia (ESCI),nDCG similar,aciertos existencia,aciertos similar,abstención adversarial,afirmaciones falsas,enrutamiento
+casos de M2,A,22,"0.216 [0.061, 0.400]","0.104 [0.015, 0.208]",0/10,1/9,1/3,2,no aplica
+casos de M2,B,22,"0.302 [0.154, 0.463]","0.137 [0.052, 0.233]",2/10,2/9,0/3,5,no aplica
+casos de M2,C,22,"0.516 [0.322, 0.711]","0.110 [0.048, 0.170]",5/10,1/9,1/3,0,no aplica
+casos de M2,D,22,"0.549 [0.341, 0.748]","0.117 [0.045, 0.190]",6/10,0/9,3/3,1,22/22
+casos nuevos,A,27,"0.149 [0.069, 0.243]","0.050 [0.000, 0.130]",1/12,1/12,0/3,5,no aplica
+casos nuevos,B,27,"0.376 [0.228, 0.518]","0.071 [0.011, 0.153]",4/12,0/12,0/3,4,no aplica
+casos nuevos,C,27,"0.519 [0.338, 0.686]","0.077 [0.027, 0.130]",7/12,0/12,1/3,3,no aplica
+casos nuevos,D,27,"0.373 [0.165, 0.595]","0.156 [0.040, 0.324]",4/12,1/12,3/3,5,27/27

@@ -1,0 +1,114 @@
+{
+  "split": {
+    "hashes_verificados": {
+      "train": "e5f8baa5f301d5c5cbc2bdb79c7dfff5",
+      "val": "ee5ffaeedf8796119758c32670304dc1",
+      "test": "4d31950e81340999c4cbda611b4256c9"
+    },
+    "coinciden_con_m1": true,
+    "test_pares": 92739,
+    "test_consultas": 3844
+  },
+  "control_ft_small": {
+    "ndcg10_reevaluado": 0.8369339789443814,
+    "ndcg10_m1": 0.8369339789443814,
+    "diferencia": 0.0
+  },
+  "lora": {
+    "config": {
+      "r": 8,
+      "lora_alpha": 16,
+      "lora_dropout": 0.05,
+      "target_modules": [
+        "query",
+        "value"
+      ],
+      "learning_rate": 0.0002,
+      "fuente": "lab S04 (r, alpha, dropout, lr); módulos adaptados a BERT"
+    },
+    "metricas": {
+      "nDCG@10": 0.8304806143177327,
+      "MRR": 0.902836878651565,
+      "Recall@10": 0.640905088705905,
+      "n_queries": 3844
+    },
+    "latencia": {
+      "p95_latencia_ms": 29.26,
+      "media_latencia_ms": 27.92
+    },
+    "minutos": 5.8,
+    "parametros_entrenables": 148226,
+    "parametros_totales": 117802756,
+    "peso_adaptador_mb": 16.87,
+    "historia_validacion": [
+      {
+        "epoca": 1.0,
+        "eval_loss": 0.5095521807670593,
+        "f1": 0.7800810421620173,
+        "accuracy": 0.7493033021569002
+      },
+      {
+        "epoca": 2.0,
+        "eval_loss": 0.5044392943382263,
+        "f1": 0.7838739011821764,
+        "accuracy": 0.7550295857988165
+      },
+      {
+        "epoca": 3.0,
+        "eval_loss": 0.5062065720558167,
+        "f1": 0.7815648880773652,
+        "accuracy": 0.7533880511548006
+      }
+    ],
+    "delta_vs_ft_ic95": [
+      -0.006453364626648742,
+      -0.00950845242206341,
+      -0.0033856642066710948
+    ],
+    "gana_pierde_vs_ft": [
+      0.24947970863683663,
+      0.2934443288241415
+    ]
+  },
+  "e5_base": {
+    "metricas": {
+      "nDCG@10": 0.8458699488153201,
+      "MRR": 0.9150061455299655,
+      "Recall@10": 0.6521477423436328,
+      "n_queries": 3844
+    },
+    "latencia": {
+      "p95_latencia_ms": 27.31,
+      "media_latencia_ms": 26.76
+    },
+    "minutos": 20.1,
+    "parametros": 278045186,
+    "historia_validacion": [
+      {
+        "epoca": 1.0,
+        "eval_loss": 0.4858366549015045,
+        "f1": 0.8059621861349161,
+        "accuracy": 0.7778583699179232
+      },
+      {
+        "epoca": 2.0,
+        "eval_loss": 0.519628643989563,
+        "f1": 0.8134837355718783,
+        "accuracy": 0.7828593242985302
+      }
+    ],
+    "delta_vs_ft_small_ic95": [
+      0.008935969870938611,
+      0.005540905896300915,
+      0.012522046856042402
+    ],
+    "gana_pierde_vs_ft_small": [
+      0.3171175858480749,
+      0.24219562955254942
+    ],
+    "batch": 32,
+    "nota": "incluye warmup_ratio=0.06 igual que E5-small; la celda de M1 lo omitía"
+  },
+  "semilla": 42,
+  "dispositivo": "cuda"
+}
