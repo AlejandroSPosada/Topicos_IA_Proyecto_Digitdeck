@@ -377,6 +377,3 @@ Las corridas anteriores sacaron a la luz fallas de diseño. Todo se decidió **d
 11. **ESCI no trae fecha por ficha.**
 12. **El catálogo sigue siendo de Amazon España.**
 
----
-
-*Generado el 27 de septiembre de 2026.*
