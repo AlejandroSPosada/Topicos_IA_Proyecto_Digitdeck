@@ -1,0 +1,11 @@
+# Copiar a terraform.tfvars (ignorado por git) y llenar con los valores reales.
+# Nunca commitear terraform.tfvars.
+
+hf_token            = "hf_..."
+wandb_api_key       = "..."
+budget_alert_email  = "equipo-digitdeck@ejemplo.com"
+
+# Opcionales, con default razonable en variables.tf:
+# instance_type     = "g5.xlarge"
+# budget_limit_usd  = 40
+# image_tag         = "latest"

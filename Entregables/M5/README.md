@@ -1,5 +1,9 @@
 # M5 · Demo desplegada, presentación y reporte final (S14–S15)
 
+> Cómo encajan M1–M4 como un solo sistema, sus contratos y el estado del despliegue:
+> [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Pasos para desplegarlo:
+> [`docs/PLAN.md`](docs/PLAN.md).
+
 ## Sobre el proyecto
 
 **Digitdeck** es un copiloto de calidad de búsqueda para ecommerce en español. Hasta aquí el
@@ -162,16 +166,22 @@ esto se use con compradores reales", que hoy no está respondido en ningún info
 - [ ] Confirmar con la docente el canal/fecha de la demo y quién debe asistir (nota: penalización
       por inasistencia).
 
-## Estructura esperada de la entrega
+## Estructura de la entrega
 
 ```
 Entregables/M5/
-├── README.md            # este documento: contexto, rúbrica, qué falta
-├── TODO.md              # paso a paso del equipo, como en M1–M4
-├── INFORME_M5.md         # reporte final: sistema integrado, evaluación, límites y ética
-├── servicio/             # el sistema desplegado (código del servicio único)
-├── Resultados/           # scorecard final, evidencia de W&B, logs, capturas del health check
-└── Validacion/           # lo que haga falta para que un tercero reproduzca un resultado
+├── README.md             # este documento: contexto, rúbrica, qué falta
+├── TODO.md               # paso a paso del equipo, como en M1–M4 (pendiente)
+├── INFORME_M5.md          # reporte final: sistema integrado, evaluación, límites y ética (pendiente)
+├── docs/
+│   ├── ARCHITECTURE.md    # cómo encajan M1–M4, contratos, estructura, ADR, estado
+│   └── PLAN.md            # plan de despliegue paso a paso
+├── project/               # Terraform — ver project/README.md
+│   ├── bootstrap/          # estado remoto + IAM dedicado (se corre una sola vez)
+│   └── infra/              # EC2 con GPU, ECR, presupuesto propio, outputs
+├── servicio/               # el sistema desplegado (código del servicio único) — pendiente
+├── Resultados/             # scorecard final, evidencia de W&B, logs, capturas del health check
+└── Validacion/             # lo que haga falta para que un tercero reproduzca un resultado
 ```
 
 ---
