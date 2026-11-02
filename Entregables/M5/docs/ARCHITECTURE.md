@@ -166,14 +166,16 @@ con foto).
 Lo único que M5 construye de cero: el empaquetado de 3.1-3.4 en un servicio, y la infraestructura
 que lo corre.
 
-**Interfaces (propuestas — `servicio/` todavía no existe, ver §7 y §10):**
+**Interfaces** (código escrito y compila; todavía no se corrió de punta a punta con los modelos
+reales — ver §7 y `PLAN.md` §3):
 
 | Pieza | Dónde queda |
 |---|---|
-| `encoder.py` | carga del encoder de M1 (desde el Hub, §9 ADR-1) y el reranking |
-| `rag.py` | búsqueda híbrida, las dos herramientas, el verificador de exacto |
-| `vision.py` | `ver()` y su válvula |
-| `app.py` | FastAPI: `POST /preguntar`, `GET /salud` — contrato en §5.2 |
+| `project/servicio/encoder.py` | carga del encoder de M1 (desde el Hub, §9 ADR-1) y el reranking |
+| `project/servicio/rag.py` | búsqueda híbrida, las dos herramientas, el verificador de exacto |
+| `project/servicio/vision.py` | `ver()` y su válvula |
+| `project/servicio/app.py` | FastAPI: `POST /preguntar`, `GET /salud` — contrato en §5.2 |
+| `project/servicio/construir_indice.py` | Lote 2.4: construye y persiste el índice del catálogo |
 | `project/bootstrap/` | estado remoto de Terraform + usuario IAM dedicado (se corre una vez) |
 | `project/infra/` | EC2 con GPU, ECR, IAM de la instancia, secretos, presupuesto — contrato en §5.4 |
 
@@ -335,11 +337,11 @@ gitEquipos/
         ├── docs/
         │   ├── PLAN.md            # plan de despliegue, paso a paso
         │   └── ARCHITECTURE.md    # este documento
-        ├── project/               # Terraform
+        ├── project/               # el código de M5: Terraform + el servicio que despliega
         │   ├── README.md
         │   ├── bootstrap/          # estado remoto + IAM dedicado (una vez)
-        │   └── infra/               # EC2 GPU, ECR, presupuesto, outputs
-        ├── servicio/               # código del servicio — pendiente (§7)
+        │   ├── infra/               # EC2 GPU, ECR, presupuesto, outputs
+        │   └── servicio/            # encoder.py, rag.py, vision.py, app.py, construir_indice.py
         ├── Resultados/             # pendiente: scorecard final, evidencia de W&B
         └── Validacion/             # pendiente
 ```

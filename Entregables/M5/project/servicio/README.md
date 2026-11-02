@@ -1,8 +1,8 @@
 # servicio/ — el sistema desplegado
 
 Código extraído de `M1/ENTREGABLE.ipynb`, `M3/ENTREGABLE.ipynb` y `M4/pipeline/ENTREGABLE.ipynb`
-(Lotes 2.2-2.4 de [`../docs/PLAN.md`](../docs/PLAN.md)). Contrato completo de la API, de los
-modelos y de las variables de entorno: [`../docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md) §5.
+(Lotes 2.2-2.4 de [`../../docs/PLAN.md`](../../docs/PLAN.md)). Contrato completo de la API, de los
+modelos y de las variables de entorno: [`../../docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md) §5.
 
 | Archivo | Qué es |
 |---|---|
@@ -13,7 +13,7 @@ modelos y de las variables de entorno: [`../docs/ARCHITECTURE.md`](../docs/ARCHI
 | `construir_indice.py` | Lote 2.4: construye el catálogo + BM25 + Chroma una sola vez y los persiste en `indices/` |
 | `datos/umbrales_m3.json`, `datos/rubrica_juez.txt` | copias de los artefactos ya calibrados en M2/M3 — no se recalculan aquí |
 
-## No está hecho todavía (ver `../docs/PLAN.md` §3)
+## No está hecho todavía (ver `../../docs/PLAN.md` §3)
 
 - **Lote 2.1 cerrado**: el encoder ya está en `ateneaxvalac/digitdeck-m1-e5-small-esci-es` (Hub,
   privado) — `encoder.py` puede cargarlo con un `HF_TOKEN` válido.

@@ -1,14 +1,18 @@
-# M5/project — despliegue con Terraform
+# M5/project — el código de M5: Terraform + el servicio
 
-Dos stacks, en orden:
+Todo lo que no es documentación vive aquí (misma convención que 4U_project: `docs/` para
+contratos y plan, `project/` para el código). Tres partes:
 
-1. **[`bootstrap/`](bootstrap/README.md)** — se corre una sola vez, con las llaves root que ya
+1. **[`servicio/`](servicio/README.md)** — el sistema desplegado: `encoder.py`, `rag.py`,
+   `vision.py`, `app.py`, `construir_indice.py`. Extraído de los notebooks de M1/M3/M4
+   (Lotes 2.2-2.4 de `../docs/PLAN.md`).
+2. **[`bootstrap/`](bootstrap/README.md)** — se corre una sola vez, con las llaves root que ya
    hay en WSL (`aws configure list-profiles`: `default`, `campus-admin`). Crea el bucket de
    estado remoto, la tabla de candado de DynamoDB, y un usuario IAM dedicado
    (`digitdeck-terraform`) para que el resto del Terraform deje de usar llaves root.
-2. **[`infra/`](infra/README.md)** — el servicio desplegado: EC2 con GPU (`g5.xlarge`), ECR,
+3. **[`infra/`](infra/README.md)** — el despliegue: EC2 con GPU (`g5.xlarge`), ECR,
    IAM de la instancia, secretos en SSM, y un presupuesto propio de AWS. Usa el perfil
-   `digitdeck` que sale del paso 1, con estado remoto en el bucket que crea el paso 1.
+   `digitdeck` que sale del paso 2, con estado remoto en el bucket que crea el paso 2.
 
 ## Lo que ya se investigó en la cuenta (2026-11-01, cuenta 648617469176)
 
@@ -26,10 +30,10 @@ Dos stacks, en orden:
 
 ## Qué no está hecho todavía
 
-Este Terraform **no se ha aplicado**. Antes de `bootstrap/` y `infra/`, sigue pendiente el
-empaquetado del servicio ([`../docs/PLAN.md`](../docs/PLAN.md) Fase 2): hoy el sistema vive en
-4 notebooks (`../M1/ENTREGABLE.ipynb`, `../M3/ENTREGABLE.ipynb`, `../M4/pipeline/ENTREGABLE.ipynb`),
-no en código servible. `infra/` ya está listo para recibir la imagen en cuanto exista.
+Este Terraform **no se ha aplicado**. `servicio/` ya existe y compila, y el encoder de M1 ya está
+en el Hub (Lote 2.1), pero nada corrió todavía con los cuatro modelos reales ni se construyó el
+índice del catálogo ([`../docs/PLAN.md`](../docs/PLAN.md) §3, Fase 2). `infra/` ya está listo para
+recibir la imagen en cuanto `servicio/` se empaquete en un `Dockerfile` (Fase 3).
 
 ## Decisiones tomadas con el equipo (2026-11-01)
 

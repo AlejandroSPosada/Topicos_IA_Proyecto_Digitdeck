@@ -176,10 +176,10 @@ Entregables/M5/
 ├── docs/
 │   ├── ARCHITECTURE.md    # cómo encajan M1–M4, contratos, estructura, ADR, estado
 │   └── PLAN.md            # plan de despliegue paso a paso
-├── project/               # Terraform — ver project/README.md
+├── project/               # el código de M5 — ver project/README.md
 │   ├── bootstrap/          # estado remoto + IAM dedicado (se corre una sola vez)
-│   └── infra/              # EC2 con GPU, ECR, presupuesto propio, outputs
-├── servicio/               # el sistema desplegado (código del servicio único) — pendiente
+│   ├── infra/              # EC2 con GPU, ECR, presupuesto propio, outputs
+│   └── servicio/           # el sistema desplegado: encoder.py, rag.py, vision.py, app.py
 ├── Resultados/             # scorecard final, evidencia de W&B, logs, capturas del health check
 └── Validacion/             # lo que haga falta para que un tercero reproduzca un resultado
 ```
