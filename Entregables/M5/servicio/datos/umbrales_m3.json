@@ -1,0 +1,19 @@
+{
+  "e5_small_ft": {
+    "exacto": 0.5993,
+    "bac_exacto": 0.763,
+    "similar": 0.1325,
+    "bac_similar": 0.555,
+    "criterio_similar": "piso: E o S contra C e I, entre los pares con score menor al umbral de exacto",
+    "s_vs_ci_primera_corrida": {
+      "umbral": 0.9121,
+      "bac": 0.506
+    },
+    "composicion_banda_calibracion": {
+      "E": 839,
+      "S": 824,
+      "C": 157,
+      "I": 429
+    }
+  }
+}

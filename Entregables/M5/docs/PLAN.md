@@ -40,8 +40,8 @@
 ### Fase 2 · Servicio (de notebooks a código servible)
 **Criterios:** Solidez técnica, Integración entre módulos
 
-- **Lote 2.1** → subir el encoder ajustado de M1 al Hugging Face Hub
-  (`digitdeck/e5-small-finetuned-esci`, `ARCHITECTURE.md` §5.3).
+- **Lote 2.1** → ✅ subido al Hugging Face Hub: `ateneaxvalac/digitdeck-m1-e5-small-esci-es`,
+  privado (`ARCHITECTURE.md` §5.3).
 - **Lote 2.2** → `encoder.py`, `rag.py`, `vision.py`: extracción de la lógica ya escrita y medida
   en M1/M3/M4 (`ARCHITECTURE.md` §3.1-§3.4), sin reescribirla.
 - **Lote 2.3** → `app.py`: servicio FastAPI con `POST /preguntar` y `GET /salud` (contrato:
@@ -133,11 +133,11 @@ respectivamente, fuera del alcance de este documento.
 | **1 · Infraestructura** | 🟨 | `bootstrap/` e `infra/` escritos y en verde con `terraform validate`; **ningún `apply` corrido todavía** |
 | 1.1 | ✅ (escrito) | `project/bootstrap/main.tf`: bucket `digitdeck-tfstate-648617469176`, tabla `digitdeck-tfstate-lock`, usuario `digitdeck-terraform`. `terraform validate`: éxito. `apply`: pendiente |
 | 1.2 | ✅ (escrito) | `project/infra/`: EC2 `g5.xlarge`, ECR `digitdeck/app`, SSM Session Manager sin SSH, secretos en Parameter Store, presupuesto `digitdeck-mensual`. `terraform validate`: éxito. `apply`: pendiente (bloqueado por 1.1 y por no tener todavía una imagen que desplegar, Fase 3) |
-| **2 · Servicio** | ⬜ | No existe ningún archivo de `servicio/` todavía |
-| 2.1 | ⬜ | El encoder de M1 sigue solo en la máquina local de quien lo entrenó (riesgo 1 de `ARCHITECTURE.md` §9) |
-| 2.2 | ⬜ | |
-| 2.3 | ⬜ | |
-| 2.4 | ⬜ | |
+| **2 · Servicio** | 🟨 | `servicio/` existe y compila; el encoder ya está en el Hub; nada de lo demás corrió de punta a punta (sin GPU local de sobra) |
+| 2.1 | ✅ | Pesos reales (448,8 MB, `transformers_version 4.57.1`, confirmados contra `M1/README.md`) recuperados de la máquina de origen y subidos a `ateneaxvalac/digitdeck-m1-e5-small-esci-es` (privado) el 2026-11-02, vía `hf upload` desde un venv dedicado en WSL (`~/.venvs/digitdeck`). Riesgo 1 de `ARCHITECTURE.md` §9 cerrado |
+| 2.2 | ✅ (sin correr) | `servicio/encoder.py`, `rag.py`, `vision.py` extraídos de `M1/ENTREGABLE.ipynb` (`score_relevancia`/`scorear_lote_finetuned`), `M3/ENTREGABLE.ipynb` §3-§7 (`buscar_hibrida`, `reordenar`, `verificar_existencia`, `buscar_similares`, `enrutar`, `generar`, `SYSTEM_RAG`) y `M4/pipeline/ENTREGABLE.ipynb` §4 (`ver`, `producto_identificado`, `correr_foto`). `sistema_D` ahora clasifica en los 6 estados que M4 ya usaba para el camino con foto (antes M3 solo distinguía "responde" / "se abstiene"), para que texto y foto compartan un solo contrato. Los tres módulos compilan (`py_compile`) y sus referencias cruzadas se verificaron estáticamente; nada se corrió con los modelos reales |
+| 2.3 | ✅ (sin correr) | `servicio/app.py`: `POST /preguntar` y `GET /salud` con el contrato de `ARCHITECTURE.md` §5.2, logging JSON estructurado a stdout y envío opcional a W&B (si no hay `WANDB_API_KEY`, el servicio igual responde). Sin probar contra un servidor real |
+| 2.4 | ✅ (sin correr) | `servicio/construir_indice.py`: reproduce M3 §2.1-§2.2 y §4 (descarga de ESCI, `ficha`, BM25, Chroma) y persiste en `indices/`. No se ejecutó contra los parquet reales (~1,1 GB, requiere GPU para los embeddings) |
 | **3 · Despliegue** | ⬜ | Bloqueada por la Fase 2 (no hay imagen que construir) |
 | 3.1 | ⬜ | |
 | 3.2 | ⬜ | |

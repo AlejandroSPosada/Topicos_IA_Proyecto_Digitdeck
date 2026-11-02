@@ -83,7 +83,7 @@ viven en 4 notebooks ejecutados a mano; M5 las empaqueta en el servicio de la iz
 
 | Pieza | Tamaño en fp16 | De dónde sale hoy |
 |---|---|---|
-| Encoder ajustado (M1) | ≈450 MB | solo en la máquina local de quien lo entrenó (§9, riesgo 1) |
+| Encoder ajustado (M1) | ≈450 MB | HF Hub, privado (`ateneaxvalac/digitdeck-m1-e5-small-esci-es`) |
 | Generador (`Qwen2.5-1.5B-Instruct`) | ≈3 GB | HF Hub, público |
 | Verificador/juez (`Qwen2.5-3B-Instruct`) | ≈6 GB | HF Hub, público |
 | VLM (`Qwen2-VL-2B-Instruct`) | ≈4-5 GB | HF Hub, público |
@@ -108,7 +108,7 @@ producto)` del dataset ESCI, con cabeza de clasificación binaria. La **probabil
 
 | Qué | Valor |
 |---|---|
-| Pesos | `modelo_e5_small_finetuned/` (448 MB) — **hoy solo en la máquina local de quien lo entrenó**, no en el Hub (§9, riesgo) |
+| Pesos | `ateneaxvalac/digitdeck-m1-e5-small-esci-es` en el HF Hub (privado, 448 MB), subidos el 2026-11-02 |
 | Entrada | prefijos obligatorios: `"query: " + consulta`, `"passage: " + título del producto` |
 | Salida | softmax sobre 2 logits; se usa la probabilidad de la clase 1 (relevante) como score continuo |
 | Métrica de referencia | nDCG@10 = 0,8369 sobre el split de test completo (92.739 pares, 3.844 consultas) — `../../M1/README.md` |
@@ -273,7 +273,7 @@ inferencia completa — es el "health check que responde" de la rúbrica de M5.
 
 | Modelo | Repo | Acceso |
 |---|---|---|
-| Encoder ajustado (M1) | `digitdeck/e5-small-finetuned-esci` (HF Hub, propuesto — pendiente de subir, §9 riesgo) | privado, token en SSM (`/digitdeck/hf_token`) |
+| Encoder ajustado (M1) | `ateneaxvalac/digitdeck-m1-e5-small-esci-es` (HF Hub, subido el 2026-11-02) | privado, token en SSM (`/digitdeck/hf_token`) |
 | Generador | `Qwen/Qwen2.5-1.5B-Instruct` | público |
 | Verificador / juez | `Qwen/Qwen2.5-3B-Instruct` | público |
 | VLM | `Qwen/Qwen2-VL-2B-Instruct` | público |
@@ -421,9 +421,9 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
 
 ### Riesgos
 
-1. **El encoder de M1 solo existe en un disco.** Si esa máquina no está disponible, hay que
-   repetir el entrenamiento de M1 (6 min en una RTX 5060 Ti, según `../../M1/README.md`) antes de
-   poder desplegar nada.
+1. ~~**El encoder de M1 solo existe en un disco.**~~ **Cerrado el 2026-11-02.** Se recuperaron los
+   pesos de la máquina de origen y se subieron al Hub (`ateneaxvalac/digitdeck-m1-e5-small-esci-es`,
+   privado) — ver §5.3 y `PLAN.md` lote 2.1.
 2. **Cuenta de AWS compartida con 4U_project y TrendAnalyzer.** Confirmado el 2026-11-01: los
    perfiles `default` y `campus-admin` son la misma cuenta root. Un error de alcance en el
    Terraform de Digitdeck podría, en teoría, afectar recursos `campus-locator-*` o `ta-*` si se
@@ -447,8 +447,6 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
 
 - ¿Dominio propio para la URL, o queda como la IP elástica sola? (`PLAN.md` Fase 3)
 - ¿Se completa en W&B el historial de M2-M4, que hoy solo está en CSV/JSON? (§5.7, `PLAN.md` lote 4.2)
-- ¿Repositorio del Hub del encoder privado o público? (`PLAN.md` lote 2.1)
-- ¿Quién, exactamente, tiene acceso a la máquina con los pesos de M1 para subirlos? (riesgo 1)
 
 ---
 

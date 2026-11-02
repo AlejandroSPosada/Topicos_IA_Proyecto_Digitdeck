@@ -41,7 +41,7 @@ variable "image_tag" {
 }
 
 variable "hf_token" {
-  description = "Token de Hugging Face con acceso de lectura al repo privado del encoder de M1 (digitdeck/e5-small-finetuned-esci). Se guarda en SSM Parameter Store, nunca en el estado en texto plano ni en el código"
+  description = "Token de Hugging Face con acceso de lectura al repo privado del encoder de M1 (ateneaxvalac/digitdeck-m1-e5-small-esci-es). Se guarda en SSM Parameter Store, nunca en el estado en texto plano ni en el código"
   type        = string
   sensitive   = true
 }

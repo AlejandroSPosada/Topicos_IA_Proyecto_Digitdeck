@@ -1,0 +1,19 @@
+# Versiones probadas y documentadas en M1/README.md "Entorno de la corrida". torch se instala
+# con el índice de CUDA de la AMI de la instancia (Dockerfile, Lote 3.1 de PLAN.md), p. ej.
+# --index-url https://download.pytorch.org/whl/cu128 — aquí solo se fija la versión.
+torch==2.11.0
+torchvision
+transformers==4.57.1
+datasets==5.0.1
+accelerate==1.14.0
+sentence-transformers==5.1.2
+rank_bm25==0.2.2
+chromadb==1.5.9
+wandb==0.28.2
+pandas
+pyarrow
+numpy
+fastapi
+uvicorn[standard]
+pydantic
+pillow
