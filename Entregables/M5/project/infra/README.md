@@ -46,12 +46,26 @@ pendientes abajo.
 
 ## Pendiente antes del primer `apply`
 
-- [ ] Construir y subir la imagen `digitdeck/app` a ECR (servicio FastAPI que envuelve M1+M3+M4
-      — todavía no existe, ver `../../docs/PLAN.md` Fase 2 y 3).
-- [ ] Subir el encoder ajustado de M1 al HF Hub (`../../docs/PLAN.md` lote 2.1).
+- [x] Subir el encoder ajustado de M1 al HF Hub (`../../docs/PLAN.md` lote 2.1 — cerrado).
+- [x] Construir el índice del catálogo (`../../docs/PLAN.md` lote 2.4 — cerrado, local todavía).
+- [ ] Construir y subir la imagen `digitdeck/app` a ECR (`servicio/Dockerfile`, lote 3.1).
 - [ ] Activar la etiqueta de costo `Project` en Billing → Cost allocation tags, para que el
       presupuesto de `budget.tf` vea el gasto real (tarda hasta 24h).
 - [ ] Decidir el dominio (hoy la URL es la IP elástica sola, `http://<ip>:8000`).
+
+## Paso manual después del primer `apply`
+
+El índice del catálogo (`servicio/indices/`, construido localmente en el Lote 2.4) no viaja en la
+imagen Docker (`servicio/.dockerignore`) ni lo reconstruye `user_data.sh.tpl` automáticamente —
+necesita los parquet de ESCI (~1,1 GB) y tarda varios minutos, no es para el arranque automático de
+cada instancia. Primer deploy, por SSM (`terraform output ssm_session_command`):
+
+```bash
+# subir servicio/indices/ generado en local a /data/digitdeck/indices/ de la instancia
+# (scp/rsync por SSM, o reconstruirlo ahí mismo con construir_indice.py si los parquet también se suben)
+```
+
+Mientras esa carpeta esté vacía, `GET /salud` responde `indice_listo: false`.
 
 ## Por qué VPC por defecto y sin SSH
 

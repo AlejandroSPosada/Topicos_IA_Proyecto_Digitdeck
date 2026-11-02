@@ -24,11 +24,19 @@ docker pull "$ECR_REPO:$IMAGE_TAG"
 
 docker rm -f digitdeck 2>/dev/null || true
 
+# El índice del catálogo no viaja en la imagen (Dockerfile, servicio/.dockerignore): vive en el
+# disco de la instancia para sobrevivir a `docker rm`/`stop-instances` sin reconstruirse. En el
+# primer arranque esta carpeta llega vacía — construir_indice.py se corre una sola vez a mano por
+# SSM (project/infra/README.md), no aquí, porque necesita los parquet de ESCI (~1,1 GB) y tarda
+# varios minutos: no es algo para meter en el arranque automático de cada instancia.
+mkdir -p /data/digitdeck/indices
+
 docker run -d \
   --name digitdeck \
   --restart unless-stopped \
   --gpus all \
   -p "$APP_PORT:$APP_PORT" \
+  -v /data/digitdeck/indices:/app/indices \
   -e HF_TOKEN="$HF_TOKEN" \
   -e WANDB_API_KEY="$WANDB_API_KEY" \
   -e WANDB_PROJECT="digitdeck-m5" \
