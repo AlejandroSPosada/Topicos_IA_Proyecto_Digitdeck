@@ -96,6 +96,9 @@ data "aws_iam_policy_document" "terraform" {
       "ce:GetCostAndUsage",
       "sts:GetCallerIdentity",
       "pricing:GetProducts",
+      # ssm:DescribeParameters no admite acotarse por ARN de parámetro (AWS la exige a nivel de
+      # cuenta, confirmado el 2026-11-02 al aplicar infra/: AccessDeniedException sobre "ssm:*").
+      "ssm:DescribeParameters",
     ]
     resources = ["*"]
   }
@@ -168,5 +171,26 @@ data "aws_iam_policy_document" "terraform" {
       "dynamodb:DescribeTable",
     ]
     resources = [aws_dynamodb_table.tfstate_lock.arn]
+  }
+
+  # Faltaba por completo: digitdeck-terraform podía desplegar la instancia pero no entrar a
+  # ella. Confirmado el 2026-11-02 con AccessDeniedException en ssm:DescribeInstanceInformation.
+  # send-command en vez de start-session porque no hay terminal interactiva persistente desde
+  # donde se opera esto.
+  statement {
+    sid    = "SesionesYComandosSSM"
+    effect = "Allow"
+    actions = [
+      "ssm:DescribeInstanceInformation",
+      "ssm:SendCommand",
+      "ssm:GetCommandInvocation",
+      "ssm:ListCommandInvocations",
+      "ssm:StartSession",
+      "ssm:TerminateSession",
+      "ssm:ResumeSession",
+      "ssm:DescribeSessions",
+      "ssm:GetConnectionStatus",
+    ]
+    resources = ["*"]
   }
 }

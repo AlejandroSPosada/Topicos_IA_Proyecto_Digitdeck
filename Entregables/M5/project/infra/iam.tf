@@ -39,11 +39,20 @@ data "aws_iam_policy_document" "ec2_inline" {
   }
 
   statement {
-    sid    = "PullDelRepoDeDigitdeck"
+    # Originalmente solo pull (la instancia iba a bajar una imagen ya construida en local).
+    # Confirmado el 2026-11-02: el push local a ECR se trababa en esta red (capa de 7,4 GB sin
+    # avanzar incluso tras reiniciar Docker Desktop y WSL2 por completo), así que la instancia
+    # también construye y sube su propia imagen — necesita permisos de push, no solo de pull.
+    sid    = "PullYPushDelRepoDeDigitdeck"
     effect = "Allow"
     actions = [
       "ecr:BatchGetImage",
       "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload",
+      "ecr:PutImage",
     ]
     resources = [aws_ecr_repository.app.arn]
   }

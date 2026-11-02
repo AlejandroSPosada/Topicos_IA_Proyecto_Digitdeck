@@ -1,16 +1,25 @@
 # AMI oficial de AWS con el driver NVIDIA, CUDA y Docker ya configurados para --gpus all.
+# El nombre cambió con el tiempo (antes "Deep Learning AMI GPU PyTorch ... (Ubuntu 22.04)"; hoy
+# "Deep Learning OSS Nvidia Driver AMI GPU PyTorch ... (Ubuntu 24.04)", confirmado el 2026-11-02
+# con `aws ec2 describe-images`). El filtro de arquitectura es explícito porque el mismo prefijo
+# de nombre también existe en variantes ARM64 (g5.xlarge es x86_64).
 data "aws_ami" "deep_learning" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["Deep Learning AMI GPU PyTorch * (Ubuntu 22.04) *"]
+    values = ["Deep Learning OSS Nvidia Driver AMI GPU PyTorch * (Ubuntu 24.04)*"]
   }
 
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }
 

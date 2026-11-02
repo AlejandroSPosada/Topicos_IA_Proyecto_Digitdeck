@@ -13,6 +13,7 @@ terraform {
     region         = "us-east-1"
     dynamodb_table = "digitdeck-tfstate-lock"
     encrypt        = true
+    profile        = "digitdeck"
   }
 }
 

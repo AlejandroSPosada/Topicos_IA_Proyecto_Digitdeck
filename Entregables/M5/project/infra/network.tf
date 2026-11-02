@@ -7,6 +7,17 @@ data "aws_vpc" "default" {
   default = true
 }
 
+# No toda zona de disponibilidad ofrece el tipo de instancia elegido (confirmado el 2026-11-02:
+# us-east-1e no tiene g5.xlarge, aunque sí estaba entre las subredes por defecto). Se cruza contra
+# las zonas que sí lo ofrecen en vez de tomar la primera subred al azar.
+data "aws_ec2_instance_type_offerings" "gpu" {
+  filter {
+    name   = "instance-type"
+    values = [var.instance_type]
+  }
+  location_type = "availability-zone"
+}
+
 data "aws_subnets" "default" {
   filter {
     name   = "vpc-id"
@@ -16,6 +27,11 @@ data "aws_subnets" "default" {
   filter {
     name   = "default-for-az"
     values = ["true"]
+  }
+
+  filter {
+    name   = "availability-zone"
+    values = data.aws_ec2_instance_type_offerings.gpu.locations
   }
 }
 
