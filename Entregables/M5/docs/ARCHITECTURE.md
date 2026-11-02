@@ -166,8 +166,9 @@ con foto).
 Lo único que M5 construye de cero: el empaquetado de 3.1-3.4 en un servicio, y la infraestructura
 que lo corre.
 
-**Interfaces** (código escrito y compila; todavía no se corrió de punta a punta con los modelos
-reales — ver §7 y `PLAN.md` §3):
+**Interfaces** (desplegado y corriendo desde el 2026-11-02: `GET /salud` responde 200 con los
+4 modelos cargados sobre la instancia real — `PLAN.md` §3, Fase 3. `POST /preguntar` todavía no
+se probó en producción; en local solo se probó la ruta de texto sin `buscar_similares`):
 
 | Pieza | Dónde queda |
 |---|---|
@@ -176,6 +177,7 @@ reales — ver §7 y `PLAN.md` §3):
 | `project/servicio/vision.py` | `ver()` y su válvula |
 | `project/servicio/app.py` | FastAPI: `POST /preguntar`, `GET /salud` — contrato en §5.2 |
 | `project/servicio/construir_indice.py` | Lote 2.4: construye y persiste el índice del catálogo |
+| `project/servicio/Dockerfile`, `.dockerignore` | imagen de 4,57 GB; `indices/` y `datos/esci/` no viajan en ella (§9, riesgo 5) |
 | `project/bootstrap/` | estado remoto de Terraform + usuario IAM dedicado (se corre una vez) |
 | `project/infra/` | EC2 con GPU, ECR, IAM de la instancia, secretos, presupuesto — contrato en §5.4 |
 
@@ -201,7 +203,8 @@ reales — ver §7 y `PLAN.md` §3):
 8. Con foto, la respuesta cierra aclarando qué se vio en la imagen y que las fichas son del
    catálogo histórico de ESCI, no del inventario actual (M4 §3.1, paso 8).
 9. Cada pregunta se loguea (intención, herramienta, score contra el umbral, latencia por etapa,
-   estado final) y se registra en W&B — contrato en §5.7, todavía sin implementar.
+   estado final) y se registra en W&B — contrato en §5.7. El código de `app.py` ya lo hace; lo que
+   falta es que esos logs lleguen a CloudWatch en la instancia real (§9, riesgo nuevo).
 
 ---
 
@@ -220,11 +223,14 @@ reales — ver §7 y `PLAN.md` §3):
 | Etiqueta de costo | `Project = digitdeck` en todo recurso de `project/infra/` (para el presupuesto de §5.4 y para no confundirse con el gasto de los otros proyectos) |
 | Terraform | ≥1.9, proveedor `hashicorp/aws ~> 5.0`. Dos stacks: `project/bootstrap/` (estado local, se aplica una sola vez) y `project/infra/` (estado en S3, backend con candado en DynamoDB) |
 | Autenticación de Terraform | perfil de AWS CLI `digitdeck` (usuario IAM dedicado creado por `bootstrap/`), nunca las llaves root `default`/`campus-admin` que ya había en la cuenta |
-| Acceso a la instancia | **SSM Session Manager**, no SSH (el security group no abre el puerto 22) |
+| Acceso a la instancia | **SSM**, no SSH (el security group no abre el puerto 22). En la práctica, `aws ssm send-command` (`AWS-RunShellScript`) para correr comandos puntuales desde un script, no `start-session` interactivo — más fácil de automatizar. El usuario `digitdeck-terraform` necesita permisos de sesión/comando de SSM además de `/digitdeck/*` (§9, ADR-15) |
 | Secretos | **SSM Parameter Store** (`SecureString`), nunca Secrets Manager (evita ~0,40 USD/secreto/mes) ni variables quemadas en la imagen |
 | Tiempo | UTC en logs y en W&B |
 
-### 5.2 · API HTTP del servicio (propuesta — `app.py` aún no existe)
+### 5.2 · API HTTP del servicio
+
+`app.py` ya existe y está desplegado. `GET /salud` verificado en producción (200, los 4 modelos
+cargados — ver abajo). `POST /preguntar` todavía no se probó contra la instancia real.
 
 **`POST /preguntar`**
 
@@ -280,25 +286,26 @@ inferencia completa — es el "health check que responde" de la rúbrica de M5.
 | Verificador / juez | `Qwen/Qwen2.5-3B-Instruct` | público |
 | VLM | `Qwen/Qwen2-VL-2B-Instruct` | público |
 
-### 5.4 · AWS: recursos y nombres (los que ya crea `project/infra/`)
+### 5.4 · AWS: recursos y nombres (ya aplicados — valores reales del 2026-11-02)
 
-| Recurso | Nombre | Terraform |
+| Recurso | Nombre / valor | Terraform |
 |---|---|---|
 | Bucket de estado | `digitdeck-tfstate-648617469176` | `project/bootstrap/main.tf` |
 | Tabla de candado | `digitdeck-tfstate-lock` | idem |
-| Usuario IAM de Terraform | `digitdeck-terraform` (sin access key en el estado — se crea a mano, `project/bootstrap/README.md`) | idem |
-| Instancia | `digitdeck-dev-app`, tipo `g5.xlarge`, AMI Deep Learning de AWS | `project/infra/ec2.tf` |
-| IP elástica | asociada a la instancia | idem |
-| Security group | `digitdeck-dev-ec2` — solo el puerto de la app, nada de SSH | `project/infra/security.tf` |
-| Rol/perfil de la instancia | `digitdeck-dev-ec2` — SSM, CloudWatch Logs, pull de ECR, lectura de `/digitdeck/*` en SSM | `project/infra/iam.tf` |
-| Repositorio de imágenes | `digitdeck/app` | `project/infra/ecr.tf` |
+| Usuario IAM de Terraform | `digitdeck-terraform` (access key creada a mano, rotada una vez por exposición accidental en consola — §9 riesgo) | idem |
+| Instancia | `i-00ca25dc4ee7c3557`, `g5.xlarge`, AMI `ami-0529e66637fd15e6e` ("Deep Learning OSS Nvidia Driver AMI GPU PyTorch ... (Ubuntu 24.04)" — el nombre cambió desde que se escribió el filtro, §9 ADR-13) | `project/infra/ec2.tf` |
+| IP elástica | `54.173.61.242` → `http://54.173.61.242:8000` | idem |
+| Security group | `digitdeck-dev-ec2` (`sg-0edbc8f4579579da4`) — solo el puerto 8000, nada de SSH | `project/infra/security.tf` |
+| Rol/perfil de la instancia | `digitdeck-dev-ec2` — SSM, CloudWatch Logs, pull **y push** de ECR (§9 ADR-14), lectura de `/digitdeck/*` en SSM | `project/infra/iam.tf` |
+| Repositorio de imágenes | `digitdeck/app`, tag `latest` subido **desde la propia instancia**, no en local (§9 ADR-12) | `project/infra/ecr.tf` |
 | Presupuesto | `digitdeck-mensual`, 40 USD/mes (ajustable), filtrado por la etiqueta `Project=digitdeck` | `project/infra/budget.tf` |
+| Índice del catálogo | en `/data/digitdeck/indices` de la instancia (montado como volumen, no en la imagen), construido ahí mismo con GPU en 56 s | `project/infra/user_data.sh.tpl` |
 
 ### 5.5 · Secretos
 
 | Parámetro SSM | Contiene | Quién lo lee |
 |---|---|---|
-| `/digitdeck/hf_token` | token de HF con lectura al repo privado del encoder | el contenedor, en `user_data.sh.tpl`, al arrancar |
+| `/digitdeck/hf_token` | token de HF con lectura al repo privado del encoder (rotado dos veces el 2026-11-02 por exposición accidental, §9 riesgo) | se lee al arrancar el contenedor — por `user_data.sh.tpl` en el primer boot automático, o a mano por `ssm send-command` si el contenedor se reinicia manualmente (como pasó el 2026-11-02, §9 ADR-14) |
 | `/digitdeck/wandb_api_key` | API key de W&B | idem |
 
 Ninguno de los dos se pasa por variable de Terraform hacia el estado en texto plano más allá de lo
@@ -341,7 +348,7 @@ gitEquipos/
         │   ├── README.md
         │   ├── bootstrap/          # estado remoto + IAM dedicado (una vez)
         │   ├── infra/               # EC2 GPU, ECR, presupuesto, outputs
-        │   └── servicio/            # encoder.py, rag.py, vision.py, app.py, construir_indice.py
+        │   └── servicio/            # encoder.py, rag.py, vision.py, app.py, construir_indice.py, Dockerfile
         ├── Resultados/             # pendiente: scorecard final, evidencia de W&B
         └── Validacion/             # pendiente
 ```
@@ -420,6 +427,38 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
   `terraform destroy`. *Por qué:* el volumen raíz (índice del catálogo, modelos ya descargados) se
   pierde con `destroy`; apagada, el volumen sigue existiendo y solo cobra almacenamiento
   (~12 USD/mes de 150 GB), no cómputo.
+- **ADR-11 (M5, 2026-11-02).** Construir y subir la imagen Docker **desde la propia instancia
+  EC2**, no desde la máquina local. *Por qué:* el push local (4,57 GB reales) se trabó
+  repetidamente a 0 B/s — confirmado con el contador de bytes de la interfaz de red, no una
+  impresión — incluso después de reiniciar Docker Desktop y WSL2 por completo (`wsl --shutdown`).
+  Un push de prueba de pocos MB al mismo repositorio sí funcionó, así que no era ni la red en
+  general ni ECR: fue estructural a transferencias grandes y sostenidas sobre esta configuración de
+  WSL2. Desde la instancia, el mismo push tardó **1 minuto**. *Cómo:* el código del servicio
+  (19 KB comprimidos en base64) se manda por `aws ssm send-command`, y la instancia construye y
+  sube su propia imagen. *Costo:* si el servicio cambia de código más adelante, probablemente haya
+  que repetir esta estrategia en vez de asumir que un push local va a funcionar (riesgo 7).
+- **ADR-12 (M5, 2026-11-02).** El rol de la instancia (`digitdeck-dev-ec2`) tiene permisos de
+  **push** a ECR, no solo de pull. *Por qué:* consecuencia directa de ADR-11 — si la instancia
+  construye y sube su propia imagen, necesita `ecr:InitiateLayerUpload`, `UploadLayerPart`,
+  `CompleteLayerUpload`, `PutImage` y `BatchCheckLayerAvailability`, que el diseño original (solo
+  pensado para que la instancia *bajara* una imagen ya construida en local) no contemplaba.
+- **ADR-13 (M5, 2026-11-02).** Filtro de la AMI corregido a `"Deep Learning OSS Nvidia Driver AMI
+  GPU PyTorch * (Ubuntu 24.04)*"`, con un filtro explícito de arquitectura `x86_64`. *Por qué:* el
+  nombre documentado originalmente (`"Deep Learning AMI GPU PyTorch * (Ubuntu 22.04) *"`) ya no
+  existía — AWS lo renombró y migró de Ubuntu 22.04 a 24.04/26.04 en algún punto. Confirmado contra
+  `aws ec2 describe-images` en vivo el 2026-11-02, no adivinado. El filtro de arquitectura es
+  necesario porque el mismo prefijo de nombre también aparece en variantes ARM64.
+- **ADR-14 (M5, 2026-11-02).** La subred se elige cruzando contra las zonas de disponibilidad que
+  sí ofrecen el tipo de instancia (`data.aws_ec2_instance_type_offerings`), no tomando la primera
+  subred por defecto al azar. *Por qué:* el primer `terraform apply` de la instancia falló porque
+  `g5.xlarge` no está disponible en `us-east-1e`, que es la que salió primera de
+  `data.aws_subnets.default.ids[0]`.
+- **ADR-15 (M5, 2026-11-02).** `digitdeck-terraform` necesita permisos de **sesión y comando de
+  SSM** (`ssm:StartSession`, `SendCommand`, `GetCommandInvocation`, `DescribeInstanceInformation`,
+  etc.), además de los de `/digitdeck/*` que ya tenía desde el bootstrap original. *Por qué:* el
+  diseño original solo le dio permisos de SSM al **rol de la instancia** (para que ella pudiera
+  leer sus propios secretos); nadie le había dado permiso al usuario que *inicia* las sesiones o
+  comandos *desde fuera* — un hueco que solo apareció al intentar usarlo de verdad.
 
 ### Riesgos
 
@@ -430,9 +469,10 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
    perfiles `default` y `campus-admin` son la misma cuenta root. Un error de alcance en el
    Terraform de Digitdeck podría, en teoría, afectar recursos `campus-locator-*` o `ta-*` si se
    usaran las llaves equivocadas — de ahí ADR-5.
-3. **Docker no está disponible en la WSL del equipo** (confirmado el 2026-11-01): hace falta
-   activar la integración de Docker Desktop con `Ubuntu-26.04`, o instalar Docker nativo, antes de
-   poder construir la imagen de M5.f.
+3. ~~**Docker no está disponible en la WSL del equipo.**~~ **Cerrado el 2026-11-02.** Se activó la
+   integración de Docker Desktop con `Ubuntu-26.04`. Nota operativa: Docker Desktop no sobrevive a
+   que la máquina se suspenda — hay que volver a abrirlo (y a veces `wsl --shutdown` completo) cada
+   vez que la máquina duerme.
 4. **El repositorio tiene un problema de finales de línea CRLF/LF** entre el git de Windows y el de
    WSL: `git status` desde WSL marca como modificados casi todos los notebooks y CSV de M1-M4 sin
    que nadie los haya tocado. Un `git add -A` hecho sin mirar desde WSL reescribiría esos archivos.
@@ -443,12 +483,34 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
 6. **`buscar_similares` depende del verificador de 3B**, que es el modelo más pesado del sistema
    (§2.1). Si el presupuesto de memoria de la GPU resulta más ajustado de lo calculado, la primera
    palanca para liberar memoria es volver a la opción descartada en ADR-2 (recortar el alcance de
-   la demo pública a solo existencia, como ya hizo M4).
+   la demo pública a solo existencia, como ya hizo M4). *Actualización 2026-11-02:* con los 4
+   modelos cargados a la vez en la `g5.xlarge` real, `GET /salud` responde `ok: true` — el
+   presupuesto de memoria calculado en §2.1 resultó correcto, este riesgo no se materializó.
+7. **El push local de Docker a ECR no es confiable en esta red** (ver ADR-11). Si el servicio
+   cambia de código y hay que reconstruir la imagen, no asumir que `docker push` desde la máquina
+   del equipo va a funcionar — puede trabarse indefinidamente a 0 B/s sin ningún mensaje de error.
+   La solución que funcionó fue construir y subir desde la propia instancia por `ssm send-command`.
+8. **El logging a CloudWatch no está activo en el contenedor desplegado.** `user_data.sh.tpl` sí
+   declara el driver `awslogs` en su `docker run`, pero el primer arranque automático falló (la
+   imagen no existía en ECR todavía — ver estado en `PLAN.md` Fase 3) y el reinicio manual del
+   2026-11-02 por `ssm send-command` no incluyó ese flag. Falta reiniciar el contenedor una vez
+   más con `--log-driver=awslogs` para cerrar esto.
+9. **Dos credenciales quedaron expuestas en el chat durante el despliegue del 2026-11-02**: una
+   access key de AWS (`digitdeck-terraform`, pegada completa) y dos tokens de Hugging Face (uno
+   pegado completo, otro mostrado parcialmente en una captura de pantalla de credenciales
+   S3-compatibles). La access key de AWS se rotó. El primer token de HF se intentó rotar pero no
+   era en realidad el problema (ver nota de la sesión: el error real era un bug de comillas
+   anidadas en un comando de diagnóstico, no el token). El segundo token de HF quedó expuesto y el
+   usuario decidió explícitamente **no rotarlo** después de que se le planteó el riesgo — queda
+   declarado aquí, no es un descuido sin más.
 
 ### Preguntas abiertas
 
 - ¿Dominio propio para la URL, o queda como la IP elástica sola? (`PLAN.md` Fase 3)
 - ¿Se completa en W&B el historial de M2-M4, que hoy solo está en CSV/JSON? (§5.7, `PLAN.md` lote 4.2)
+- ¿Se activa `--log-driver=awslogs` en el próximo reinicio del contenedor? (riesgo 8)
+- ¿`POST /preguntar` responde bien con `buscar_similares` y con foto en la instancia real? Nunca se
+  probó — solo `GET /salud` y, en local, la ruta de texto simple con `verificar_existencia`.
 
 ---
 
@@ -460,7 +522,7 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
 | M2 — Harness de evaluación | ✅ cerrado (`../../M2/INFORME_M2.md`) |
 | M3 — RAG con herramientas | ✅ cerrado, +0,273 nDCG@10 sobre el RAG ingenuo (`../../M3/INFORME_M3.md`) |
 | M4 — Componente visual | ✅ cerrado, 4/12 con foto vs. 3/12 con la pregunta sola (`../../M4/INFORME_M4.md`) |
-| M5 — Demo desplegada | 🟨 en curso |
+| M5 — Demo desplegada | 🟨 en curso — servicio corriendo en `http://54.173.61.242:8000`, `GET /salud` responde 200 con los 4 modelos cargados (2026-11-02). Falta: logging a CloudWatch, probar `POST /preguntar` de verdad, harness de M2 contra la URL |
 
 Estado detallado de M5 (fase y lote, qué se cerró, con qué verificación): **única fuente de
 verdad en [`PLAN.md`](PLAN.md) §3** — no se duplica aquí.
