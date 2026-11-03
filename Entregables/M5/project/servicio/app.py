@@ -6,13 +6,16 @@ el resultado de `vision.responder()` y logea cada pregunta en JSON estructurado 
 §5.7) y en W&B.
 """
 import base64
+import binascii
 import json
 import logging
 import os
 import sys
 import time
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 import encoder
@@ -21,6 +24,7 @@ import vision
 
 APP_PORT = int(os.environ.get("APP_PORT", "8000"))
 WANDB_PROJECT = os.environ.get("WANDB_PROJECT", "digitdeck-m5")
+STATIC_DIR = Path(__file__).parent / "static"
 
 app = FastAPI(title="Digitdeck")
 
@@ -58,10 +62,20 @@ def startup():
     vision._cargar()
 
 
+@app.get("/", include_in_schema=False)
+def demo():
+    # Página de demo para probar el servicio desde el navegador, sin armar JSON a mano
+    # (ARCHITECTURE.md §5.2). No reemplaza el contrato HTTP: /docs sigue siendo la API real.
+    return FileResponse(STATIC_DIR / "index.html")
+
+
 @app.post("/preguntar")
 def preguntar(cuerpo: Pregunta):
     t0 = time.perf_counter()
-    foto_bytes = base64.b64decode(cuerpo.foto_base64) if cuerpo.foto_base64 else None
+    try:
+        foto_bytes = base64.b64decode(cuerpo.foto_base64, validate=True) if cuerpo.foto_base64 else None
+    except (binascii.Error, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=f"foto_base64 no es base64 válido: {exc}")
     resultado = vision.responder(cuerpo.pregunta, foto_bytes)
 
     logger.info(json.dumps({

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digitdeck — asistente de compras</title>
+<style>
+  :root {
+    --fondo: #f7f7f5;
+    --tarjeta: #ffffff;
+    --texto: #1f2328;
+    --texto-sutil: #6b7280;
+    --borde: #e5e7eb;
+    --acento: #2563eb;
+    --acento-hover: #1d4ed8;
+    --afirma: #16a34a;
+    --similares: #d97706;
+    --abstiene: #6b7280;
+    --error: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+  }
+  .envoltura {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  header { margin-bottom: 24px; }
+  header h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  header p { margin: 0; color: var(--texto-sutil); font-size: 0.95rem; }
+  .tarjeta {
+    background: var(--tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+  textarea {
+    width: 100%;
+    min-height: 70px;
+    padding: 10px 12px;
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .foto-fila {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .foto-fila input[type=file] { flex: 1; font-size: 0.9rem; }
+  #previa {
+    display: none;
+    max-width: 90px;
+    max-height: 90px;
+    border-radius: 8px;
+    border: 1px solid var(--borde);
+    object-fit: cover;
+  }
+  #quitar-foto {
+    display: none;
+    background: none;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--texto-sutil);
+  }
+  button.enviar {
+    margin-top: 16px;
+    width: 100%;
+    background: var(--acento);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.enviar:hover { background: var(--acento-hover); }
+  button.enviar:disabled { background: #93c5fd; cursor: wait; }
+  #estado-carga {
+    display: none;
+    text-align: center;
+    color: var(--texto-sutil);
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  #resultado { display: none; }
+  .apertura {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+    color: white;
+  }
+  .apertura.afirma { background: var(--afirma); }
+  .apertura.similares { background: var(--similares); }
+  .apertura.abstiene, .apertura.otro { background: var(--abstiene); }
+  .respuesta { white-space: pre-wrap; line-height: 1.5; font-size: 1.02rem; }
+  .meta {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--borde);
+    font-size: 0.82rem;
+    color: var(--texto-sutil);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+  .error-caja {
+    display: none;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--error);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+  }
+  footer {
+    margin-top: 28px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--texto-sutil);
+  }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<div class="envoltura">
+  <header>
+    <h1>Digitdeck</h1>
+    <p>Copiloto de búsqueda para ecommerce — pregúntale lo que buscarías en una tienda.</p>
+  </header>
+
+  <div class="tarjeta">
+    <label for="pregunta">Tu pregunta</label>
+    <textarea id="pregunta" placeholder="¿Tienen audífonos inalámbricos bluetooth?"></textarea>
+
+    <div class="foto-fila">
+      <input type="file" id="foto" accept="image/*">
+      <img id="previa" alt="vista previa">
+      <button type="button" id="quitar-foto">Quitar foto</button>
+    </div>
+
+    <button class="enviar" id="enviar">Preguntar</button>
+    <div id="estado-carga">Buscando en el catálogo…</div>
+  </div>
+
+  <div class="error-caja" id="error-caja"></div>
+
+  <div class="tarjeta" id="resultado">
+    <span class="apertura" id="apertura-etiqueta"></span>
+    <div class="respuesta" id="respuesta-texto"></div>
+    <div class="meta" id="meta-info"></div>
+  </div>
+
+  <footer>
+    Servicio desplegado para el proyecto Digitdeck · SI4006 · Universidad EAFIT —
+    <a href="/docs">API interactiva</a>
+  </footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let fotoBase64 = null;
+
+$("foto").addEventListener("change", () => {
+  const archivo = $("foto").files[0];
+  if (!archivo) { return; }
+  const lector = new FileReader();
+  lector.onload = () => {
+    fotoBase64 = lector.result.split(",")[1];
+    $("previa").src = lector.result;
+    $("previa").style.display = "inline-block";
+    $("quitar-foto").style.display = "inline-block";
+  };
+  lector.readAsDataURL(archivo);
+});
+
+$("quitar-foto").addEventListener("click", () => {
+  fotoBase64 = null;
+  $("foto").value = "";
+  $("previa").style.display = "none";
+  $("quitar-foto").style.display = "none";
+});
+
+const APERTURA_TEXTO = {
+  afirma: "Sí lo tenemos",
+  similares: "Alternativas",
+  abstiene: "No encontrado",
+  otro: "Respuesta",
+};
+
+function leerApertura(texto) {
+  const t = (texto || "").toLowerCase();
+  if (t.startsWith("sí, lo tenemos") || t.startsWith("si, lo tenemos")) return "afirma";
+  if (t.startsWith("no lo tenemos exacto")) return "similares";
+  if (t.startsWith("no tengo esa información") || t.startsWith("no tengo esa informacion")) return "abstiene";
+  return "otro";
+}
+
+$("enviar").addEventListener("click", async () => {
+  const pregunta = $("pregunta").value.trim();
+  $("error-caja").style.display = "none";
+  $("resultado").style.display = "none";
+  if (!pregunta) {
+    $("error-caja").textContent = "Escribe una pregunta primero.";
+    $("error-caja").style.display = "block";
+    return;
+  }
+
+  const cuerpo = { pregunta };
+  if (fotoBase64) { cuerpo.foto_base64 = fotoBase64; }
+
+  $("enviar").disabled = true;
+  $("estado-carga").style.display = "block";
+  const t0 = performance.now();
+
+  try {
+    const resp = await fetch("/preguntar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cuerpo),
+    });
+    const datos = await resp.json();
+    if (!resp.ok) {
+      throw new Error(datos.detail ? JSON.stringify(datos.detail) : `Error ${resp.status}`);
+    }
+    const segundos = ((performance.now() - t0) / 1000).toFixed(1);
+
+    const tipoApertura = leerApertura(datos.respuesta);
+    $("apertura-etiqueta").textContent = APERTURA_TEXTO[tipoApertura];
+    $("apertura-etiqueta").className = "apertura " + tipoApertura;
+    $("respuesta-texto").textContent = datos.respuesta;
+
+    const partes = [`Estado: ${datos.estado}`, `${segundos} s`];
+    if (datos.fichas_citadas && datos.fichas_citadas.length) {
+      partes.push(`Fichas citadas: ${datos.fichas_citadas.join(", ")}`);
+    }
+    $("meta-info").textContent = partes.join(" · ");
+    $("resultado").style.display = "block";
+  } catch (e) {
+    $("error-caja").textContent = "Algo falló: " + e.message;
+    $("error-caja").style.display = "block";
+  } finally {
+    $("enviar").disabled = false;
+    $("estado-carga").style.display = "none";
+  }
+});
+
+$("pregunta").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { $("enviar").click(); }
+});
+</script>
+</body>
+</html>

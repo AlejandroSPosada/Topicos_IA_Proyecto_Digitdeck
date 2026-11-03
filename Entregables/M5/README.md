@@ -151,20 +151,75 @@ esto se use con compradores reales", que hoy no está respondido en ningún info
 
 ## Qué falta construir para M5
 
-- [ ] Servicio único que integra M1 (reranker) + M2 (harness) + M3 (RAG + herramientas) + M4
+- [x] Servicio único que integra M1 (reranker) + M2 (harness) + M3 (RAG + herramientas) + M4
       (visión), con un solo punto de entrada.
-- [ ] Despliegue en una URL pública y accesible sin VPN ni credenciales del equipo.
-- [ ] Logging estructurado del servicio desplegado.
-- [ ] Endpoint o comando de health check.
+- [x] Despliegue en una URL pública y accesible sin VPN ni credenciales del equipo.
+- [x] Logging estructurado del servicio desplegado.
+- [x] Endpoint o comando de health check.
 - [ ] W&B con el historial de experimentos del semestre (decidir qué hacer con M2–M4, que no se
       registraron).
-- [ ] Harness de M2 corrido contra el sistema desplegado, no contra una corrida local.
+- [x] Harness de M2 corrido contra el sistema desplegado, no contra una corrida local.
 - [ ] Guion de demo de 8 minutos, cronometrado, para audiencia sin formación en IA.
-- [ ] Reporte final (`INFORME_M5.md`) que cierra el proyecto.
+- [x] Reporte final ([`INFORME_M5.md`](INFORME_M5.md)) que cierra el proyecto.
 - [ ] Completar los campos 5, 6, 7 y 8 de
-      [`../M1/PLANTILLA_DEFINICION.md`](../M1/PLANTILLA_DEFINICION.md).
+      [`../M1/PLANTILLA_DEFINICION.md`](../M1/PLANTILLA_DEFINICION.md) (material real para los
+      cuatro ya está en `INFORME_M5.md` §1 y §6).
 - [ ] Confirmar con la docente el canal/fecha de la demo y quién debe asistir (nota: penalización
       por inasistencia).
+
+## Cómo reproducir un resultado (sin ayuda del equipo)
+
+Esto es lo que pide el Nivel 4 de "Producción verificable" de la rúbrica: alguien fuera del
+equipo, con solo lo que hay en este README, reproduce un resultado real. No hace falta clonar el
+repo, instalar nada, ni tener credenciales de AWS — el servicio es una URL pública.
+
+**Lo más simple: abrir http://54.173.61.242:8000/ en el navegador.** Es una página de demo propia
+del servicio (texto, foto opcional, respuesta formateada) — ningún JSON ni terminal de por medio.
+Lo de abajo es para quien prefiera (o necesite) probarlo por API directamente.
+
+**1. Health check:**
+
+```bash
+curl http://54.173.61.242:8000/salud
+```
+
+Debe responder (puede tardar unos segundos la primera vez si la instancia estaba apagada):
+
+```json
+{"ok":true,"modelos_cargados":["encoder","generador","verificador","vlm"],"indice_listo":true}
+```
+
+**2. Una pregunta real**, que ejercita recuperación híbrida + reranking (M1) + la herramienta
+`buscar_similares` con el verificador de 3B (M3), sobre el catálogo real de ESCI en español.
+**No uses `-d` en línea con el acento pegado en el comando** — según la terminal y su codificación,
+el shell puede mandar los caracteres acentuados mal y el servicio responde `400 "There was an
+error parsing the body"` (nos pasó verificando esto mismo el 2026-11-02). Escribe el cuerpo a un
+archivo primero y mándalo con `--data-binary`:
+
+```bash
+printf '{"pregunta": "¿Qué cafetera me recomiendan parecida a la Bialetti Moka Express de 6 tazas?"}' > pregunta.json
+curl -X POST http://54.173.61.242:8000/preguntar \
+  -H "Content-Type: application/json" \
+  --data-binary @pregunta.json
+```
+
+Respuesta esperada (verificada el 2026-11-02; el texto exacto puede variar levemente entre
+corridas por la generación, pero el `estado`, la apertura y la ficha citada deben coincidir):
+
+```json
+{
+  "estado": "respuesta_generada",
+  "fichas_citadas": ["B07527ZB5Y"]
+}
+```
+
+con una `respuesta` que empieza exactamente con **"No lo tenemos exacto, pero hay productos
+parecidos:"** (la apertura obligatoria para una búsqueda de similares, `ARCHITECTURE.md` §5.2) y
+nombra la Bialetti 6356.
+
+Si la instancia está apagada para ahorrar costo (cobra ~1,01 USD/h prendida), la primera llamada
+puede tardar unos minutos mientras arranca — si no responde en absoluto después de varios minutos,
+contactar al equipo, puede que esté apagada de verdad y haya que prenderla.
 
 ## Estructura de la entrega
 

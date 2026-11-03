@@ -166,16 +166,17 @@ con foto).
 Lo único que M5 construye de cero: el empaquetado de 3.1-3.4 en un servicio, y la infraestructura
 que lo corre.
 
-**Interfaces** (desplegado y corriendo desde el 2026-11-02: `GET /salud` responde 200 con los
-4 modelos cargados sobre la instancia real — `PLAN.md` §3, Fase 3. `POST /preguntar` todavía no
-se probó en producción; en local solo se probó la ruta de texto sin `buscar_similares`):
+**Interfaces** (desplegado y corriendo desde el 2026-11-02: `GET /salud` y `POST /preguntar`
+verificados contra la instancia real — `PLAN.md` §3, Fases 3 y 5 — y `GET /` sirve una página de
+demo para probarlo desde el navegador, §5.2):
 
 | Pieza | Dónde queda |
 |---|---|
 | `project/servicio/encoder.py` | carga del encoder de M1 (desde el Hub, §9 ADR-1) y el reranking |
 | `project/servicio/rag.py` | búsqueda híbrida, las dos herramientas, el verificador de exacto |
 | `project/servicio/vision.py` | `ver()` y su válvula |
-| `project/servicio/app.py` | FastAPI: `POST /preguntar`, `GET /salud` — contrato en §5.2 |
+| `project/servicio/app.py` | FastAPI: `POST /preguntar`, `GET /salud`, `GET /` (demo) — contrato en §5.2 |
+| `project/servicio/static/index.html` | página de demo servida en `GET /`, HTML/JS puro sin build (§5.2) |
 | `project/servicio/construir_indice.py` | Lote 2.4: construye y persiste el índice del catálogo |
 | `project/servicio/Dockerfile`, `.dockerignore` | imagen de 4,57 GB; `indices/` y `datos/esci/` no viajan en ella (§9, riesgo 5) |
 | `project/bootstrap/` | estado remoto de Terraform + usuario IAM dedicado (se corre una vez) |
@@ -203,8 +204,8 @@ se probó en producción; en local solo se probó la ruta de texto sin `buscar_s
 8. Con foto, la respuesta cierra aclarando qué se vio en la imagen y que las fichas son del
    catálogo histórico de ESCI, no del inventario actual (M4 §3.1, paso 8).
 9. Cada pregunta se loguea (intención, herramienta, score contra el umbral, latencia por etapa,
-   estado final) y se registra en W&B — contrato en §5.7. El código de `app.py` ya lo hace; lo que
-   falta es que esos logs lleguen a CloudWatch en la instancia real (§9, riesgo nuevo).
+   estado final) y se registra en W&B — contrato en §5.7. El código de `app.py` ya lo hace, y desde
+   el 2026-11-02 esos logs llegan a CloudWatch en la instancia real (§9, riesgo 8, resuelto).
 
 ---
 
@@ -219,7 +220,7 @@ se probó en producción; en local solo se probó la ruta de texto sin `buscar_s
 |---|---|
 | Nube | AWS, cuenta `648617469176`, región `us-east-1` (confirmado el 2026-11-01) |
 | Prefijo de nombres | `digitdeck-dev-*` para recursos de este proyecto, `digitdeck-tfstate-*` para el estado — nunca `campus-locator-*` ni `ta-*` (son de los otros dos proyectos en la misma cuenta) |
-| Repositorio de imágenes | ECR `digitdeck/app`, tags **inmutables** |
+| Repositorio de imágenes | ECR `digitdeck/app`, tags **inmutables** — cada redespliegue necesita un tag nuevo, no se puede re-pushear `:latest` (§9, riesgo 11) |
 | Etiqueta de costo | `Project = digitdeck` en todo recurso de `project/infra/` (para el presupuesto de §5.4 y para no confundirse con el gasto de los otros proyectos) |
 | Terraform | ≥1.9, proveedor `hashicorp/aws ~> 5.0`. Dos stacks: `project/bootstrap/` (estado local, se aplica una sola vez) y `project/infra/` (estado en S3, backend con candado en DynamoDB) |
 | Autenticación de Terraform | perfil de AWS CLI `digitdeck` (usuario IAM dedicado creado por `bootstrap/`), nunca las llaves root `default`/`campus-admin` que ya había en la cuenta |
@@ -229,8 +230,13 @@ se probó en producción; en local solo se probó la ruta de texto sin `buscar_s
 
 ### 5.2 · API HTTP del servicio
 
-`app.py` ya existe y está desplegado. `GET /salud` verificado en producción (200, los 4 modelos
-cargados — ver abajo). `POST /preguntar` todavía no se probó contra la instancia real.
+`app.py` ya existe y está desplegado. `GET /salud` y `POST /preguntar` verificados en producción
+(ver §9, verificación de producción). Desde el 2026-11-02 el servicio también sirve **`GET /`**,
+una página de demo en HTML/JS puro (`project/servicio/static/index.html`, sin build ni
+dependencias) para probar el sistema desde cualquier navegador sin armar JSON a mano — pregunta de
+texto, adjuntar foto opcional, respuesta formateada con apertura/estado/latencia. No reemplaza el
+contrato HTTP: `/docs` (Swagger, autogenerado por FastAPI) sigue siendo la API real para
+integraciones.
 
 **`POST /preguntar`**
 
@@ -241,6 +247,10 @@ cargados — ver abajo). `POST /preguntar` todavía no se probó contra la insta
   "foto_base64": null
 }
 ```
+
+Si `foto_base64` no es base64 válido, responde **422** con el detalle del error (antes del
+2026-11-02 tiraba un 500 genérico sin explicación — lo encontró un agente externo probando la
+reproducibilidad del README, `PLAN.md` lote 5.2).
 
 ```json
 // response
@@ -297,7 +307,7 @@ inferencia completa — es el "health check que responde" de la rúbrica de M5.
 | IP elástica | `54.173.61.242` → `http://54.173.61.242:8000` | idem |
 | Security group | `digitdeck-dev-ec2` (`sg-0edbc8f4579579da4`) — solo el puerto 8000, nada de SSH | `project/infra/security.tf` |
 | Rol/perfil de la instancia | `digitdeck-dev-ec2` — SSM, CloudWatch Logs, pull **y push** de ECR (§9 ADR-14), lectura de `/digitdeck/*` en SSM | `project/infra/iam.tf` |
-| Repositorio de imágenes | `digitdeck/app`, tag `latest` subido **desde la propia instancia**, no en local (§9 ADR-12) | `project/infra/ecr.tf` |
+| Repositorio de imágenes | `digitdeck/app`, imágenes subidas **desde la propia instancia**, no en local (§9 ADR-12). Tags inmutables (§9 riesgo 11): la instancia corre hoy el tag `2026-11-02-frontend`, no `:latest` — `:latest` quedó congelado en la versión sin el frontend/sin el fix 422, y `user_data.sh.tpl`/Terraform siguen apuntando a `:latest` por defecto | `project/infra/ecr.tf` |
 | Presupuesto | `digitdeck-mensual`, 40 USD/mes (ajustable), filtrado por la etiqueta `Project=digitdeck` | `project/infra/budget.tf` |
 | Índice del catálogo | en `/data/digitdeck/indices` de la instancia (montado como volumen, no en la imagen), construido ahí mismo con GPU en 56 s | `project/infra/user_data.sh.tpl` |
 
@@ -490,11 +500,23 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
    cambia de código y hay que reconstruir la imagen, no asumir que `docker push` desde la máquina
    del equipo va a funcionar — puede trabarse indefinidamente a 0 B/s sin ningún mensaje de error.
    La solución que funcionó fue construir y subir desde la propia instancia por `ssm send-command`.
-8. **El logging a CloudWatch no está activo en el contenedor desplegado.** `user_data.sh.tpl` sí
-   declara el driver `awslogs` en su `docker run`, pero el primer arranque automático falló (la
-   imagen no existía en ECR todavía — ver estado en `PLAN.md` Fase 3) y el reinicio manual del
-   2026-11-02 por `ssm send-command` no incluyó ese flag. Falta reiniciar el contenedor una vez
-   más con `--log-driver=awslogs` para cerrar esto.
+8. ~~El logging a CloudWatch no está activo en el contenedor desplegado.~~ **Resuelto 2026-11-02:**
+   se reinició el contenedor por `ssm send-command` con `--log-driver=awslogs` (mismos flags que
+   `user_data.sh.tpl`). Verificado en dos pasos: `docker inspect digitdeck --format
+   '{{json .HostConfig.LogConfig}}'` confirma `{"Type":"awslogs","Config":{"awslogs-group":
+   "/digitdeck/app", ...}}`, y `aws logs describe-log-streams --log-group-name /digitdeck/app`
+   (ejecutado con el rol de la instancia, no con el usuario `digitdeck-terraform` — ver nota abajo)
+   muestra un log stream con `firstEventTimestamp`/`lastEventTimestamp`/`lastIngestionTime`
+   poblados, es decir, ya hay eventos reales llegando a CloudWatch. `app.py` ya emite el JSON
+   estructurado por pregunta (§5.7) a stdout, que el driver reenvía solo — no hubo que tocar
+   código. *Gap menor encontrado de paso:* ni el usuario IAM `digitdeck-terraform` ni el rol de la
+   instancia (`CloudWatchAgentServerPolicy`) tienen permiso de **lectura** de logs
+   (`logs:GetLogEvents`/`logs:DescribeLogGroups` le falta al usuario CLI, `logs:GetLogEvents` al
+   rol de la instancia) — ambos sí pueden escribir. Si se quiere leer el contenido de los logs
+   desde la CLI más adelante (no solo confirmar que llegan), hay que añadir esos permisos de
+   lectura a `bootstrap/main.tf` o a `iam.tf` y aplicar; por ahora no bloquea nada — para leer el
+   contenido real de los logs sin tocar permisos, usar la consola de AWS (CloudWatch Logs →
+   `/digitdeck/app`).
 9. **Dos credenciales quedaron expuestas en el chat durante el despliegue del 2026-11-02**: una
    access key de AWS (`digitdeck-terraform`, pegada completa) y dos tokens de Hugging Face (uno
    pegado completo, otro mostrado parcialmente en una captura de pantalla de credenciales
@@ -503,14 +525,55 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
    anidadas en un comando de diagnóstico, no el token). El segundo token de HF quedó expuesto y el
    usuario decidió explícitamente **no rotarlo** después de que se le planteó el riesgo — queda
    declarado aquí, no es un descuido sin más.
+10. **`POST /preguntar` no expone el ranking completo ni corre un juez holístico** — solo el texto
+    final y `fichas_citadas` (lo que el generador citó literalmente, un subconjunto de lo que de
+    verdad se le pasó como contexto). Al correr el harness de M2/M3 contra la URL pública
+    (`PLAN.md` lote 5.1, 2026-11-02) esto impidió reproducir la Dimensión 1 (nDCG@10/MRR) y la
+    Dimensión 2 (juez) tal cual; sí se pudo reproducir la Dimensión 3 (aciertos de dominio), con
+    `fichas_citadas` como sustituto imperfecto de `pantalla`/`contexto_ids` — los conteos de
+    acierto de esa corrida subestiman sistemáticamente y no son comparables a los `+0,265`/`+0,273`
+    del informe de M3 (quedan solo en `scratchpad` local, no citados como cifra de calidad). Lo que
+    sí es comparable y sí se verificó: **la decisión del sistema (abstención y apertura) coincidió
+    con la corrida local guardada (`M3/Resultados/salidas_sistemas.json["D"]`) en 48 de 49 y 48 de
+    49 casos respectivamente** — producción reproduce el comportamiento local casi exacto. Los 2
+    casos que no coincidieron, explicados:
+    - `g04-S` ("¿hay algo parecido a unos pasteles sin azúcar?", intención *similar*): producción
+      respondió "similares" (lo correcto para esa intención); la corrida local guardada había dado
+      "afirma". No es un bug de despliegue — el enrutador no es determinista al 100% entre
+      corridas, y aquí el resultado de producción es el más alineado con la rúbrica.
+    - `g09-E` ("¿Qué accesorios de Apple tienen?"): el estado fue `respuesta_generada` (la
+      recuperación sí encontró candidatos sobre el umbral, así que el sistema no clasifica esto
+      como abstención), pero el generador escribió de todas formas "No tengo esa información..."
+      — una abstención a nivel de texto que el estado de la máquina no captura. Vale la pena que el
+      equipo lo tenga presente para `INFORME_M5.md`: el estado `respuesta_generada` no garantiza
+      que el texto no sea, en el fondo, una abstención.
+11. **El repositorio ECR tiene tags inmutables** (`digitdeck/app`) — descubierto el 2026-11-02 al
+    intentar re-publicar `:latest` con el frontend nuevo: `error from registry: The image tag
+    'latest' already exists ... and cannot be overwritten because the tag is immutable`. Cada
+    redespliegue de código necesita un **tag nuevo** (se usó `2026-11-02-frontend`), no re-usar
+    `:latest`. `project/infra/variables.tf` sigue con `image_tag` por defecto en `"latest"` para el
+    arranque automático de una instancia nueva (`user_data.sh.tpl`), así que si se reemplaza la
+    instancia desde cero con `terraform apply`, va a buscar `:latest`, que ya quedó desactualizado
+    frente a los tags nuevos — pendiente decidir si se vuelve mutable el repo o se actualiza
+    `image_tag` en Terraform cada vez que se re-publica.
+12. **El `curl -d` en línea con tildes puede fallar según la terminal del lector** — descubierto el
+    2026-11-02 al probar la reproducibilidad externa (`PLAN.md` lote 5.2): un agente sin ningún
+    contexto de esta sesión, siguiendo el `README.md` al pie de la letra, recibió `400 "There was
+    an error parsing the body"` con el comando original (acentos pegados en `-d '...'`); mandando
+    el mismo cuerpo JSON desde un archivo con `--data-binary` funcionó y coincidió exacto con lo
+    documentado. No es un bug del servicio (aceptó el mismo contenido sin problema) — es que el
+    shell del lector puede codificar mal los caracteres no-ASCII al pasarlos como argumento en
+    línea. `README.md` ya se corrigió para usar el archivo en vez de `-d` en línea.
 
 ### Preguntas abiertas
 
 - ¿Dominio propio para la URL, o queda como la IP elástica sola? (`PLAN.md` Fase 3)
 - ¿Se completa en W&B el historial de M2-M4, que hoy solo está en CSV/JSON? (§5.7, `PLAN.md` lote 4.2)
-- ¿Se activa `--log-driver=awslogs` en el próximo reinicio del contenedor? (riesgo 8)
-- ¿`POST /preguntar` responde bien con `buscar_similares` y con foto en la instancia real? Nunca se
-  probó — solo `GET /salud` y, en local, la ruta de texto simple con `verificar_existencia`.
+- ¿Vale la pena añadir `logs:GetLogEvents`/`logs:DescribeLogGroups` al usuario `digitdeck-terraform`
+  y al rol de la instancia, para poder leer logs desde la CLI (hoy solo escriben, no leen — riesgo 8)?
+- ¿Vale la pena que `POST /preguntar` exponga `contexto_ids` (no solo `fichas_citadas`), para que
+  una futura corrida del harness contra la URL pública sí pueda medir Dimensión 3 de forma
+  comparable a las corridas locales (riesgo 10)?
 
 ---
 
@@ -522,7 +585,7 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
 | M2 — Harness de evaluación | ✅ cerrado (`../../M2/INFORME_M2.md`) |
 | M3 — RAG con herramientas | ✅ cerrado, +0,273 nDCG@10 sobre el RAG ingenuo (`../../M3/INFORME_M3.md`) |
 | M4 — Componente visual | ✅ cerrado, 4/12 con foto vs. 3/12 con la pregunta sola (`../../M4/INFORME_M4.md`) |
-| M5 — Demo desplegada | 🟨 en curso — servicio corriendo en `http://54.173.61.242:8000`, `GET /salud` responde 200 con los 4 modelos cargados (2026-11-02). Falta: logging a CloudWatch, probar `POST /preguntar` de verdad, harness de M2 contra la URL |
+| M5 — Demo desplegada | 🟨 en curso — servicio corriendo en `http://54.173.61.242:8000`, `GET /salud` y `POST /preguntar` verificados de verdad (tres rutas manuales + 49 preguntas del eval set de M3, 48/49 coinciden con la corrida local), logging a CloudWatch activo, y reproducibilidad externa verificada por un agente sin contexto de la sesión (2026-11-02). Falta: informe final y demo |
 
 Estado detallado de M5 (fase y lote, qué se cerró, con qué verificación): **única fuente de
 verdad en [`PLAN.md`](PLAN.md) §3** — no se duplica aquí.
