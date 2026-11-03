@@ -176,7 +176,7 @@ demo para probarlo desde el navegador, §5.2):
 | `project/servicio/rag.py` | búsqueda híbrida, las dos herramientas, el verificador de exacto |
 | `project/servicio/vision.py` | `ver()` y su válvula |
 | `project/servicio/app.py` | FastAPI: `POST /preguntar`, `GET /salud`, `GET /` (demo) — contrato en §5.2 |
-| `project/servicio/static/index.html` | página de demo servida en `GET /`, HTML/JS puro sin build (§5.2) |
+| `project/servicio/static/index.html` | página de demo servida en `GET /`, HTML/JS puro sin build: veredicto, citas comprobables y traza por etapa (§5.2) |
 | `project/servicio/construir_indice.py` | Lote 2.4: construye y persiste el índice del catálogo |
 | `project/servicio/Dockerfile`, `.dockerignore` | imagen de 4,57 GB; `indices/` y `datos/esci/` no viajan en ella (§9, riesgo 5) |
 | `project/bootstrap/` | estado remoto de Terraform + usuario IAM dedicado (se corre una vez) |
@@ -237,6 +237,25 @@ dependencias) para probar el sistema desde cualquier navegador sin armar JSON a 
 texto, adjuntar foto opcional, respuesta formateada con apertura/estado/latencia. No reemplaza el
 contrato HTTP: `/docs` (Swagger, autogenerado por FastAPI) sigue siendo la API real para
 integraciones.
+
+Rediseño del 2026-11-02 (rama `feat/frontend-ventanal`), sigue siendo un solo archivo sin build y
+sin cambios en `app.py`. Lo que la página hace con la respuesta, sin agregar lógica de negocio:
+
+- **Veredicto por respuesta**, derivado de `estado` + la apertura del texto: «Lo tiene»,
+  «Tiene parecidos», «No lo encontró», «Fuera de su alcance», «No vio un producto», «No pudo
+  responder». Un `respuesta_generada` cuyo texto es una abstención (caso `g09-E`, §9 riesgo 10) se
+  muestra como «No lo encontró».
+- **Citas comprobables.** Cada `[ID]` del texto se muestra como una ficha. Un ID que aparece en el
+  texto pero no está en `fichas_citadas` no venía de la búsqueda y se marca «sin respaldo». Si
+  ninguna cita tiene respaldo, el veredicto baja a «Sin respaldo» (el caso de los IDs
+  `B07XYZ1234`–`B07XYZ1237` de `INFORME_M5.md` §5). Es una señal en pantalla, no una barrera en
+  `rag.py`.
+- **Traza por etapa** con los `latencia_ms` reales, el `estado` y el texto exacto del modelo.
+- **Foto:** se reduce a 1600 px de lado antes de enviarla (el VLM usa como máximo `MAX_PIXELS`
+  ≈ 0,8 MP, `vision.py`), y la nota «En la foto se ve…» se muestra aparte para que el usuario compare.
+- **Salud:** lee `GET /salud` al cargar y pinta el estado de los cuatro modelos y del índice.
+- Piel: Ventanal, el sistema de diseño de la Plataforma Digitdeck (tokens copiados, Onest + IBM
+  Plex Mono por Google Fonts; sin las fuentes cae a las del sistema).
 
 **`POST /preguntar`**
 
