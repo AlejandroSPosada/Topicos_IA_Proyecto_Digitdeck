@@ -610,7 +610,12 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
 
 ### Preguntas abiertas
 
-- ¿Dominio propio para la URL, o queda como la IP elástica sola? (`PLAN.md` Fase 3)
+- ~~¿Dominio propio para la URL, o queda como la IP elástica sola?~~ **Decidido 2026-11-03: queda
+  la IP elástica.** `digitdeck.com` resultó estar en reventa por 2.999 USD; `digitdeck-eafit.com`
+  sí estaba disponible a precio normal (~12 USD/año en Namecheap, ~16 USD/año en Route 53 — ahí no
+  se puede pagar con crédito promocional, según la propia página de precios de AWS), pero el equipo
+  decidió no gastar en esto. No bloquea nada de la rúbrica: "Producción verificable" solo pide una
+  URL pública que se pueda abrir, y la IP elástica ya cumple eso.
 - ¿Se completa en W&B el historial de M2-M4, que hoy solo está en CSV/JSON? (§5.7, `PLAN.md` lote 4.2)
 - ¿Vale la pena añadir `logs:GetLogEvents`/`logs:DescribeLogGroups` al usuario `digitdeck-terraform`
   y al rol de la instancia, para poder leer logs desde la CLI (hoy solo escriben, no leen — riesgo 8)?
