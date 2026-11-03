@@ -564,6 +564,20 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
     documentado. No es un bug del servicio (aceptó el mismo contenido sin problema) — es que el
     shell del lector puede codificar mal los caracteres no-ASCII al pasarlos como argumento en
     línea. `README.md` ya se corrigió para usar el archivo en vez de `-d` en línea.
+13. **El generador puede inventar productos con IDs que no existen**, no solo citar mal uno real
+    (riesgo distinto al 10). M3 ya medía esto en agregado — *faithfulness* de RAGAS en sistema D es
+    0,940, no 1,0 (`../M3/INFORME_M3.md` §7.4) — pero nunca se había visto el caso concreto ni su
+    causa. Encontrado en vivo el 2026-11-02 (probando la demo con una foto): el generador respondió
+    "Sí, lo tenemos" citando `B07XYZ1234`–`B07XYZ1237`, cuatro IDs que **no existen** en las 80.949
+    fichas del catálogo (verificado con `catalogo.json` en la instancia). Causa probable: el prompt
+    `SYSTEM_RAG` (`project/servicio/rag.py`) usa exactamente ese patrón de ID como ejemplo de
+    formato — *"cita... por ejemplo `[B07XYZ1234]`"* — y el modelo copió el ejemplo en vez del
+    contexto real. `fichas_citadas` volvió vacío porque ninguno de los IDs inventados coincidía con
+    lo recuperado de verdad, lo que confirma que no fue un error de búsqueda. Ni `ids_citados()` ni
+    `completar_nombres()` validan que un ID citado exista — están para dar formato, no para
+    detectar esto. **Decisión del equipo (2026-11-02): documentar, no corregir el prompt todavía**
+    (`INFORME_M5.md` §5 y §6 tienen el detalle completo y la mitigación propuesta: validar cada ID
+    citado contra el catálogo antes de mostrarlo).
 
 ### Preguntas abiertas
 

@@ -193,6 +193,20 @@ producción:
   — hallazgo nuevo de esta corrida en producción (`docs/ARCHITECTURE.md` §9, riesgo 10, caso
   `g09-E`): la recuperación encontró candidatos, pero el generador igual escribió "no tengo esa
   información".
+- **El generador puede inventar productos completos, no solo citar mal uno real.** M3 ya había
+  medido esto en agregado, no lo descubrimos hoy de la nada: *faithfulness* de RAGAS en sistema D
+  es 0,940, no 1,0 (`../M3/INFORME_M3.md` §7.4) — un 6% de lo generado no está anclado al contexto.
+  Lo nuevo es un caso concreto de ese 6%, encontrado en vivo el 2026-11-02: con una foto de un
+  celular, el generador respondió "Sí, lo tenemos" y citó **cuatro productos con IDs que no existen
+  en el catálogo** (`B07XYZ1234`–`B07XYZ1237`, verificado contra las 80.949 fichas). La causa
+  probable: el propio prompt del generador (`SYSTEM_RAG` en `project/servicio/rag.py`) usa
+  justo ese patrón de ID como ejemplo de formato de cita — "cita cada producto... por ejemplo
+  `[B07XYZ1234]`" — y el modelo copió el ejemplo en vez de usar el contexto real. Confirmado que no
+  fue un error de búsqueda: `fichas_citadas` volvió vacío, porque ninguno de los IDs inventados
+  coincidía con lo que sí se había recuperado. Ni `ids_citados()` ni `completar_nombres()` (las dos
+  funciones de `rag.py` que tocan las citas) validan que un ID exista — se construyeron para otra
+  cosa (completar el nombre corto junto a una cita, no para detectar alucinaciones), así que hoy no
+  hay ninguna barrera de código contra esto, solo la medición agregada de M3.
 - **Sesgo de contexto**: el catálogo es de Amazon España, no de la tienda real del caso de uso; un
   producto latinoamericano (Pony Malta) sirve de caso de prueba precisamente porque no está en ese
   catálogo (`../M4/INFORME_M4.md` §10).
@@ -229,17 +243,22 @@ concreta, no abstracta, con un caso de prueba real que la demuestra (Pony Malta)
    sistema no lo detectó. Antes de producción real hace falta una señal clara (en la interfaz o en
    el propio sistema) de que la pregunta de texto debe ser sobre la foto adjunta, o una validación
    que lo verifique antes de responder.
+3. **Validar que cada ID citado exista de verdad en el catálogo antes de mostrarlo.** El caso real
+   del generador inventando cuatro productos (§5) pasó sin que ninguna capa del sistema lo
+   detectara — ni `ids_citados()` ni `completar_nombres()` verifican que un ID sea real, solo le dan
+   formato. Es una validación barata (un `if ID in catalogo`) y evitaría mostrarle a un comprador un
+   producto que no existe con la misma confianza que uno real.
 3. **Una vara de verdad para "afirmación falsa", no solo el juez LLM o ESCI.** Dado que ambos
    proxies tienen kappa débil contra humanos (§5), una decisión de negocio como "el sistema puede
    decirle a un comprador que sí lo tenemos" necesita una revisión humana en el loop, al menos
    hasta que se mida esa tasa de afirmación falsa contra anotación humana de verdad, sobre el
    catálogo real.
-4. **Medir la métrica de valor del campo 5** (§1): no basta con que el sistema tenga buen nDCG, hay
+5. **Medir la métrica de valor del campo 5** (§1): no basta con que el sistema tenga buen nDCG, hay
    que confirmar que el líder de ecommerce efectivamente actúa sobre lo que el sistema le prioriza.
-5. **Resolver el gap de auditoría externa** (§4.2, riesgo 10): si un tercero (auditor, comprador
+6. **Resolver el gap de auditoría externa** (§4.2, riesgo 10): si un tercero (auditor, comprador
    técnico, otro equipo) va a verificar el sistema en producción, la API debería exponer lo
    suficiente del ranking para que esa verificación sea posible sin tener que correr el notebook.
-5. **Monitoreo del VLM en producción**, no solo en el eval set de 12 casos: la muestra es pequeña a
+7. **Monitoreo del VLM en producción**, no solo en el eval set de 12 casos: la muestra es pequeña a
    propósito (es cara de anotar a mano) y el informe de M4 ya lo declara — antes de producción real
    hace falta un conjunto de validación más grande, idealmente con fotos reales de compradores, no
    solo imágenes curadas por el equipo.
