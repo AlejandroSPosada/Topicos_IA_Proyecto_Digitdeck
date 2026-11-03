@@ -1,272 +1,1280 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Digitdeck — asistente de compras</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DigitDeck · Copiloto de compras</title>
+<meta name="description" content="Pregúntale al copiloto de Digitdeck si el catálogo tiene un producto, pídele algo parecido o muéstrale una foto.">
+<meta name="theme-color" content="#100b1b">
+<!-- La «D.» de digitdeck.online (packages/components/DigitdeckLogo/digitdeck-mark.svg); la letra cambia a blanco en pestañas oscuras. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 767 702'%3E%3Cstyle%3Epath%7Bfill:%23000%7D@media (prefers-color-scheme:dark)%7Bpath%7Bfill:%23fff%7D%7D%3C/style%3E%3Cpath d='M631 351Q631 454 585.5 534Q540 614 456.5 658Q373 702 263 702H0V0H263Q374 0 457 44Q540 88 585.5 167.5Q631 247 631 351ZM457 351Q457 254 403 200Q349 146 252 146H171V554H252Q349 554 403 501Q457 448 457 351Z'/%3E%3Ccircle fill='%23915FF3' cx='679.2' cy='614.2' r='87.8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&text=DigitDeck&display=swap">
+<script>
+  // El tema se pone antes de pintar para que no parpadee: la elección guardada o, si no hay, la del sistema.
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem("dd-tema"); } catch (e) {}
+    if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 <style>
-  :root {
-    --fondo: #f7f7f5;
-    --tarjeta: #ffffff;
-    --texto: #1f2328;
-    --texto-sutil: #6b7280;
-    --borde: #e5e7eb;
-    --acento: #2563eb;
-    --acento-hover: #1d4ed8;
-    --afirma: #16a34a;
-    --similares: #d97706;
-    --abstiene: #6b7280;
-    --error: #dc2626;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--fondo);
-    color: var(--texto);
-  }
-  .envoltura {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 32px 20px 60px;
-  }
-  header { margin-bottom: 24px; }
-  header h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  header p { margin: 0; color: var(--texto-sutil); font-size: 0.95rem; }
-  .tarjeta {
-    background: var(--tarjeta);
-    border: 1px solid var(--borde);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-  label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
-  textarea {
-    width: 100%;
-    min-height: 70px;
-    padding: 10px 12px;
-    border: 1px solid var(--borde);
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: inherit;
-    resize: vertical;
-  }
-  .foto-fila {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 14px;
-  }
-  .foto-fila input[type=file] { flex: 1; font-size: 0.9rem; }
-  #previa {
-    display: none;
-    max-width: 90px;
-    max-height: 90px;
-    border-radius: 8px;
-    border: 1px solid var(--borde);
-    object-fit: cover;
-  }
-  #quitar-foto {
-    display: none;
-    background: none;
-    border: 1px solid var(--borde);
-    border-radius: 6px;
-    padding: 4px 10px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    color: var(--texto-sutil);
-  }
-  button.enviar {
-    margin-top: 16px;
-    width: 100%;
-    background: var(--acento);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  button.enviar:hover { background: var(--acento-hover); }
-  button.enviar:disabled { background: #93c5fd; cursor: wait; }
-  #estado-carga {
-    display: none;
-    text-align: center;
-    color: var(--texto-sutil);
-    font-size: 0.9rem;
-    margin-top: 10px;
-  }
-  #resultado { display: none; }
-  .apertura {
-    display: inline-block;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 3px 9px;
-    border-radius: 999px;
-    margin-bottom: 10px;
-    color: white;
-  }
-  .apertura.afirma { background: var(--afirma); }
-  .apertura.similares { background: var(--similares); }
-  .apertura.abstiene, .apertura.otro { background: var(--abstiene); }
-  .respuesta { white-space: pre-wrap; line-height: 1.5; font-size: 1.02rem; }
-  .meta {
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid var(--borde);
-    font-size: 0.82rem;
-    color: var(--texto-sutil);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 16px;
-  }
-  .error-caja {
-    display: none;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: var(--error);
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-size: 0.9rem;
-  }
-  footer {
-    margin-top: 28px;
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--texto-sutil);
-  }
-  footer a { color: inherit; }
+/* Piel: Ventanal, el Sistema de Diseño v3 de la Plataforma Digitdeck (packages/ui/src/styles/tokens.css y base.css de
+   Digitdeck-Platform-v3, dev@07f85d0, paleta «digitdeck»). La escena del ventanal va detrás, el vidrio solo en el marco y
+   lo que se lee va sobre una hoja casi sólida. Ningún color, tamaño ni duración sale de fuera de este bloque. */
+:root {
+  --font-sans: "Onest", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --font-logo: "Poppins", var(--font-sans);
+  --t-cap: 12px; --lh-cap: 16px;
+  --t-meta: 13px; --lh-meta: 18px;
+  --t-body: 14px; --lh-body: 21px;
+  --t-input: 16px; --lh-input: 24px;
+  --t-read: 16px; --lh-read: 26px;
+  --t-h3: 16px; --lh-h3: 22px;
+  --t-h2: 20px; --lh-h2: 26px;
+  --t-display: 32px; --lh-display: 38px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s7: 32px; --s8: 40px; --s9: 56px;
+  --r-xs: 4px; --r-sm: 8px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-2xl: 26px; --r-pill: 999px;
+  --z-sticky: 30; --z-overlay: 40; --z-drawer: 50; --z-modal: 60; --z-toast: 70;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-io: cubic-bezier(0.77, 0, 0.175, 1);
+  --d-press: 160ms; --d-hover: 150ms; --d-pop: 200ms; --d-theme: 200ms;
+  --blur: 26px; --blur-solid: 18px;
+  --top-h: 68px;
+  --gut-l: max(16px, env(safe-area-inset-left, 0px));
+  --gut-r: max(16px, env(safe-area-inset-right, 0px));
+  --col: 760px;
+  /* Ancho del marco: en pantallas grandes la sala del ventanal queda a la vista a los lados. */
+  --marco-max: 1280px;
+  --lado: max(calc(var(--gut-l) + 8px), calc((100vw - var(--marco-max)) / 2));
+
+  /* Escena: crepúsculo violeta, el cielo de la marca. */
+  --sky-a: #170d36; --sky-b: #4c2a86; --sky-c: #c779c4; --sun: #ffe0f4; --glow: #b98aff;
+  --m1: #6a4e9c; --m2: #4f3880; --m3: #392862; --m4: #221841; --haze: #a07ad0; --lake: #8a64c8;
+  --frame: #100b1b; --wall: #1b142d; --floor-a: #3a2c55; --floor-b: #1a1430; --rug: #6a5a8e;
+  --sofa: #8e7cb4; --sofa-2: #63548a; --wood: #3c2a4c; --plant: #26393a; --plant-2: #435f50; --pillow: #915ff3;
+  --stars: 0.6;
+  --brand: #915ff3;
+}
+:root, :root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121017; --bg2: #1d1a25; --panel: #17151d; --raise: #25222e; --line: #2c2936; --line2: #3b3746;
+  --hover: rgba(255, 255, 255, 0.06);
+  --text: #f7f4f0; --muted: #c5c3c1; --faint: #a19f9f;
+  --on-accent: #fff;
+  --ok: #5edb9a; --warn: #ffc24d; --bad: #ff7a7a; --info: #7cb8f5;
+  /* Tinta de los estados sobre su propio tinte (veredictos, avisos): en oscuro es el mismo color. */
+  --ok-ink: var(--ok); --warn-ink: var(--warn); --bad-ink: var(--bad); --info-ink: var(--info);
+  --glass: rgba(24, 20, 28, 0.56); --glass-in-2: rgba(255, 255, 255, 0.12);
+  --glass-line: rgba(255, 255, 255, 0.14); --hi: rgba(255, 255, 255, 0.18);
+  --solid: rgba(21, 19, 26, 0.88); --solid-line: rgba(255, 255, 255, 0.1);
+  --scene-scrim: rgba(4, 6, 14, 0.34);
+  --shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.65);
+  --scrim: rgba(4, 5, 10, 0.46);
+  --sk: rgba(255, 255, 255, 0.08); --sk-2: rgba(255, 255, 255, 0.16);
+  --logo: #ffffff;
+  --accent: #a98af7; --accent-solid: #8452ec; --accent-soft: rgba(145, 95, 243, 0.2);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f2f7; --bg2: #efedf3; --panel: #fbfafd; --raise: #ffffff; --line: #e5e2ea; --line2: #d2ced9;
+  --hover: rgba(20, 22, 27, 0.05);
+  --text: #14161b; --muted: #484a4d; --faint: #636468;
+  --on-accent: #fff;
+  --ok: #13844a; --warn: #a15f00; --bad: #c42b2b; --info: #1f63b3;
+  /* En claro el tinte aclara el fondo: la tinta baja un tono para seguir en AA (--up-ink y --dn-ink de la Plataforma). */
+  --ok-ink: #0b6b3b; --warn-ink: #8a4f00; --bad-ink: #a51d1d; --info-ink: #17519a;
+  --glass: rgba(255, 255, 255, 0.72); --glass-in-2: rgba(255, 255, 255, 0.8);
+  --glass-line: rgba(255, 255, 255, 0.7); --hi: rgba(255, 255, 255, 0.95);
+  --solid: rgba(255, 255, 255, 0.92); --solid-line: rgba(20, 22, 27, 0.08);
+  --scene-scrim: rgba(244, 238, 255, 0.5);
+  --shadow: 0 24px 60px -30px rgba(40, 30, 20, 0.45);
+  --scrim: rgba(30, 24, 20, 0.24);
+  --sk: rgba(20, 22, 27, 0.07); --sk-2: rgba(20, 22, 27, 0.13);
+  --logo: #000000;
+  --accent: #6d38d6; --accent-solid: #7a45e0; --accent-soft: rgba(122, 69, 224, 0.11);
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root, :root[data-theme="dark"] { --glass: rgba(22, 20, 26, 0.9); --solid: rgba(21, 19, 26, 0.97); }
+  :root[data-theme="light"] { --glass: rgba(255, 255, 255, 0.92); --solid: rgba(255, 255, 255, 0.98); }
+}
+@media (max-width: 639px) { :root { --top-h: 60px; --gut-l: max(8px, env(safe-area-inset-left, 0px)); --gut-r: max(8px, env(safe-area-inset-right, 0px)); } }
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--frame); color: var(--text);
+  font: 400 var(--t-body) / var(--lh-body) var(--font-sans);
+  -webkit-font-smoothing: antialiased; overflow: hidden;
+  transition: color var(--d-theme) ease;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+input, textarea { font: inherit; color: inherit; }
+h1, h2, h3, p { margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-xs); }
+::selection { background: var(--accent-soft); }
+* { scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+textarea { caret-color: var(--accent); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums lining-nums; }
+h1, h2, h3 { text-wrap: balance; }
+p, li { text-wrap: pretty; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+[hidden] { display: none !important; }
+.sp { flex: 1; }
+.ic { flex: none; display: block; }
+
+/* Materiales: vidrio para el marco, superficie casi sólida para lo que se lee. */
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(165%); backdrop-filter: blur(var(--blur)) saturate(165%);
+  border: 1px solid var(--glass-line);
+  box-shadow: inset 0 1px 0 var(--hi), var(--shadow);
+}
+.solida {
+  background: var(--solid);
+  -webkit-backdrop-filter: blur(var(--blur-solid)) saturate(150%); backdrop-filter: blur(var(--blur-solid)) saturate(150%);
+  border: 1px solid var(--solid-line);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--hi) 45%, transparent), var(--shadow);
+  transition: background-color var(--d-theme) ease, border-color var(--d-theme) ease;
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; padding: 0 var(--s3);
+  border-radius: var(--r-md); border: 1px solid var(--line2); background: var(--raise); color: var(--text);
+  font-size: var(--t-body); font-weight: 500; white-space: nowrap;
+  transition: background-color var(--d-hover) ease, border-color var(--d-hover) ease, color var(--d-hover) ease, transform var(--d-press) var(--ease-out);
+}
+.btn:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .btn:hover { border-color: var(--faint); } }
+.btn.pri { background: var(--accent-solid); border-color: transparent; color: var(--on-accent); }
+@media (hover: hover) and (pointer: fine) { .btn.pri:hover { background: color-mix(in srgb, var(--accent-solid) 88%, #fff); } }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+@media (hover: hover) and (pointer: fine) { .btn.ghost:hover { background: var(--hover); color: var(--text); } }
+.btn.lg { height: 40px; padding: 0 var(--s4); }
+.btn[disabled] { cursor: not-allowed; }
+.btn.pri[aria-busy="true"] { cursor: progress; }
+.ib {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; position: relative; flex: none; color: var(--text);
+  transition: transform var(--d-press) var(--ease-out), background-color var(--d-hover) ease;
+}
+.ib:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .ib:hover { background: var(--glass-in-2); } }
+.ib.sm { width: 32px; height: 32px; color: var(--muted); }
+@media (hover: hover) and (pointer: fine) { .ib.sm:hover { background: var(--hover); color: var(--text); } }
+/* Con el dedo, un control pequeño llega a 44 × 44 px sin mover el diseño (UX-13). */
+@media (pointer: coarse) {
+  .ib.sm, .btn, .salud, a.f-id { position: relative; }
+  .ib.sm::after, .btn::after, .salud::after, a.f-id::after { content: ""; position: absolute; inset: min(0px, calc((100% - 44px) / 2)); }
+}
+kbd { font: 500 var(--t-cap) var(--font-mono); border: 1px solid var(--line2); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; color: var(--muted); background: var(--bg); }
+
+/* ---------- Armazón: escena, barra superior y marco ---------- */
+.app { position: fixed; inset: 0; overflow: hidden; isolation: isolate; background: var(--frame); }
+.escena { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; pointer-events: none; }
+.topbar {
+  position: absolute; top: 0; left: 0; right: 0; height: var(--top-h); z-index: var(--z-sticky);
+  display: flex; align-items: center; gap: var(--s2);
+  padding: 0 var(--lado);
+}
+.marca { display: flex; align-items: center; gap: var(--s3); height: 44px; padding: 0 var(--s4); border-radius: var(--r-pill); color: var(--logo); min-width: 0; }
+.logotipo { font: 700 17px/1 var(--font-logo); letter-spacing: 0; color: var(--logo); white-space: nowrap; }
+.marca-sep { width: 1px; height: 18px; background: var(--glass-line); flex: none; }
+.producto { font-size: var(--t-body); font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.salud {
+  display: inline-flex; align-items: center; gap: var(--s2); height: 36px; padding: 0 var(--s3); border-radius: var(--r-pill);
+  font-size: var(--t-meta); font-weight: 500; color: var(--text); white-space: nowrap;
+  transition: transform var(--d-press) var(--ease-out);
+}
+.salud:active { transform: scale(0.97); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); flex: none; }
+.dot.ok { background: var(--ok); } .dot.warn { background: var(--warn); } .dot.bad { background: var(--bad); }
+.solo-angosto { display: none; }
+@media (max-width: 1079px) { .solo-angosto { display: grid; } }
+@media (max-width: 639px) {
+  .marca { padding: 0 var(--s4); }
+  .marca-sep, .producto { display: none; }
+  .salud { padding: 0 var(--s3); }
+}
+
+.marco {
+  position: absolute; z-index: 10; top: var(--top-h);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: var(--lado); right: var(--lado);
+  display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--s3);
+}
+@media (max-width: 1079px) { .marco { grid-template-columns: minmax(0, 1fr); } .guia { display: none; } }
+@media (max-width: 639px) { .marco { left: var(--gut-l); right: var(--gut-r); bottom: calc(8px + env(safe-area-inset-bottom, 0px)); } }
+
+/* ---------- Hoja: la conversación ---------- */
+.hoja { position: relative; min-height: 0; border-radius: var(--r-2xl); display: flex; flex-direction: column; overflow: hidden; }
+@media (max-width: 639px) { .hoja { border-radius: var(--r-xl); } }
+.hilo-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.hilo-in { max-width: calc(var(--col) + 2 * var(--s6)); margin: 0 auto; padding: var(--s8) var(--s6) var(--s6); }
+@media (max-width: 639px) { .hilo-in { padding: var(--s6) var(--s4) var(--s4); } }
+
+/* Inicio: la primera pantalla dice qué es, qué hace y qué probar. */
+.inicio { padding-top: clamp(0px, 6vh, 56px); }
+.inicio h1 { font-size: var(--t-display); line-height: var(--lh-display); font-weight: 600; letter-spacing: -0.02em; max-width: 18ch; }
+.inicio-sub { margin-top: var(--s3); font-size: var(--t-read); line-height: var(--lh-read); color: var(--muted); max-width: 58ch; }
+@media (max-width: 639px) { .inicio { padding-top: 0; } .inicio h1 { font-size: 28px; line-height: 34px; } }
+.ejemplos-t { margin-top: var(--s7); font-size: var(--t-meta); color: var(--faint); }
+.ejemplos { list-style: none; margin: var(--s2) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2); }
+@media (max-width: 639px) { .ejemplos { grid-template-columns: minmax(0, 1fr); } }
+.ejemplo {
+  width: 100%; height: 100%; display: flex; flex-direction: column; gap: 2px; padding: var(--s3) var(--s4);
+  border-radius: var(--r-lg); border: 1px solid var(--line);
+  transition: background-color var(--d-hover) ease, border-color var(--d-hover) ease, transform var(--d-press) var(--ease-out);
+}
+.ejemplo:active { transform: scale(0.98); }
+@media (hover: hover) and (pointer: fine) { .ejemplo:hover { background: var(--hover); border-color: var(--line2); } }
+.ej-tipo { font-size: var(--t-meta); color: var(--faint); }
+.ej-q { font-size: var(--t-body); line-height: var(--lh-body); color: var(--text); font-weight: 500; }
+.inicio-foto { margin-top: var(--s4); display: flex; align-items: center; gap: var(--s2); font-size: var(--t-meta); color: var(--muted); }
+.deshecho { display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s6); padding: 6px 6px 6px var(--s4); border-radius: var(--r-md); background: var(--bg2); font-size: var(--t-body); color: var(--muted); width: fit-content; max-width: 100%; }
+.deshecho .btn { color: var(--accent); }
+
+/* Saltar a la pregunta: el primer tabulador lleva directo a la caja. */
+.saltar { position: fixed; top: 8px; left: 8px; z-index: 1000; padding: 10px var(--s4); border-radius: var(--r-md); background: var(--raise); color: var(--text); font-weight: 500; transform: translateY(-160%); }
+.saltar:focus-visible { transform: none; }
+
+.hilo-cab { display: flex; align-items: center; gap: var(--s2); margin: calc(-1 * var(--s4)) 0 var(--s4); }
+.hilo-cab p { font-size: var(--t-meta); color: var(--faint); }
+.turnos { display: flex; flex-direction: column; gap: var(--s8); }
+
+/* Un turno: la pregunta y su respuesta. Entra con opacidad y 8 px: muestra qué es lo nuevo, y nada más. */
+.turno { display: flex; flex-direction: column; gap: var(--s4); scroll-margin-top: var(--s4);
+  transition: opacity 240ms var(--ease-out), transform 240ms var(--ease-out); }
+@starting-style { .turno { opacity: 0; transform: translateY(8px); } }
+.yo { display: flex; justify-content: flex-end; }
+.burbuja {
+  max-width: min(520px, 88%); padding: var(--s3) var(--s4); border-radius: var(--r-xl) var(--r-xl) var(--r-sm) var(--r-xl);
+  background: var(--bg2); font-size: var(--t-read); line-height: var(--lh-read); display: flex; flex-direction: column; gap: var(--s2);
+  overflow-wrap: anywhere;
+}
+.burbuja img { width: 96px; height: 96px; object-fit: cover; border-radius: var(--r-md); display: block; align-self: flex-end; }
+
+.resp { display: flex; flex-direction: column; gap: var(--s3); transition: opacity 200ms var(--ease-out); }
+@starting-style { .resp.lista { opacity: 0; } }
+.autor { display: flex; align-items: center; gap: var(--s2); font-size: var(--t-meta); color: var(--faint); }
+.autor b { color: var(--text); font-weight: 600; }
+.autor svg { width: 16px; height: 15px; color: var(--logo); }
+
+/* El veredicto es el protagonista de cada respuesta: un solo sólido de color por respuesta. */
+.veredicto { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3); }
+.chip-v {
+  display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 var(--s3) 0 10px; border-radius: var(--r-pill);
+  font-size: var(--t-body); font-weight: 600; white-space: nowrap; color: var(--muted); background: var(--hover);
+}
+.chip-v.ok { color: var(--ok-ink); background: color-mix(in srgb, var(--ok) 13%, transparent); }
+.chip-v.warn { color: var(--warn-ink); background: color-mix(in srgb, var(--warn) 14%, transparent); }
+.chip-v.bad { color: var(--bad-ink); background: color-mix(in srgb, var(--bad) 13%, transparent); }
+.chip-v.info { color: var(--info-ink); background: color-mix(in srgb, var(--info) 13%, transparent); }
+.chip-v.sm { height: 26px; padding: 0 10px 0 8px; font-size: var(--t-meta); gap: 6px; }
+.v-nota { font-size: var(--t-body); color: var(--muted); flex: 1 1 260px; }
+
+/* Fichas citadas: una fila por producto, con su referencia comprobable. */
+.fichas { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.ficha { display: flex; align-items: flex-start; gap: var(--s4); padding: var(--s3) var(--s4); }
+.ficha + .ficha { border-top: 1px solid var(--line); }
+.f-txt { flex: 1; min-width: 0; }
+.f-nombre { font-size: var(--t-read); line-height: 24px; font-weight: 500; overflow-wrap: anywhere; }
+.f-det {
+  margin-top: 2px; font-size: var(--t-meta); line-height: var(--lh-meta); color: var(--muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.f-det .k { color: var(--faint); }
+.f-det .par + .par { margin-left: var(--s3); }
+.f-id {
+  flex: none; display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 var(--s2); margin-top: -1px; border-radius: var(--r-sm);
+  font-size: var(--t-meta); color: var(--muted); background: var(--hover); text-decoration: none; white-space: nowrap;
+  transition: color var(--d-hover) ease, background-color var(--d-hover) ease;
+}
+a.f-id { color: var(--accent); background: var(--accent-soft); }
+@media (hover: hover) and (pointer: fine) { a.f-id:hover { text-decoration: underline; text-underline-offset: 3px; } }
+.f-id.sin { color: var(--bad-ink); background: color-mix(in srgb, var(--bad) 13%, transparent); }
+.f-id .sin-t { font-family: var(--font-sans); font-weight: 500; }
+@media (max-width: 639px) { .ficha { flex-direction: column; gap: var(--s2); } }
+.texto { font-size: var(--t-read); line-height: var(--lh-read); white-space: pre-wrap; overflow-wrap: anywhere; }
+.texto .f-id { height: 22px; vertical-align: 1px; margin: 0 2px; }
+
+.aviso { display: flex; gap: var(--s2); align-items: flex-start; padding: 10px var(--s3); border-radius: var(--r-md); font-size: var(--t-body); }
+.aviso .ic { margin-top: 2px; }
+.aviso.warn { color: var(--text); background: color-mix(in srgb, var(--warn) 12%, transparent); }
+.aviso.warn .ic { color: var(--warn); }
+.aviso.bad { color: var(--text); background: color-mix(in srgb, var(--bad) 11%, transparent); }
+.aviso.bad .ic { color: var(--bad); }
+.vio { display: flex; gap: var(--s2); align-items: flex-start; font-size: var(--t-body); color: var(--muted); }
+.vio .ic { margin-top: 2px; color: var(--faint); }
+.vio b { color: var(--text); font-weight: 500; }
+.nota-cat { font-size: var(--t-meta); color: var(--faint); }
+
+/* Cómo llegó a esta respuesta: los tiempos reales que devuelve el servicio, etapa por etapa. */
+.traza { border-top: 1px solid var(--line); padding-top: var(--s1); }
+.traza summary {
+  list-style: none; display: flex; align-items: center; gap: var(--s2); min-height: 44px; cursor: pointer; color: var(--muted);
+  font-size: var(--t-body); border-radius: var(--r-sm); transition: color var(--d-hover) ease;
+}
+.traza summary::-webkit-details-marker { display: none; }
+@media (hover: hover) and (pointer: fine) { .traza summary:hover { color: var(--text); } }
+.traza summary .chev { transition: transform var(--d-pop) var(--ease-out); color: var(--faint); }
+.traza[open] summary .chev { transform: rotate(180deg); }
+.t-total { font-size: var(--t-meta); color: var(--muted); }
+.etapas { list-style: none; margin: var(--s2) 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.etapa { display: grid; grid-template-columns: minmax(0, 1fr) 34px minmax(56px, 140px) 52px; align-items: center; gap: var(--s3); font-size: var(--t-body); }
+.e-m, .e-t { font-size: var(--t-cap); color: var(--faint); }
+.e-t { text-align: right; color: var(--muted); font-size: var(--t-meta); }
+.e-bar { height: 6px; border-radius: 3px; background: var(--bg2); overflow: hidden; }
+.e-bar i { display: block; height: 100%; width: var(--w); min-width: 2px; border-radius: 3px; background: color-mix(in srgb, var(--text) 45%, transparent); }
+@media (max-width: 639px) { .etapa { grid-template-columns: minmax(0, 1fr) 46px; row-gap: 6px; } .e-m { display: none; } .e-bar { grid-column: 1 / -1; grid-row: 2; } }
+.tecnico { margin: var(--s4) 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
+.tecnico dt { font-size: var(--t-cap); color: var(--faint); }
+.tecnico dd { margin: 2px 0 0; font-size: var(--t-meta); color: var(--text); overflow-wrap: anywhere; }
+.crudo { margin: var(--s4) 0 var(--s2); }
+.crudo figcaption { font-size: var(--t-cap); color: var(--faint); margin-bottom: var(--s1); }
+.crudo blockquote { margin: 0; padding: 10px var(--s3); border-radius: var(--r-md); background: var(--bg2); font-size: var(--t-meta); line-height: 20px; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.reintentar { align-self: flex-start; }
+
+/* Esperando la respuesta: esqueleto con la forma de una respuesta (veredicto + fichas) y el tiempo real que lleva. */
+.sk { background: var(--sk); border-radius: var(--r-sm); position: relative; overflow: hidden; }
+.sk::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, var(--sk-2), transparent); animation: dd-shim 1.3s ease-in-out 6; }
+@keyframes dd-shim { to { transform: translateX(100%); } }
+.sk-chip { width: 132px; height: 32px; border-radius: var(--r-pill); }
+.sk-fichas { border: 1px solid var(--line); border-radius: var(--r-lg); }
+.sk-fila { display: flex; gap: var(--s4); padding: var(--s3) var(--s4); align-items: center; }
+.sk-fila + .sk-fila { border-top: 1px solid var(--line); }
+.sk-fila .sk:first-child { flex: 1; height: 14px; margin: 5px 0; }
+.sk-fila .sk:last-child { width: 96px; height: 22px; }
+.espera { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3); font-size: var(--t-body); color: var(--muted); min-height: 36px; }
+.espera .t { font-size: var(--t-meta); color: var(--faint); }
+.espera-larga { font-size: var(--t-meta); color: var(--muted); max-width: 60ch; }
+
+/* dd-cargando--linea: los tres puntos de la «D.» de la marca. Entra con retraso para no parpadear y se detiene tras
+   4 ciclos (menos de 5 s): el contador de segundos que va al lado sigue diciendo que la espera continúa. */
+.dd-cargando--linea { display: inline-flex; align-items: center; gap: 4px; height: 16px; opacity: 0; animation: dd-entra 1ms 250ms forwards; }
+.dd-cargando--linea i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.35; animation: dd-punto 1.1s var(--ease-io) 4; }
+.dd-cargando--linea i:nth-child(2) { animation-delay: 120ms; }
+.dd-cargando--linea i:nth-child(3) { animation-delay: 240ms; }
+.espera .dd-cargando--linea { color: var(--brand); }
+@keyframes dd-entra { to { opacity: 1; } }
+@keyframes dd-punto { 40% { opacity: 1; transform: translateY(-2px); } 80%, 100% { opacity: 0.35; transform: none; } }
+
+/* ---------- Compositor: la caja única de pregunta ---------- */
+.composer { flex: none; width: 100%; max-width: calc(var(--col) + 2 * var(--s6)); margin: 0 auto; padding: var(--s2) var(--s6) var(--s5); }
+@media (max-width: 639px) { .composer { padding: var(--s2) var(--s3) var(--s3); } }
+.caja {
+  display: flex; flex-direction: column; border-radius: var(--r-xl); border: 1px solid var(--line2); background: var(--bg);
+  transition: border-color var(--d-hover) ease, box-shadow var(--d-hover) ease;
+}
+.caja:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.caja.err { border-color: var(--bad); }
+.caja-l { padding: var(--s3) var(--s4) 0; font-size: var(--t-cap); color: var(--faint); }
+.caja textarea {
+  display: block; width: 100%; min-height: 32px; max-height: 168px; resize: none; border: 0; outline: 0; background: transparent;
+  padding: 2px var(--s4) var(--s1); font-size: var(--t-input); line-height: var(--lh-input); color: var(--text);
+}
+.caja textarea::placeholder { color: var(--faint); opacity: 1; }
+@media (pointer: coarse) { .caja textarea { min-height: 44px; } }
+.caja-pie { display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s2) var(--s2) var(--s2); }
+.atajo { font-size: var(--t-cap); color: var(--faint); display: inline-flex; align-items: center; gap: 6px; }
+@media (pointer: coarse), (max-width: 639px) { .atajo { display: none; } }
+#enviar { min-width: 148px; }
+#enviar .dd-cargando--linea { opacity: 1; animation: none; }
+.adjunto { display: flex; align-items: center; gap: var(--s3); margin: var(--s2) var(--s2) 0; padding: var(--s2); border-radius: var(--r-lg); background: var(--bg2); }
+.adjunto img { width: 48px; height: 48px; object-fit: cover; border-radius: var(--r-sm); display: block; flex: none; }
+.adj-txt { flex: 1; min-width: 0; }
+.adj-n { font-size: var(--t-body); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adj-h { font-size: var(--t-meta); color: var(--muted); }
+.composer-error { margin-top: var(--s2); padding: 0 var(--s2); display: flex; gap: 6px; align-items: center; font-size: var(--t-meta); color: var(--bad); }
+.composer-nota { margin-top: var(--s2); padding: 0 var(--s2); font-size: var(--t-cap); color: var(--faint); text-align: center; }
+
+/* Soltar una foto sobre la conversación. */
+.soltar {
+  position: absolute; inset: var(--s3); z-index: 5; border-radius: var(--r-xl); border: 2px dashed var(--accent);
+  background: color-mix(in srgb, var(--bg) 82%, transparent); display: grid; place-items: center; text-align: center;
+  font-size: var(--t-h3); font-weight: 600; color: var(--text); pointer-events: none;
+}
+.soltar[hidden] { display: none; }
+
+/* ---------- Guía: cómo leer las respuestas y cuándo no confiar ---------- */
+.guia { min-height: 0; border-radius: var(--r-2xl); overflow-y: auto; overscroll-behavior: contain; }
+.guia-in { padding: var(--s6) var(--s6) var(--s5); display: flex; flex-direction: column; }
+.guia-in h2 { font-size: var(--t-h3); line-height: var(--lh-h3); font-weight: 600; letter-spacing: -0.005em; }
+.guia-in h2:not(:first-child) { margin-top: var(--s7); }
+.guia-lista { list-style: none; margin: var(--s3) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--s3); }
+.leyenda li { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.leyenda p, .alertas li, .pasos li { font-size: var(--t-body); line-height: var(--lh-body); color: var(--muted); }
+.alertas li b { color: var(--text); font-weight: 600; }
+.pasos { counter-reset: paso; }
+.pasos li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: var(--s2); counter-increment: paso; }
+.pasos li::before { content: counter(paso); font: 500 var(--t-cap) / var(--lh-body) var(--font-mono); color: var(--faint); }
+.pasos .mono, .modelos .mono { font-size: var(--t-cap); color: var(--faint); }
+.modelos { gap: 10px; }
+.modelos li { display: flex; align-items: center; gap: var(--s2); font-size: var(--t-body); color: var(--text); }
+.modelos li .sp { flex: 1; }
+.guia-pie { margin-top: var(--s7); padding-top: var(--s4); border-top: 1px solid var(--line); font-size: var(--t-meta); color: var(--faint); display: flex; flex-direction: column; gap: var(--s2); }
+.guia-pie nav { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); }
+.guia-pie a { color: var(--accent); text-underline-offset: 3px; display: inline-flex; align-items: center; gap: 4px; min-height: 24px; }
+
+/* En pantallas angostas la guía vive en una hoja inferior (diálogo nativo: foco atrapado y Escape gratis). */
+.dlg-guia {
+  margin: auto auto 0; width: min(560px, 100%); max-width: 100%; max-height: 88dvh; padding: 0; border: 1px solid var(--line2); border-bottom: 0;
+  border-radius: var(--r-xl) var(--r-xl) 0 0; background: var(--panel); color: var(--text); box-shadow: var(--shadow); overflow: hidden;
+}
+.dlg-guia[open] { display: flex; flex-direction: column; animation: dd-sube 260ms var(--ease-out); }
+.dlg-guia::backdrop { background: var(--scrim); }
+@keyframes dd-sube { from { transform: translateY(24px); opacity: 0; } }
+.dlg-h { flex: none; display: flex; align-items: center; justify-content: space-between; padding: var(--s3) var(--s3) 0 var(--s6); }
+.dlg-h p { font-size: var(--t-meta); color: var(--faint); }
+.dlg-b { overflow-y: auto; overscroll-behavior: contain; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.dlg-b .guia-in { padding-top: var(--s2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .turno, .resp { transition: none; }
+  .dlg-guia[open] { animation: none; }
+  .sk::after { animation: none; }
+  .dd-cargando--linea i { animation: none; opacity: 0.8; }
+}
 </style>
 </head>
 <body>
-<div class="envoltura">
-  <header>
-    <h1>Digitdeck</h1>
-    <p>Copiloto de búsqueda para ecommerce — pregúntale lo que buscarías en una tienda.</p>
+<a class="saltar" href="#pregunta">Saltar a la pregunta</a>
+<div class="app">
+  <svg class="escena" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="vt-cielo" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--sky-a)"/><stop offset=".62" style="stop-color:var(--sky-b)"/><stop offset="1" style="stop-color:var(--sky-c)"/>
+      </linearGradient>
+      <radialGradient id="vt-brillo">
+        <stop offset="0" style="stop-color:var(--glow);stop-opacity:.85"/><stop offset=".35" style="stop-color:var(--glow);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--glow);stop-opacity:0"/>
+      </radialGradient>
+      <linearGradient id="vt-bruma" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--haze);stop-opacity:0"/><stop offset="1" style="stop-color:var(--haze);stop-opacity:.75"/>
+      </linearGradient>
+      <linearGradient id="vt-piso" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--floor-a)"/><stop offset="1" style="stop-color:var(--floor-b)"/>
+      </linearGradient>
+      <linearGradient id="vt-vidrio" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity=".07"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset=".52" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="vt-vineta" cx=".5" cy=".45" r=".75">
+        <stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/>
+      </radialGradient>
+      <radialGradient id="vt-luz" cx=".5" cy=".5" r=".5">
+        <stop offset="0" style="stop-color:var(--glow);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--glow);stop-opacity:0"/>
+      </radialGradient>
+    </defs>
+    <rect width="1440" height="640" fill="url(#vt-cielo)"/>
+    <g id="estrellas" style="opacity:var(--stars)"></g>
+    <g transform="translate(-60 30)">
+      <circle cx="860" cy="452" r="190" fill="url(#vt-brillo)"/>
+      <circle cx="860" cy="452" r="30" style="fill:var(--sun)"/>
+    </g>
+    <path style="fill:var(--m1)" d="M0 468 80 440 160 456 250 420 330 446 420 410 520 438 610 400 700 430 790 396 880 426 980 404 1080 440 1180 414 1290 446 1370 424 1440 438V640H0Z"/>
+    <rect y="400" width="1440" height="170" fill="url(#vt-bruma)"/>
+    <path style="fill:var(--m2)" d="M0 502 90 472 190 492 300 456 400 486 510 462 600 492 720 466 830 496 950 470 1060 498 1170 468 1280 490 1380 470 1440 482V640H0Z"/>
+    <path style="fill:var(--lake);opacity:.9" d="M360 548C520 530 760 526 1010 540 1090 546 1110 558 1010 565 780 576 520 574 360 562Z"/>
+    <path style="fill:var(--m3)" d="M0 522C90 506 170 516 250 530 310 540 370 550 430 560L430 600H0ZM1020 560C1110 542 1210 522 1300 513 1370 507 1410 510 1440 516V600H1020Z"/>
+    <g id="luces" style="opacity:var(--stars)"></g>
+    <path style="fill:var(--m4)" d="M0 588C200 566 400 572 600 582 800 592 1000 576 1200 569 1320 566 1400 571 1440 576V640H0Z"/>
+    <rect width="1440" height="640" fill="url(#vt-vidrio)"/>
+    <rect width="1440" height="56" style="fill:var(--wall)"/>
+    <rect y="50" width="1440" height="10" style="fill:var(--frame)"/>
+    <rect x="166" y="56" width="20" height="572" style="fill:var(--frame)"/>
+    <rect x="566" y="56" width="14" height="572" style="fill:var(--frame)"/>
+    <rect x="838" y="56" width="14" height="572" style="fill:var(--frame)"/>
+    <rect x="1140" y="56" width="20" height="572" style="fill:var(--frame)"/>
+    <rect y="222" width="186" height="12" style="fill:var(--frame)"/>
+    <rect x="1140" y="222" width="300" height="12" style="fill:var(--frame)"/>
+    <rect y="620" width="1440" height="12" style="fill:var(--frame)"/>
+    <rect y="630" width="1440" height="270" fill="url(#vt-piso)"/>
+    <ellipse cx="780" cy="720" rx="640" ry="120" fill="url(#vt-luz)"/>
+    <path style="fill:var(--rug);opacity:.6" d="M250 700H1190L1340 900H110Z"/>
+    <rect x="420" y="588" width="440" height="92" rx="20" style="fill:var(--sofa)"/>
+    <rect x="420" y="640" width="440" height="40" rx="18" style="fill:var(--sofa-2);opacity:.6"/>
+    <ellipse cx="620" cy="670" rx="230" ry="36" style="fill:var(--wood)"/>
+    <ellipse cx="620" cy="664" rx="222" ry="30" style="fill:var(--wood);filter:brightness(1.25)"/>
+    <path style="fill:var(--wood)" d="M560 690h30l40 105h-32zM680 690h-30l-40 105h32z"/>
+    <ellipse cx="560" cy="652" rx="56" ry="10" style="fill:var(--frame);opacity:.7"/>
+    <ellipse cx="1050" cy="642" rx="62" ry="42" style="fill:var(--sofa-2)"/>
+    <ellipse cx="1050" cy="626" rx="58" ry="22" style="fill:var(--sofa);opacity:.55"/>
+    <rect x="1176" y="512" width="290" height="88" rx="26" style="fill:var(--sofa-2)"/>
+    <rect x="1240" y="490" width="70" height="66" rx="16" style="fill:var(--pillow)"/>
+    <rect x="1320" y="496" width="66" height="60" rx="16" style="fill:var(--sofa)"/>
+    <rect x="1150" y="560" width="320" height="120" rx="28" style="fill:var(--sofa)"/>
+    <rect x="1150" y="636" width="320" height="44" rx="22" style="fill:var(--sofa-2);opacity:.7"/>
+    <path style="fill:var(--sofa)" d="M-10 600C40 548 130 534 210 552 248 562 276 592 286 636L276 660 10 708-10 700Z"/>
+    <path style="fill:var(--sofa-2);opacity:.75" d="M-10 680 280 640 290 676 0 730Z"/>
+    <path style="fill:none;stroke:var(--wood);stroke-width:10;stroke-linecap:round" d="M6 760C90 730 210 700 320 690M60 742l-20 70M260 700l30 80"/>
+    <g transform="translate(1385 330)">
+      <path style="fill:none;stroke:var(--plant);stroke-width:5" d="M10 300C0 220 4 120-6 30"/>
+      <ellipse cx="-30" cy="40" rx="48" ry="14" transform="rotate(-35 -30 40)" style="fill:var(--plant-2)"/>
+      <ellipse cx="22" cy="70" rx="52" ry="15" transform="rotate(28 22 70)" style="fill:var(--plant)"/>
+      <ellipse cx="-40" cy="110" rx="56" ry="15" transform="rotate(-20 -40 110)" style="fill:var(--plant)"/>
+      <ellipse cx="30" cy="140" rx="50" ry="14" transform="rotate(32 30 140)" style="fill:var(--plant-2)"/>
+      <ellipse cx="-34" cy="180" rx="50" ry="14" transform="rotate(-28 -34 180)" style="fill:var(--plant-2)"/>
+      <ellipse cx="18" cy="8" rx="40" ry="12" transform="rotate(-60 18 8)" style="fill:var(--plant)"/>
+      <path style="fill:var(--wood)" d="M-26 290h70l-10 60h-50z"/>
+    </g>
+    <rect width="1440" height="900" fill="url(#vt-vineta)"/>
+    <rect width="1440" height="900" style="fill:var(--scene-scrim)"/>
+  </svg>
+
+  <header class="topbar">
+    <div class="marca glass">
+      <span class="logotipo" translate="no">DigitDeck</span>
+      <span class="marca-sep" aria-hidden="true"></span>
+      <span class="producto">Copiloto de compras</span>
+    </div>
+    <span class="sp"></span>
+    <button type="button" class="salud glass" id="salud" aria-describedby="salud-det">
+      <span class="dot" id="salud-dot"></span><span id="salud-txt">Conectando…</span>
+    </button>
+    <span class="sr-only" id="salud-det">Toca para volver a comprobar el servicio.</span>
+    <button type="button" class="ib glass solo-angosto" id="abrir-guia" aria-haspopup="dialog" aria-controls="dlg-guia" aria-label="Abrir la guía: cómo leer las respuestas"><svg class="ic" width="20" height="20" data-i="ayuda"></svg></button>
+    <button type="button" class="ib glass" id="tema" aria-label="Cambiar a tema claro"><svg class="ic" width="20" height="20" data-i="sol"></svg></button>
   </header>
 
-  <div class="tarjeta">
-    <label for="pregunta">Tu pregunta</label>
-    <textarea id="pregunta" placeholder="¿Tienen audífonos inalámbricos bluetooth?"></textarea>
+  <div class="marco">
+    <main class="hoja solida" id="hoja">
+      <div class="hilo-scroll" id="hilo-scroll">
+        <div class="hilo-in">
+          <section class="inicio" id="inicio" aria-labelledby="inicio-t">
+            <p class="deshecho" id="deshecho" hidden>Borraste la conversación.<button type="button" class="btn ghost" id="deshacer">Deshacer</button></p>
+            <h1 id="inicio-t">¿Qué producto buscas?</h1>
+            <p class="inicio-sub">Pregunta si el catálogo lo tiene, pide algo parecido o muestra una foto. El copiloto responde solo con las fichas que encuentra y te dice cuándo no lo sabe.</p>
+            <p class="ejemplos-t" id="ejemplos-t">Prueba uno de estos casos</p>
+            <ul class="ejemplos" aria-labelledby="ejemplos-t">
+              <li><button type="button" class="ejemplo" data-q="¿Tienen audífonos inalámbricos bluetooth?"><span class="ej-tipo">Preguntar por un producto</span><span class="ej-q">¿Tienen audífonos inalámbricos bluetooth?</span></button></li>
+              <li><button type="button" class="ejemplo" data-q="¿Qué cafetera me recomiendan parecida a la Bialetti Moka Express de 6 tazas?"><span class="ej-tipo">Pedir algo parecido</span><span class="ej-q">¿Qué cafetera me recomiendan parecida a la Bialetti Moka Express de 6 tazas?</span></button></li>
+              <li><button type="button" class="ejemplo" data-q="¿Hacen envíos a Canarias?"><span class="ej-tipo">Una pregunta que no es de productos</span><span class="ej-q">¿Hacen envíos a Canarias?</span></button></li>
+              <li><button type="button" class="ejemplo" data-q="¿Tienen Pony Malta?"><span class="ej-tipo">Un producto que no está en el catálogo</span><span class="ej-q">¿Tienen Pony Malta?</span></button></li>
+            </ul>
+            <p class="inicio-foto"><svg class="ic" width="16" height="16" data-i="imagen"></svg>También puedes arrastrar o pegar aquí la foto de un producto.</p>
+          </section>
+          <div class="hilo-cab" id="hilo-cab" hidden>
+            <p>Esta conversación</p>
+            <span class="sp"></span>
+            <button type="button" class="btn ghost" id="reiniciar"><svg class="ic" width="16" height="16" data-i="reiniciar"></svg>Empezar de nuevo</button>
+          </div>
+          <div class="turnos" id="turnos"></div>
+        </div>
+      </div>
 
-    <div class="foto-fila">
-      <input type="file" id="foto" accept="image/*">
-      <img id="previa" alt="vista previa">
-      <button type="button" id="quitar-foto">Quitar foto</button>
-    </div>
+      <form class="composer" id="composer" novalidate>
+        <div class="caja" id="caja">
+          <div class="adjunto" id="adjunto" hidden>
+            <img id="adj-img" alt="Foto adjunta" width="48" height="48">
+            <div class="adj-txt">
+              <p class="adj-n" id="adj-n"></p>
+              <p class="adj-h">Pregunta por lo que se ve en la foto.</p>
+            </div>
+            <button type="button" class="ib sm" id="quitar-foto" aria-label="Quitar la foto"><svg class="ic" width="18" height="18" data-i="cerrar"></svg></button>
+          </div>
+          <label class="caja-l" for="pregunta">Tu pregunta</label>
+          <textarea id="pregunta" name="pregunta" rows="1" placeholder="Ej.: ¿Tienen el Xiaomi Redmi Note 7 negro?" enterkeyhint="send" autocomplete="off" spellcheck="true" aria-describedby="composer-nota"></textarea>
+          <div class="caja-pie">
+            <button type="button" class="btn ghost" id="elegir-foto"><svg class="ic" width="18" height="18" data-i="imagen"></svg>Foto</button>
+            <input type="file" id="foto" accept="image/*" hidden>
+            <span class="sp"></span>
+            <span class="atajo"><kbd>Enter</kbd> para preguntar</span>
+            <button type="submit" class="btn pri lg" id="enviar">Preguntar</button>
+          </div>
+        </div>
+        <p class="composer-error" id="composer-error" role="alert" hidden></p>
+        <p class="composer-nota" id="composer-nota">Cada pregunta se responde por separado: el copiloto no recuerda las anteriores.</p>
+      </form>
+      <div class="soltar" id="soltar" hidden>Suelta la foto para preguntar por ella</div>
+    </main>
 
-    <button class="enviar" id="enviar">Preguntar</button>
-    <div id="estado-carga">Buscando en el catálogo…</div>
+    <aside class="guia solida" id="guia" aria-labelledby="guia-t">
+      <div class="guia-in" id="guia-in">
+        <h2 id="guia-t">Cómo leer las respuestas</h2>
+        <ul class="guia-lista leyenda">
+          <li><span class="chip-v ok sm"><svg class="ic" width="15" height="15" data-i="ok"></svg>Lo tiene</span><p>Encontró fichas que son el producto que pediste.</p></li>
+          <li><span class="chip-v warn sm"><svg class="ic" width="15" height="15" data-i="parecido"></svg>Tiene parecidos</span><p>El exacto no está. Lo que muestra son alternativas, no el mismo producto.</p></li>
+          <li><span class="chip-v sm"><svg class="ic" width="15" height="15" data-i="buscar-no"></svg>No lo encontró</span><p>Buscó, y ninguna ficha se parecía lo suficiente.</p></li>
+          <li><span class="chip-v info sm"><svg class="ic" width="15" height="15" data-i="info"></svg>Fuera de su alcance</span><p>La pregunta no es sobre productos, o es de venta restringida, así que no busca.</p></li>
+        </ul>
+
+        <h2>Cuándo no confiar</h2>
+        <ul class="guia-lista alertas">
+          <li><b>Detalles finos.</b> Confunde a veces colores cercanos o generaciones de un mismo producto.</li>
+          <li><b>Foto y pregunta distintas.</b> Si hablan de cosas diferentes, puede responder sobre la equivocada. Pregunta por lo que se ve.</li>
+          <li><b>Referencias «sin respaldo».</b> No venían de la búsqueda: el modelo las escribió por su cuenta y pueden no existir.</li>
+          <li><b>No es una tienda real.</b> Busca en 80.949 fichas del catálogo histórico de Amazon España (ESCI). No sabe de precios, inventario ni envíos.</li>
+        </ul>
+
+        <h2>Qué hace con tu pregunta</h2>
+        <ol class="guia-lista pasos">
+          <li><span>Si hay foto, describe lo que ve en ella</span><span class="mono">M4</span></li>
+          <li><span>Decide si buscar el producto exacto o algo parecido</span><span class="mono">M3</span></li>
+          <li><span>Busca en el catálogo y ordena por relevancia</span><span class="mono">M1</span></li>
+          <li><span>Si pediste algo parecido, separa lo exacto de lo parecido</span><span class="mono">M2</span></li>
+          <li><span>Redacta la respuesta citando cada ficha</span><span class="mono">M3</span></li>
+        </ol>
+
+        <h2>Estado del servicio</h2>
+        <ul class="guia-lista modelos" id="modelos">
+          <li data-m="encoder"><span class="dot"></span>Buscador ajustado<span class="sp"></span><span class="mono">M1</span></li>
+          <li data-m="verificador"><span class="dot"></span>Verificador de exactos<span class="sp"></span><span class="mono">M2</span></li>
+          <li data-m="generador"><span class="dot"></span>Redactor de respuestas<span class="sp"></span><span class="mono">M3</span></li>
+          <li data-m="vlm"><span class="dot"></span>Lector de fotos<span class="sp"></span><span class="mono">M4</span></li>
+          <li data-m="indice"><span class="dot"></span>Índice del catálogo<span class="sp"></span><span class="mono">M3</span></li>
+        </ul>
+
+        <div class="guia-pie">
+          <p>Proyecto Digitdeck del curso SI4006, Universidad EAFIT.</p>
+          <nav aria-label="Para integraciones">
+            <a href="/docs">API interactiva<svg class="ic" width="13" height="13" data-i="externo"></svg></a>
+            <a href="/salud">Estado en JSON<svg class="ic" width="13" height="13" data-i="externo"></svg></a>
+          </nav>
+        </div>
+      </div>
+    </aside>
   </div>
-
-  <div class="error-caja" id="error-caja"></div>
-
-  <div class="tarjeta" id="resultado">
-    <span class="apertura" id="apertura-etiqueta"></span>
-    <div class="respuesta" id="respuesta-texto"></div>
-    <div class="meta" id="meta-info"></div>
-  </div>
-
-  <footer>
-    Servicio desplegado para el proyecto Digitdeck · SI4006 · Universidad EAFIT —
-    <a href="/docs">API interactiva</a>
-  </footer>
 </div>
 
+<dialog class="dlg-guia" id="dlg-guia" aria-labelledby="guia-t">
+  <div class="dlg-h"><p>Guía</p><button type="button" class="ib sm" id="cerrar-guia" aria-label="Cerrar la guía"><svg class="ic" width="18" height="18" data-i="cerrar"></svg></button></div>
+  <div class="dlg-b" id="dlg-slot"></div>
+</dialog>
+
+<p class="sr-only" aria-live="polite" id="anuncio"></p>
+<noscript><p style="position:fixed;inset:auto 16px 16px;padding:12px 16px;border-radius:12px;background:#fff;color:#14161b;font:14px system-ui">Esta demo necesita JavaScript para hablar con el servicio. La API sigue disponible en <a href="/docs">/docs</a>.</p></noscript>
+
 <script>
-const $ = (id) => document.getElementById(id);
-let fotoBase64 = null;
+"use strict";
+// Contrato: POST /preguntar {pregunta, foto_base64?} -> {respuesta, estado, fichas_citadas, latencia_ms}; GET /salud
+// (ARCHITECTURE.md §5.2). Todo lo que pinta esta página sale de esa respuesta: no hay lógica de negocio aquí.
 
-$("foto").addEventListener("change", () => {
-  const archivo = $("foto").files[0];
-  if (!archivo) { return; }
-  const lector = new FileReader();
-  lector.onload = () => {
-    fotoBase64 = lector.result.split(",")[1];
-    $("previa").src = lector.result;
-    $("previa").style.display = "inline-block";
-    $("quitar-foto").style.display = "inline-block";
-  };
-  lector.readAsDataURL(archivo);
-});
+const $ = (s) => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
 
-$("quitar-foto").addEventListener("click", () => {
-  fotoBase64 = null;
-  $("foto").value = "";
-  $("previa").style.display = "none";
-  $("quitar-foto").style.display = "none";
-});
-
-const APERTURA_TEXTO = {
-  afirma: "Sí lo tenemos",
-  similares: "Alternativas",
-  abstiene: "No encontrado",
-  otro: "Respuesta",
+// Iconos de línea de 1,5 px (formas de Lucide, ISC), en currentColor.
+const ICONOS = {
+  ok: '<path d="M20 6 9 17l-5-5"/>',
+  parecido: '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
+  "buscar-no": '<path d="m13.5 8.5-5 5"/><path d="m8.5 8.5 5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  alerta: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  imagen: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>',
+  "imagen-no": '<path d="M2 2l20 20"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><path d="M13.5 13.5 6 21"/><path d="M18 12l3 3"/><path d="M3.59 3.59A2 2 0 0 0 3 5v14a2 2 0 0 0 2 2h14a2 2 0 0 0 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/>',
+  cerrar: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  sol: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  luna: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  externo: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  reiniciar: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  ayuda: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+  chev: '<path d="m6 9 6 6 6-6"/>',
 };
+function pintarIcono(svg, nombre) {
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "1.5");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  svg.innerHTML = ICONOS[nombre];
+}
+function icono(nombre, tam = 16, clase = "ic") {
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("width", tam);
+  svg.setAttribute("height", tam);
+  svg.setAttribute("class", clase);
+  pintarIcono(svg, nombre);
+  return svg;
+}
+document.querySelectorAll("svg[data-i]").forEach((s) => pintarIcono(s, s.dataset.i));
 
-function leerApertura(texto) {
-  const t = (texto || "").toLowerCase();
-  if (t.startsWith("sí, lo tenemos") || t.startsWith("si, lo tenemos")) return "afirma";
-  if (t.startsWith("no lo tenemos exacto")) return "similares";
-  if (t.startsWith("no tengo esa información") || t.startsWith("no tengo esa informacion")) return "abstiene";
-  return "otro";
+// h("p", {class: "x", text: "…"}, hijos…): el texto siempre entra como textContent, nunca como HTML.
+function h(tag, props, ...hijos) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "text") el.textContent = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of hijos.flat()) if (c != null && c !== false) el.append(c);
+  return el;
 }
 
-$("enviar").addEventListener("click", async () => {
-  const pregunta = $("pregunta").value.trim();
-  $("error-caja").style.display = "none";
-  $("resultado").style.display = "none";
-  if (!pregunta) {
-    $("error-caja").textContent = "Escribe una pregunta primero.";
-    $("error-caja").style.display = "block";
-    return;
+const reducirMovimiento = matchMedia("(prefers-reduced-motion: reduce)");
+const fmtSeg = new Intl.NumberFormat("es-CO", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const segundos = (ms) => `${fmtSeg.format(Math.max(0, ms) / 1000)} s`;
+
+// ---------- Escena: estrellas y luces del pueblo, con la misma semilla que la Plataforma ----------
+function puntos(g, n, semilla, y0, alto, color, r0) {
+  let s = semilla;
+  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < n; i++) {
+    const c = document.createElementNS(NS, "circle");
+    c.setAttribute("cx", Math.round(rnd() * 1440));
+    c.setAttribute("cy", Math.round(rnd() * alto + y0));
+    c.setAttribute("r", (rnd() * 1.3 + r0).toFixed(1));
+    c.setAttribute("fill", color);
+    c.setAttribute("opacity", (rnd() * 0.5 + 0.4).toFixed(2));
+    g.append(c);
+  }
+}
+puntos($("#estrellas"), 70, 7, 60, 360, "#fff", 0.4);
+puntos($("#luces"), 46, 11, 535, 50, "#FFD27A", 0.6);
+
+// ---------- Tema ----------
+const raiz = document.documentElement;
+function pintarTema() {
+  const claro = raiz.dataset.theme === "light";
+  pintarIcono($("#tema svg"), claro ? "luna" : "sol");
+  $("#tema").setAttribute("aria-label", claro ? "Cambiar a tema oscuro" : "Cambiar a tema claro");
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", claro ? "#f4f2f7" : "#100b1b");
+}
+$("#tema").addEventListener("click", () => {
+  raiz.dataset.theme = raiz.dataset.theme === "light" ? "dark" : "light";
+  try { localStorage.setItem("dd-tema", raiz.dataset.theme); } catch (e) {}
+  pintarTema();
+});
+pintarTema();
+
+// ---------- Estado del servicio (GET /salud) ----------
+const SALUD = {
+  cargando: ["", "Conectando…"],
+  ok: ["ok", "En línea"],
+  parcial: ["warn", "Cargando modelos"],
+  caido: ["bad", "Sin conexión"],
+};
+let saludEnCurso = null;
+function pintarSalud(clave, datos) {
+  const [tono, texto] = SALUD[clave];
+  $("#salud-dot").className = "dot " + tono;
+  $("#salud-txt").textContent = texto;
+  const listos = new Set(datos ? datos.modelos_cargados || [] : []);
+  if (datos && datos.indice_listo) listos.add("indice");
+  document.querySelectorAll("#modelos li").forEach((li) => {
+    const dot = li.querySelector(".dot");
+    dot.className = "dot " + (clave === "cargando" ? "" : listos.has(li.dataset.m) ? "ok" : "bad");
+  });
+}
+function revisarSalud() {
+  if (saludEnCurso) return saludEnCurso;
+  pintarSalud("cargando");
+  saludEnCurso = fetch("/salud", { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then((d) => pintarSalud(d.ok ? "ok" : "parcial", d))
+    .catch(() => pintarSalud("caido"))
+    .finally(() => { saludEnCurso = null; });
+  return saludEnCurso;
+}
+$("#salud").addEventListener("click", revisarSalud);
+revisarSalud();
+
+// ---------- Cómo se lee una respuesta ----------
+// Las tres aperturas obligatorias del generador (rag.py, APERTURAS) y la nota que agrega el camino con foto (vision.py).
+const APERTURAS = [
+  ["afirma", /^s[ií],?\s*lo tenemos:?/i],
+  ["similares", /^no lo tenemos exacto,?\s*pero hay productos parecidos:?/i],
+  ["abstiene", /^no tengo esa informaci[oó]n en mis fuentes\.?/i],
+];
+const NOTA_FOTO = /\s*En la foto se ve:\s*([\s\S]*?)\.\s*Las fichas son del cat[aá]logo hist[oó]rico[\s\S]*$/;
+const CITA = /\[([A-Za-z0-9]{10})\]/g;
+
+const VEREDICTOS = {
+  si: { tono: "ok", icono: "ok", titulo: "Lo tiene", nota: "Encontró fichas que son el producto que pediste." },
+  parecido: { tono: "warn", icono: "parecido", titulo: "Tiene parecidos", nota: "El exacto no está. Estas son alternativas, no el mismo producto." },
+  no: { tono: "", icono: "buscar-no", titulo: "No lo encontró", nota: "Buscó en el catálogo y ninguna ficha se parecía lo suficiente." },
+  noTexto: { tono: "", icono: "buscar-no", titulo: "No lo encontró", nota: "La búsqueda trajo fichas, pero al redactar decidió que ninguna respondía tu pregunta." },
+  fuera: { tono: "info", icono: "info", titulo: "Fuera de su alcance", nota: "No es una pregunta sobre productos del catálogo, o es de venta restringida, así que no buscó." },
+  sinFoto: { tono: "", icono: "imagen-no", titulo: "No vio un producto", nota: "En la foto no se aprecia un producto que pueda buscar. Prueba con una foto más cercana." },
+  otro: { tono: "warn", icono: "alerta", titulo: "Respuesta sin verificar", nota: "No empezó con ninguna de las tres frases que exige el sistema. Léela con cuidado." },
+  sinRespaldo: { tono: "bad", icono: "alerta", titulo: "Sin respaldo", nota: "Afirma que hay productos, pero ninguna referencia venía de la búsqueda. Pueden ser inventadas: no confíes en esta respuesta." },
+  sinCitas: { tono: "warn", icono: "alerta", titulo: "Sin comprobar", nota: "Afirma que hay productos, pero no citó ninguna ficha, así que no hay forma de comprobarlo." },
+  error: { tono: "bad", icono: "alerta", titulo: "No pudo responder", nota: "Falló un paso interno. No se comprobó si el producto está en el catálogo." },
+};
+
+function analizar(texto) {
+  let t = (texto || "").trim();
+  let foto = null;
+  const m = t.match(NOTA_FOTO);
+  if (m) { foto = m[1].trim(); t = t.slice(0, m.index).trim(); }
+  let apertura = "otro";
+  for (const [clave, re] of APERTURAS) {
+    const a = t.match(re);
+    if (a) { apertura = clave; t = t.slice(a[0].length).trim(); break; }
+  }
+  return { apertura, cuerpo: t, foto };
+}
+
+function veredicto(d, apertura) {
+  switch (d.estado) {
+    case "abstencion_dominio": return "fuera";
+    case "sin_resultados": return "no";
+    case "sin_producto": return "sinFoto";
+    case "error_formato":
+    case "error_operativo": return "error";
+  }
+  return { afirma: "si", similares: "parecido", abstiene: "noTexto", otro: "otro" }[apertura];
+}
+
+const limpiarNombre = (s) => s
+  .replace(/^[\s,;:.\-–]+/, "").replace(/^(y|e|o)\s+/i, "")
+  .replace(/[\s,;:.]+$/, "").replace(/\s+(y|e|o)$/i, "").trim();
+const mayuscula = (s) => s.charAt(0).toLocaleUpperCase("es") + s.slice(1);
+
+// El generador escribe «nombre [ID], nombre [ID]» o «[ID] nombre | marca: … | color: …». Se arma una fila por cita;
+// si algún nombre queda vacío, no se adivina: se muestra el texto tal cual con las citas marcadas.
+function extraerFichas(cuerpo) {
+  const marcas = [...cuerpo.matchAll(CITA)];
+  if (!marcas.length) return null;
+  const prefijo = cuerpo.trimStart().startsWith("[");
+  const vistas = new Set();
+  const fichas = [];
+  marcas.forEach((m, i) => {
+    const fin = m.index + m[0].length;
+    const crudo = prefijo
+      ? cuerpo.slice(fin, i + 1 < marcas.length ? marcas[i + 1].index : cuerpo.length)
+      : cuerpo.slice(i === 0 ? 0 : marcas[i - 1].index + marcas[i - 1][0].length, m.index);
+    const [nombre, ...campos] = crudo.split(/\s+\|\s+/);
+    const id = m[1].toUpperCase();
+    if (vistas.has(id)) return;
+    vistas.add(id);
+    fichas.push({
+      id,
+      nombre: mayuscula(limpiarNombre(nombre || "")),
+      campos: campos.map((c) => {
+        const k = c.indexOf(":");
+        return k > 0 ? [c.slice(0, k).trim(), limpiarNombre(c.slice(k + 1))] : ["", limpiarNombre(c)];
+      }).filter(([, v]) => v),
+    });
+  });
+  if (fichas.some((f) => !f.nombre)) return null;
+  const ultima = marcas[marcas.length - 1];
+  const resto = prefijo ? cuerpo.slice(0, marcas[0].index) : cuerpo.slice(ultima.index + ultima[0].length);
+  return { fichas, resto: resto.replace(/^[\s,;:.]+/, "").trim() };
+}
+
+function chipId(id, respaldada) {
+  if (respaldada) {
+    return h("a", {
+      class: "f-id", href: `https://www.amazon.es/dp/${id}`, target: "_blank", rel: "noopener noreferrer",
+      title: "Abrir la ficha original en Amazon.es. Es un catálogo histórico: el producto puede ya no estar a la venta.",
+    }, h("span", { class: "mono", translate: "no", text: id }), icono("externo", 13), h("span", { class: "sr-only", text: " (abre Amazon.es en otra pestaña)" }));
+  }
+  return h("span", { class: "f-id sin", title: "Esta referencia no venía de la búsqueda: el modelo la escribió por su cuenta." },
+    icono("alerta", 13), h("span", { class: "mono", translate: "no", text: id }), h("span", { class: "sin-t", text: "sin respaldo" }));
+}
+
+// Texto del modelo con cada [ID] convertido en su referencia comprobable.
+function textoConCitas(texto, respaldadas) {
+  const p = h("p", { class: "texto" });
+  let desde = 0;
+  for (const m of texto.matchAll(CITA)) {
+    p.append(texto.slice(desde, m.index), chipId(m[1].toUpperCase(), respaldadas.has(m[1].toUpperCase())));
+    desde = m.index + m[0].length;
+  }
+  p.append(texto.slice(desde));
+  return p;
+}
+
+const ETAPAS = [
+  ["vision", "Describió la foto", "M4"],
+  ["enrutamiento", "Entendió qué pides", "M3"],
+  ["recuperacion_reranking", "Buscó y ordenó el catálogo", "M1"],
+  ["verificador", "Separó lo exacto de lo parecido", "M2"],
+  ["generacion", "Redactó la respuesta", "M3"],
+];
+
+function traza(d, msNavegador) {
+  const lat = d.latencia_ms || {};
+  const total = lat.total ?? ETAPAS.reduce((s, [k]) => s + (lat[k] || 0), 0);
+  const filas = ETAPAS.filter(([k]) => k in lat).map(([k, nombre, modulo]) =>
+    h("li", { class: "etapa" },
+      h("span", { text: nombre }),
+      h("span", { class: "e-m mono", text: modulo }),
+      h("span", { class: "e-bar", "aria-hidden": "true" }, h("i", { style: `--w:${total ? (100 * lat[k]) / total : 0}%` })),
+      h("span", { class: "e-t mono", text: segundos(lat[k]) })));
+  return h("details", { class: "traza" },
+    h("summary", {},
+      h("span", { text: "Cómo llegó a esta respuesta" }), icono("chev", 16, "ic chev"),
+      h("span", { class: "sp" }),
+      h("span", { class: "t-total mono", text: segundos(total), title: "Tiempo en el servidor" })),
+    filas.length ? h("ol", { class: "etapas", "aria-label": "Tiempo de cada etapa en el servidor" }, filas) : null,
+    h("dl", { class: "tecnico" },
+      h("div", {}, h("dt", { text: "Estado del sistema" }), h("dd", { class: "mono", translate: "no", text: d.estado })),
+      h("div", {}, h("dt", { text: "Tiempo total, con la red" }), h("dd", { class: "mono", text: segundos(msNavegador) }))),
+    h("figure", { class: "crudo" },
+      h("figcaption", { text: "Texto exacto del modelo" }),
+      h("blockquote", { text: d.respuesta || "" })));
+}
+
+function autor() {
+  const marca = document.createElementNS(NS, "svg");
+  marca.setAttribute("viewBox", "0 0 767 702");
+  marca.setAttribute("aria-hidden", "true");
+  marca.innerHTML = '<path fill="currentColor" d="M631 351Q631 454 585.5 534Q540 614 456.5 658Q373 702 263 702H0V0H263Q374 0 457 44Q540 88 585.5 167.5Q631 247 631 351ZM457 351Q457 254 403 200Q349 146 252 146H171V554H252Q349 554 403 501Q457 448 457 351Z"/><circle fill="#915FF3" cx="679.2" cy="614.2" r="87.8"/>';
+  return h("p", { class: "autor" }, marca, h("b", { text: "Copiloto" }), h("span", { text: "Respuesta generada por IA" }));
+}
+
+function pintarRespuesta(nodo, d, msNavegador) {
+  const { apertura, cuerpo, foto } = analizar(d.respuesta);
+  let clave = veredicto(d, apertura);
+  const respaldadas = new Set((d.fichas_citadas || []).map((x) => x.toUpperCase()));
+  const contenido = [];
+  let sinRespaldo = 0;
+  let citas = 0;
+
+  if (d.estado === "respuesta_generada" && cuerpo) {
+    const ext = extraerFichas(cuerpo);
+    if (ext) {
+      citas = ext.fichas.length;
+      sinRespaldo = ext.fichas.filter((f) => !respaldadas.has(f.id)).length;
+      contenido.push(h("ul", { class: "fichas", "aria-label": "Fichas que citó" }, ext.fichas.map((f) =>
+        h("li", { class: "ficha" },
+          h("div", { class: "f-txt" },
+            h("p", { class: "f-nombre", text: f.nombre }),
+            f.campos.length ? h("p", { class: "f-det" }, f.campos.map(([k, val]) =>
+              h("span", { class: "par" }, k ? h("span", { class: "k", text: `${mayuscula(k)} ` }) : null, val))) : null),
+          chipId(f.id, respaldadas.has(f.id))))));
+      if (ext.resto) contenido.push(textoConCitas(ext.resto, respaldadas));
+    } else {
+      const ids = [...new Set([...cuerpo.matchAll(CITA)].map((m) => m[1].toUpperCase()))];
+      citas = ids.length;
+      sinRespaldo = ids.filter((id) => !respaldadas.has(id)).length;
+      contenido.push(textoConCitas(cuerpo, respaldadas));
+    }
   }
 
-  const cuerpo = { pregunta };
-  if (fotoBase64) { cuerpo.foto_base64 = fotoBase64; }
+  // Un «Lo tiene» que la búsqueda no respalda no se pinta en verde: el veredicto baja con la evidencia.
+  const afirma = clave === "si" || clave === "parecido";
+  if (afirma && citas === 0) clave = "sinCitas";
+  else if (afirma && sinRespaldo === citas) clave = "sinRespaldo";
+  const v = VEREDICTOS[clave];
 
-  $("enviar").disabled = true;
-  $("estado-carga").style.display = "block";
+  const avisos = [];
+  if (sinRespaldo && clave !== "sinRespaldo") {
+    avisos.push(h("p", { class: "aviso bad" }, icono("alerta", 16),
+      h("span", { text: sinRespaldo === 1
+        ? "Una referencia no estaba entre las fichas que encontró la búsqueda. Puede ser inventada: no la tomes como cierta."
+        : `${sinRespaldo} referencias no estaban entre las fichas que encontró la búsqueda. Pueden ser inventadas: no las tomes como ciertas.` })));
+  }
+
+  nodo.replaceChildren(...[
+    autor(),
+    h("div", { class: "veredicto" },
+      h("span", { class: `chip-v ${v.tono}` }, icono(v.icono, 16), v.titulo),
+      h("p", { class: "v-nota", text: v.nota })),
+    ...contenido,
+    ...avisos,
+    foto && h("p", { class: "vio" }, icono("imagen", 16),
+      h("span", {}, h("b", { text: "En tu foto vio: " }), `${foto}. Si no es lo que hay en la foto, la respuesta tampoco lo será.`)),
+    foto && h("p", { class: "nota-cat", text: "Las fichas son del catálogo histórico de Amazon España (ESCI), no del inventario de una tienda." }),
+    traza(d, msNavegador),
+  ].filter(Boolean));
+  nodo.removeAttribute("aria-busy");
+  nodo.classList.add("lista");
+  return `${v.titulo}. ${citas ? `${citas} ${citas === 1 ? "ficha citada" : "fichas citadas"}.` : ""}`;
+}
+
+// ---------- Esperando ----------
+function pintarEspera(nodo, conFoto, alCancelar) {
+  const t = h("span", { class: "t mono", text: segundos(0) });
+  const larga = h("p", { class: "espera-larga", hidden: true,
+    text: "Tarda más de lo normal. Si el servidor estaba apagado, el primer arranque toma unos minutos." });
+  nodo.setAttribute("aria-busy", "true");
+  nodo.classList.remove("lista");
+  nodo.replaceChildren(
+    autor(),
+    h("div", { class: "sk sk-chip", "aria-hidden": "true" }),
+    h("div", { class: "sk-fichas", "aria-hidden": "true" },
+      [0, 1, 2].map(() => h("div", { class: "sk-fila" }, h("div", { class: "sk" }), h("div", { class: "sk" })))),
+    h("p", { class: "espera" },
+      h("span", { class: "dd-cargando--linea", "aria-hidden": "true" }, h("i"), h("i"), h("i")),
+      h("span", { text: conFoto ? "Mirando la foto y buscando en el catálogo…" : "Buscando en el catálogo…" }),
+      t,
+      h("button", { type: "button", class: "btn ghost", onclick: alCancelar, text: "Cancelar" })),
+    larga);
   const t0 = performance.now();
+  const reloj = setInterval(() => {
+    const ms = performance.now() - t0;
+    t.textContent = segundos(ms);
+    if (ms > 15000) larga.hidden = false;
+  }, 100);
+  return () => clearInterval(reloj);
+}
 
+function pintarFallo(nodo, mensaje, alReintentar, textoBoton = "Reintentar") {
+  nodo.removeAttribute("aria-busy");
+  nodo.classList.add("lista");
+  nodo.replaceChildren(
+    autor(),
+    h("p", { class: "aviso bad" }, icono("alerta", 16), h("span", { text: mensaje })),
+    h("button", { type: "button", class: "btn reintentar", onclick: alReintentar }, icono("reiniciar", 16), textoBoton));
+}
+
+// ---------- Fotos ----------
+// El lector de fotos (Qwen2-VL, vision.py) trabaja con 0,8 MP como máximo; reducir a 1600 px de lado antes de enviar
+// no le quita detalle y deja la petición en cientos de KB en vez de varios MB.
+const LADO_MAX = 1600;
+function leerDataUrl(archivo) {
+  return new Promise((ok, mal) => {
+    const r = new FileReader();
+    r.onload = () => ok(r.result);
+    r.onerror = () => mal(r.error);
+    r.readAsDataURL(archivo);
+  });
+}
+async function prepararFoto(archivo) {
+  if (!archivo || !/^image\//.test(archivo.type)) throw new Error("Ese archivo no es una imagen.");
+  const nombre = archivo.name && archivo.name !== "image.png" ? archivo.name : "Foto pegada";
+  const url = URL.createObjectURL(archivo);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const escala = Math.min(1, LADO_MAX / Math.max(img.naturalWidth, img.naturalHeight));
+    const lienzo = document.createElement("canvas");
+    lienzo.width = Math.round(img.naturalWidth * escala);
+    lienzo.height = Math.round(img.naturalHeight * escala);
+    const ctx = lienzo.getContext("2d");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+    ctx.drawImage(img, 0, 0, lienzo.width, lienzo.height);
+    const dataUrl = lienzo.toDataURL("image/jpeg", 0.9);
+    return { base64: dataUrl.split(",")[1], vista: dataUrl, nombre };
+  } catch (e) {
+    // El navegador no sabe dibujarla (p. ej. HEIC fuera de Safari): se envía tal cual y el servicio decide.
+    const dataUrl = await leerDataUrl(archivo);
+    return { base64: dataUrl.split(",")[1], vista: dataUrl, nombre };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+// ---------- Compositor ----------
+const PREGUNTA_FOTO = "¿Tienen este producto?";
+const campo = $("#pregunta");
+const enviar = $("#enviar");
+let foto = null;
+let enCurso = null;
+let numTurno = 0;
+
+function ajustarAltura() {
+  campo.style.height = "auto";
+  campo.style.height = Math.min(campo.scrollHeight, 168) + "px";
+}
+campo.addEventListener("input", () => { ajustarAltura(); limpiarError(); });
+campo.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("#composer").requestSubmit(); }
+});
+
+function mostrarError(texto) {
+  const p = $("#composer-error");
+  p.replaceChildren(icono("alerta", 14), texto);
+  p.hidden = false;
+  $("#caja").classList.add("err");
+  campo.setAttribute("aria-invalid", "true");
+  campo.setAttribute("aria-describedby", "composer-error composer-nota");
+}
+function limpiarError() {
+  $("#composer-error").hidden = true;
+  $("#caja").classList.remove("err");
+  campo.removeAttribute("aria-invalid");
+  campo.setAttribute("aria-describedby", "composer-nota");
+}
+
+async function adjuntar(archivo) {
+  try {
+    foto = await prepararFoto(archivo);
+  } catch (e) {
+    mostrarError(e.message || "No se pudo leer la foto.");
+    return;
+  }
+  limpiarError();
+  $("#adj-img").src = foto.vista;
+  $("#adj-n").textContent = foto.nombre;
+  $("#adjunto").hidden = false;
+  campo.placeholder = PREGUNTA_FOTO;
+  campo.focus();
+}
+function quitarFoto() {
+  foto = null;
+  $("#foto").value = "";
+  $("#adjunto").hidden = true;
+  $("#adj-img").removeAttribute("src");
+  campo.placeholder = "Ej.: ¿Tienen el Xiaomi Redmi Note 7 negro?";
+}
+$("#elegir-foto").addEventListener("click", () => $("#foto").click());
+$("#foto").addEventListener("change", () => { if ($("#foto").files[0]) adjuntar($("#foto").files[0]); });
+$("#quitar-foto").addEventListener("click", () => { quitarFoto(); campo.focus(); });
+campo.addEventListener("paste", (e) => {
+  const img = [...(e.clipboardData?.files || [])].find((f) => /^image\//.test(f.type));
+  if (img) { e.preventDefault(); adjuntar(img); }
+});
+
+// Soltar una foto en cualquier parte de la conversación.
+const hoja = $("#hoja");
+let arrastres = 0;
+const traeArchivos = (e) => [...(e.dataTransfer?.types || [])].includes("Files");
+hoja.addEventListener("dragenter", (e) => { if (!traeArchivos(e)) return; e.preventDefault(); arrastres++; $("#soltar").hidden = false; });
+hoja.addEventListener("dragover", (e) => { if (traeArchivos(e)) e.preventDefault(); });
+hoja.addEventListener("dragleave", () => { arrastres = Math.max(0, arrastres - 1); if (!arrastres) $("#soltar").hidden = true; });
+hoja.addEventListener("drop", (e) => {
+  if (!traeArchivos(e)) return;
+  e.preventDefault();
+  arrastres = 0;
+  $("#soltar").hidden = true;
+  const img = [...e.dataTransfer.files].find((f) => /^image\//.test(f.type));
+  if (img) adjuntar(img); else mostrarError("Ese archivo no es una imagen.");
+});
+
+function ocupado(si) {
+  enviar.disabled = si;
+  if (si) {
+    enviar.setAttribute("aria-busy", "true");
+    enviar.replaceChildren(h("span", { class: "dd-cargando--linea", "aria-hidden": "true" }, h("i"), h("i"), h("i")), "Buscando…");
+  } else {
+    enviar.removeAttribute("aria-busy");
+    enviar.replaceChildren("Preguntar");
+  }
+}
+
+function anunciar(texto) {
+  const a = $("#anuncio");
+  a.textContent = "";
+  requestAnimationFrame(() => { a.textContent = texto; });
+}
+
+async function ejecutar(nodo, cuerpo) {
+  const ctrl = new AbortController();
+  enCurso = ctrl;
+  ocupado(true);
+  const parar = pintarEspera(nodo, Boolean(cuerpo.foto_base64), () => ctrl.abort());
+  const t0 = performance.now();
   try {
     const resp = await fetch("/preguntar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(cuerpo),
+      signal: ctrl.signal,
     });
-    const datos = await resp.json();
-    if (!resp.ok) {
-      throw new Error(datos.detail ? JSON.stringify(datos.detail) : `Error ${resp.status}`);
+    let datos = null;
+    try { datos = await resp.json(); } catch (e) {}
+    if (!resp.ok || !datos || typeof datos.respuesta !== "string") {
+      const det = datos && datos.detail ? (typeof datos.detail === "string" ? datos.detail : JSON.stringify(datos.detail)) : "";
+      throw Object.assign(new Error(`El servicio rechazó la pregunta (error ${resp.status}).${det ? ` ${det}.` : ""} Reformula la pregunta o prueba con otra foto.`), { http: true });
     }
-    const segundos = ((performance.now() - t0) / 1000).toFixed(1);
-
-    const tipoApertura = leerApertura(datos.respuesta);
-    $("apertura-etiqueta").textContent = APERTURA_TEXTO[tipoApertura];
-    $("apertura-etiqueta").className = "apertura " + tipoApertura;
-    $("respuesta-texto").textContent = datos.respuesta;
-
-    const partes = [`Estado: ${datos.estado}`, `${segundos} s`];
-    if (datos.fichas_citadas && datos.fichas_citadas.length) {
-      partes.push(`Fichas citadas: ${datos.fichas_citadas.join(", ")}`);
-    }
-    $("meta-info").textContent = partes.join(" · ");
-    $("resultado").style.display = "block";
+    parar();
+    anunciar("Respuesta lista: " + pintarRespuesta(nodo, datos, performance.now() - t0));
   } catch (e) {
-    $("error-caja").textContent = "Algo falló: " + e.message;
-    $("error-caja").style.display = "block";
+    parar();
+    if (e.name === "AbortError") {
+      pintarFallo(nodo, "Cancelaste esta pregunta. El servidor pudo terminarla igual, pero aquí no se muestra.", () => ejecutar(nodo, cuerpo), "Volver a preguntar");
+      anunciar("Pregunta cancelada.");
+    } else {
+      const msg = e.http ? e.message : "No llegó respuesta del servicio. Revisa tu conexión o si el servidor está encendido.";
+      pintarFallo(nodo, msg, () => ejecutar(nodo, cuerpo));
+      anunciar("No se pudo responder.");
+      if (!e.http) revisarSalud();
+    }
   } finally {
-    $("enviar").disabled = false;
-    $("estado-carga").style.display = "none";
+    if (enCurso === ctrl) { enCurso = null; ocupado(false); }
   }
+  // Lo justo para ver la respuesta entera; si es más alta que la vista, desde su inicio.
+  if (nodo.isConnected) nodo.closest(".turno").scrollIntoView({ block: "nearest", behavior: reducirMovimiento.matches ? "auto" : "smooth" });
+}
+
+function preguntar(texto) {
+  const pregunta = texto.trim() || (foto ? PREGUNTA_FOTO : "");
+  if (!pregunta) { mostrarError("Escribe una pregunta o adjunta una foto."); campo.focus(); return; }
+  if (enCurso) return;
+  limpiarError();
+  guardado = null;
+  $("#deshecho").hidden = true;
+  $("#inicio").hidden = true;
+  $("#hilo-cab").hidden = false;
+  numTurno++;
+
+  const cuerpo = { pregunta };
+  const burbuja = h("div", { class: "burbuja" });
+  if (foto) {
+    cuerpo.foto_base64 = foto.base64;
+    burbuja.append(h("img", { src: foto.vista, alt: "Tu foto", width: 96, height: 96 }));
+  }
+  burbuja.append(h("p", { text: pregunta }));
+  const resp = h("div", { class: "resp" });
+  const turno = h("article", { class: "turno", "aria-label": `Pregunta ${numTurno}` },
+    h("div", { class: "yo" }, burbuja), resp);
+  $("#turnos").append(turno);
+
+  campo.value = "";
+  ajustarAltura();
+  quitarFoto();
+  if (matchMedia("(pointer: coarse)").matches) campo.blur();
+  turno.scrollIntoView({ block: "start", behavior: reducirMovimiento.matches ? "auto" : "smooth" });
+  ejecutar(resp, cuerpo);
+}
+
+$("#composer").addEventListener("submit", (e) => { e.preventDefault(); preguntar(campo.value); });
+
+// Un ejemplo se pregunta de una vez; con una foto adjunta solo llena la caja, para no mezclar la foto con otra pregunta.
+document.querySelectorAll(".ejemplo").forEach((b) => b.addEventListener("click", () => {
+  if (foto) { campo.value = b.dataset.q; ajustarAltura(); campo.focus(); return; }
+  preguntar(b.dataset.q);
+}));
+
+// Empezar de nuevo se puede deshacer hasta la siguiente pregunta (UX-1: deshacer en vez de confirmar).
+let guardado = null;
+$("#reiniciar").addEventListener("click", () => {
+  if (enCurso) enCurso.abort();
+  guardado = { nodos: [...$("#turnos").children], num: numTurno };
+  $("#turnos").replaceChildren();
+  numTurno = 0;
+  $("#hilo-cab").hidden = true;
+  $("#inicio").hidden = false;
+  $("#deshecho").hidden = false;
+  $("#hilo-scroll").scrollTop = 0;
+  campo.focus();
+});
+$("#deshacer").addEventListener("click", () => {
+  if (!guardado) return;
+  $("#turnos").replaceChildren(...guardado.nodos);
+  numTurno = guardado.num;
+  guardado = null;
+  $("#deshecho").hidden = true;
+  $("#inicio").hidden = true;
+  $("#hilo-cab").hidden = false;
+  campo.focus();
 });
 
-$("pregunta").addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { $("enviar").click(); }
+$(".saltar").addEventListener("click", (e) => { e.preventDefault(); campo.focus(); });
+
+// «/» lleva a la caja de pregunta desde cualquier parte.
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+  const t = e.target;
+  if (t.closest && t.closest("input, textarea, [contenteditable]")) return;
+  e.preventDefault();
+  campo.focus();
 });
+
+// ---------- Guía en pantallas angostas: el mismo contenido, movido a una hoja inferior ----------
+const dlg = $("#dlg-guia");
+$("#abrir-guia").addEventListener("click", () => {
+  $("#dlg-slot").append($("#guia-in"));
+  dlg.showModal();
+});
+$("#cerrar-guia").addEventListener("click", () => dlg.close());
+dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+dlg.addEventListener("close", () => { $("#guia").append($("#guia-in")); $("#abrir-guia").focus(); });
 </script>
 </body>
 </html>
