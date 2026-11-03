@@ -181,6 +181,7 @@ demo para probarlo desde el navegador, §5.2):
 | `project/servicio/Dockerfile`, `.dockerignore` | imagen de 4,57 GB; `indices/` y `datos/esci/` no viajan en ella (§9, riesgo 5) |
 | `project/bootstrap/` | estado remoto de Terraform + usuario IAM dedicado (se corre una vez) |
 | `project/infra/` | EC2 con GPU, ECR, IAM de la instancia, secretos, presupuesto — contrato en §5.4 |
+| `project/infra/redesplegar.sh` | redespliegue por SSM en un comando: la instancia construye el commit indicado, lo sube con un tag nuevo y reinicia (ADR-11, riesgo 11) |
 
 ---
 

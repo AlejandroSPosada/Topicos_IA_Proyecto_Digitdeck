@@ -67,6 +67,25 @@ cada instancia. Primer deploy, por SSM (`terraform output ssm_session_command`):
 
 Mientras esa carpeta esté vacía, `GET /salud` responde `indice_listo: false`.
 
+## Redesplegar un cambio de código
+
+[`redesplegar.sh`](redesplegar.sh) repite en un comando lo que se hizo a mano el 2026-11-02
+(`../../docs/ARCHITECTURE.md` §9, ADR-11 y riesgo 11). Por `ssm send-command`, la instancia baja el
+commit desde GitHub, construye la imagen, la sube a ECR con un **tag nuevo** y reinicia el
+contenedor con los mismos flags que `user_data.sh.tpl`. Después espera a que `GET /salud` responda
+`ok`, lo que tarda unos minutos mientras se cargan los cuatro modelos.
+
+```bash
+# el commit tiene que estar en GitHub; el tag no puede existir (los tags de ECR son inmutables)
+bash redesplegar.sh "$(git rev-parse HEAD)" 2026-11-02-frontend-ventanal
+# volver a una imagen que ya está en ECR
+bash redesplegar.sh --tag 2026-11-02-frontend
+```
+
+Usa el perfil `digitdeck` (o el de `AWS_PROFILE`). En AWS CloudShell, con la consola abierta en la
+cuenta del proyecto, se corre con `AWS_PROFILE= bash redesplegar.sh …`. Si la construcción falla, el
+contenedor anterior sigue corriendo: solo se reemplaza cuando la imagen nueva ya está en ECR.
+
 ## Por qué VPC por defecto y sin SSH
 
 Es una sola instancia pública sin backend privado: no hay NAT Gateway que pagar ni subredes
