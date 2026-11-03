@@ -34,9 +34,19 @@ verificación (Fases 1-5) ya está cerrado (detalle y porqué en `ARCHITECTURE.m
 - A pedido del usuario se agregó una **página de demo en `GET /`** (`http://54.173.61.242:8000/`),
   para probar el servicio desde cualquier navegador sin armar JSON a mano, y se corrigió el mismo
   bug que encontró el agente de reproducibilidad: `foto_base64` inválida ahora da 422 claro, no un
-  500 genérico. Al redesplegar se descubrió que ECR tiene **tags inmutables**: la instancia corre
-  hoy el tag `2026-11-02-frontend`, no `:latest` (`ARCHITECTURE.md` §9, riesgo 11) — importante
-  para el próximo cambio de código.
+  500 genérico. Al redesplegar se descubrió que ECR tiene **tags inmutables**: cada redespliegue
+  necesita un tag nuevo, no `:latest` (`ARCHITECTURE.md` §9, riesgo 11).
+- Probando la demo en vivo, el usuario encontró y documentó dos fallas reales no curadas: una
+  afirmación falsa por mezclar foto y texto sin relación, y el generador citando productos con IDs
+  inventados (copiados del propio ejemplo del prompt) — ambas en `INFORME_M5.md` §5/§6 y
+  `ARCHITECTURE.md` §9, riesgos 12 y 13.
+- Un compañero del equipo (rama `feat/frontend-ventanal`, PR #1, mergeada el 2026-11-02) rediseñó
+  el frontend: veredicto claro por caso, cada ficha citada enlaza a Amazon.es (verificación externa
+  de las citas — responde directamente al hallazgo de la alucinación), y traza colapsable de cómo
+  llegó a la respuesta. Trajo también `project/infra/redesplegar.sh`, que automatiza
+  build+push+reinicio desde un commit de GitHub (reemplaza el empaquetado manual que se hacía antes
+  por `ssm send-command`). Desplegado con el tag `2026-11-02-frontend-ventanal`, verificado en el
+  navegador — funciona.
 
 **Nota operativa para quien retome esto:** para entrar a la WSL desde el Bash tool de Windows,
 `MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL="*" wsl -u root -d Ubuntu-26.04 -- bash -lc "..."` (si no,

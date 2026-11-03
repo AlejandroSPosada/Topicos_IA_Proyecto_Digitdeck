@@ -327,7 +327,7 @@ inferencia completa — es el "health check que responde" de la rúbrica de M5.
 | IP elástica | `54.173.61.242` → `http://54.173.61.242:8000` | idem |
 | Security group | `digitdeck-dev-ec2` (`sg-0edbc8f4579579da4`) — solo el puerto 8000, nada de SSH | `project/infra/security.tf` |
 | Rol/perfil de la instancia | `digitdeck-dev-ec2` — SSM, CloudWatch Logs, pull **y push** de ECR (§9 ADR-14), lectura de `/digitdeck/*` en SSM | `project/infra/iam.tf` |
-| Repositorio de imágenes | `digitdeck/app`, imágenes subidas **desde la propia instancia**, no en local (§9 ADR-12). Tags inmutables (§9 riesgo 11): la instancia corre hoy el tag `2026-11-02-frontend`, no `:latest` — `:latest` quedó congelado en la versión sin el frontend/sin el fix 422, y `user_data.sh.tpl`/Terraform siguen apuntando a `:latest` por defecto | `project/infra/ecr.tf` |
+| Repositorio de imágenes | `digitdeck/app`, imágenes subidas **desde la propia instancia**, no en local (§9 ADR-12). Tags inmutables (§9 riesgo 11): la instancia corre hoy el tag `2026-11-02-frontend-ventanal` (rediseño del frontend, `project/infra/redesplegar.sh`), no `:latest` — `:latest` quedó congelado en la versión original, y `user_data.sh.tpl`/Terraform siguen apuntando a `:latest` por defecto | `project/infra/ecr.tf` |
 | Presupuesto | `digitdeck-mensual`, 40 USD/mes (ajustable), filtrado por la etiqueta `Project=digitdeck` | `project/infra/budget.tf` |
 | Índice del catálogo | en `/data/digitdeck/indices` de la instancia (montado como volumen, no en la imagen), construido ahí mismo con GPU en 56 s | `project/infra/user_data.sh.tpl` |
 
@@ -507,6 +507,13 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
    WSL: `git status` desde WSL marca como modificados casi todos los notebooks y CSV de M1-M4 sin
    que nadie los haya tocado. Un `git add -A` hecho sin mirar desde WSL reescribiría esos archivos.
    No es un problema de M5, pero cualquiera que trabaje desde WSL en este repo debería saberlo.
+   **Se manifestó en concreto el 2026-11-02**: `project/infra/redesplegar.sh` quedó con CRLF al
+   vivir en el drive `G:` de Windows, y `bash redesplegar.sh` fallaba en WSL con
+   `set: pipefail: invalid option name` (la `\r` se cuela como parte de la última palabra de la
+   línea). Arreglo de una sola vez, sin tocar el contenido: `python3 -c "d=open(p,'rb').read();
+   open(p,'wb').write(d.replace(b'\r\n', b'\n'))"` — no se commiteó porque `core.autocrlf` del repo
+   lo vuelve a poner en CRLF en el próximo checkout; hay que repetirlo cada vez que se reclona o se
+   hace `git stash`/`checkout` sobre este archivo antes de correrlo desde WSL.
 5. **El índice del catálogo (BM25 + Chroma) no está persistido en ningún lado.** Hoy cada notebook
    lo reconstruye desde los parquet de ESCI. Si M5.e no se hace antes de M5.f, cada arranque del
    contenedor tarda minutos en estar listo.
@@ -570,8 +577,10 @@ fuente de verdad de cómo correrlos — `../../M1/README.md`, `../../M2/INFORME_
 11. **El repositorio ECR tiene tags inmutables** (`digitdeck/app`) — descubierto el 2026-11-02 al
     intentar re-publicar `:latest` con el frontend nuevo: `error from registry: The image tag
     'latest' already exists ... and cannot be overwritten because the tag is immutable`. Cada
-    redespliegue de código necesita un **tag nuevo** (se usó `2026-11-02-frontend`), no re-usar
-    `:latest`. `project/infra/variables.tf` sigue con `image_tag` por defecto en `"latest"` para el
+    redespliegue de código necesita un **tag nuevo** (se usó `2026-11-02-frontend`, y luego
+    `2026-11-02-frontend-ventanal` para el rediseño), no re-usar `:latest`. Para esto último ya
+    existe `project/infra/redesplegar.sh`, que automatiza build+push+reinicio desde un commit de
+    GitHub. `project/infra/variables.tf` sigue con `image_tag` por defecto en `"latest"` para el
     arranque automático de una instancia nueva (`user_data.sh.tpl`), así que si se reemplaza la
     instancia desde cero con `terraform apply`, va a buscar `:latest`, que ya quedó desactualizado
     frente a los tags nuevos — pendiente decidir si se vuelve mutable el repo o se actualiza
